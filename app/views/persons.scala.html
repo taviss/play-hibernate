@@ -1,0 +1,8 @@
+@(personList: List[Person])
+
+@for(person <- personList){
+<div class="person-list">
+    <h2>@person.name</h2>
+    <p>@person.age</p>
+</div>
+}
