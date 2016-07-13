@@ -20,7 +20,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
-  "org.apache.commons" % "commons-lang3" % "3.4"
+  "org.apache.commons" % "commons-lang3" % "3.4",
+  "org.projectlombok" % "lombok" % "1.16.8"
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the
