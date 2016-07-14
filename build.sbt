@@ -15,13 +15,14 @@ libraryDependencies ++= Seq(
   // If you enable PlayEbean plugin you must remove these
   // JPA dependencies to avoid conflicts.
   javaJpa,
-  "org.hibernate" % "hibernate-entitymanager" % "4.3.10.Final",
+  "org.hibernate" % "hibernate-entitymanager" % "5.2.1.Final",
   "mysql" % "mysql-connector-java" % "5.1.36",
   cache,
   javaWs,
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
   "org.apache.commons" % "commons-lang3" % "3.4",
-  "org.projectlombok" % "lombok" % "1.16.8"
+  "org.projectlombok" % "lombok" % "1.16.8",
+  "dom4j" % "dom4j" % "1.6"
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the
