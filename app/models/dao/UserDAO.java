@@ -36,7 +36,9 @@ public class UserDAO {
     public User create(User user) {
         user.setId(null);
         user.setStatus("Abc");
+        em.getTransaction().begin();
         em.persist(user);
+        em.getTransaction().commit();
         return user;
     }
 
