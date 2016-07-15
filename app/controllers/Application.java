@@ -13,6 +13,4 @@ public class Application extends Controller {
         return ok(index.render("MainTest", "Test"));
     }
 
-
-
 }

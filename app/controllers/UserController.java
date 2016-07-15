@@ -12,6 +12,10 @@ import views.html.user;
  * Created by octavian.salcianu on 7/11/2016.
  */
 public class UserController extends Controller {
+    /**
+     * Creates a new user and displays the newly generated id in a blank page
+     * @return
+     */
     @Transactional(readOnly = true)
     public Result createUser() {
         UserDAO ud = new UserDAO();
@@ -22,6 +26,10 @@ public class UserController extends Controller {
         return ok(user.render(x.getId()));
     }
 
+    /**
+     * Gets the user with specific id from the database
+     * @return
+     */
     @Transactional(readOnly = true)
     public Result getUser() {
         UserDAO ud = new UserDAO();
