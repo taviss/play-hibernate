@@ -1,11 +1,15 @@
 package models.dao;
 
 import models.User;
+import org.h2.api.Trigger;
 import play.db.jpa.JPA;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -48,5 +52,15 @@ public class UserDAO {
      */
     public User get(Long id) {
         return this.em.find(User.class, id);
+    }
+
+    public User getUserName(String userName) {
+        CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+
+        criteriaQuery.select(root);
+        Predicate userNameP = this.criteriaBuilder.equal(root.get("userName"), userName);
+
+        //TBA
     }
 }
