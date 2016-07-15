@@ -36,4 +36,8 @@ public class UserController extends Controller {
         User x = ud.get(1L);
         return ok(user.render(x.getUserId()));
     }
+
+    /**
+     * Start indexing w/ threads?
+     */
 }
