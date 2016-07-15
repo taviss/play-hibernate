@@ -24,10 +24,11 @@ DROP TABLE IF EXISTS `accounts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `accounts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `u_status` varchar(255) NOT NULL,
-  `u_id` bigint(20) NOT NULL,
+  `u_name` varchar(64) DEFAULT NULL,
+  `u_pass` varchar(256) DEFAULT NULL,
+  `u_admin` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,7 +37,7 @@ CREATE TABLE `accounts` (
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES (1,'test',22),(2,'test',15),(3,'Abc',5);
+INSERT INTO `accounts` VALUES (1,'Abc','test',1),(2,'Abc','test',1);
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -49,7 +50,9 @@ DROP TABLE IF EXISTS `links`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `links` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `link_address` varchar(128) DEFAULT NULL,
   `site_id` bigint(20) DEFAULT NULL,
+  `product_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKlyvmh3w8439yc7ffllinlwfsa` (`site_id`),
   CONSTRAINT `FKlyvmh3w8439yc7ffllinlwfsa` FOREIGN KEY (`site_id`) REFERENCES `websites` (`id`)
@@ -144,4 +147,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-07-15  9:36:17
+-- Dump completed on 2016-07-15 11:43:49
