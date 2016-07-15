@@ -20,10 +20,11 @@ public class UserController extends Controller {
     public Result createUser() {
         UserDAO ud = new UserDAO();
         User x = new User();
-        x.setStatus("Testare");
-        x.setUserId(5L);
+        x.setUserName("Abc");
+        x.setUserPass("test");
+        x.setIsAdmin(true);
         x = ud.create(x);
-        return ok(user.render(x.getId()));
+        return ok(user.render(x.getId().toString()));
     }
 
     /**
@@ -34,7 +35,7 @@ public class UserController extends Controller {
     public Result getUser() {
         UserDAO ud = new UserDAO();
         User x = ud.get(1L);
-        return ok(user.render(x.getUserId()));
+        return ok(user.render(x.getUserName()));
     }
 
     /**
