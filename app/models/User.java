@@ -27,5 +27,5 @@ public class User {
     private String userPass;
 
     @Column(name = "u_admin", nullable = false)
-    private Boolean isAdmin;
+    private int adminLevel;
 }

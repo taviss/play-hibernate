@@ -26,7 +26,7 @@ CREATE TABLE `accounts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `u_name` varchar(64) DEFAULT NULL,
   `u_pass` varchar(256) DEFAULT NULL,
-  `u_admin` tinyint(1) DEFAULT NULL,
+  `u_admin` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -42,13 +42,40 @@ INSERT INTO `accounts` VALUES (1,'testing','test',1),(2,'Abc','test',1),(3,'Abc'
 UNLOCK TABLES;
 
 --
--- Table structure for table `links`
+-- Table structure for table `prices`
 --
 
-DROP TABLE IF EXISTS `links`;
+DROP TABLE IF EXISTS `prices`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `links` (
+CREATE TABLE `prices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` bigint(20) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `input_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id_idx` (`product_id`),
+  CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `prices`
+--
+
+LOCK TABLES `prices` WRITE;
+/*!40000 ALTER TABLE `prices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `link_address` varchar(128) DEFAULT NULL,
   `site_id` bigint(20) DEFAULT NULL,
@@ -60,59 +87,38 @@ CREATE TABLE `links` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `links`
+-- Dumping data for table `products`
 --
 
-LOCK TABLES `links` WRITE;
-/*!40000 ALTER TABLE `links` DISABLE KEYS */;
-/*!40000 ALTER TABLE `links` ENABLE KEYS */;
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `sites`
+-- Table structure for table `search_history`
 --
 
-DROP TABLE IF EXISTS `sites`;
+DROP TABLE IF EXISTS `search_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sites` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `s_url` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+CREATE TABLE `search_history` (
+  `id` bigint(20) NOT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
+  `date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id_idx` (`product_id`),
+  CONSTRAINT `product_id_sh` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `sites`
+-- Dumping data for table `search_history`
 --
 
-LOCK TABLES `sites` WRITE;
-/*!40000 ALTER TABLE `sites` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sites` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `u_status` varchar(255) NOT NULL,
-  `u_id` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `search_history` WRITE;
+/*!40000 ALTER TABLE `search_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `search_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -125,6 +131,7 @@ DROP TABLE IF EXISTS `websites`;
 CREATE TABLE `websites` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `s_url` varchar(255) NOT NULL,
+  `keyword` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -147,4 +154,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-07-15 14:43:28
+-- Dump completed on 2016-07-15 15:59:34
