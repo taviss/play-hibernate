@@ -17,6 +17,12 @@ public class Link {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "link_address", nullable = false)
+    private String linkAddress;
+
+    @Column(name = "product_name", nullable = false)
+    private String prodName;
+
     /**
      * Multiple links @ one site
      * TBE

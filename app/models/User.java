@@ -20,9 +20,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "u_id", nullable = false)
-    private Long userId;
+    @Column(name = "u_name", nullable = false)
+    private String userName;
 
-    @Column(name = "u_status", nullable = false)
-    private String status;
+    @Column(name = "u_pass", nullable = false)
+    private String userPass;
+
+    @Column(name = "u_admin", nullable = false)
+    private Boolean isAdmin;
 }
