@@ -20,6 +20,9 @@ public class Site {
     @Column(name = "s_url", nullable = false)
     private String siteURL;
 
+    @Column(name = "keyword", nullable = false)
+    private String siteKeyword;
+
     /**
      * TBA: Site parsing rules
      */

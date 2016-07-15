@@ -10,8 +10,8 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "links")
-public class Link {
+@Table(name = "products")
+public class Product {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

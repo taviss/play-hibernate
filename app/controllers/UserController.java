@@ -22,7 +22,7 @@ public class UserController extends Controller {
         User x = new User();
         x.setUserName("Abc");
         x.setUserPass("test");
-        x.setIsAdmin(true);
+        x.setAdminLevel(3);
         x = ud.create(x);
         return ok(user.render(x.getId().toString()));
     }
