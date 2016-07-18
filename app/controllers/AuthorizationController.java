@@ -5,6 +5,7 @@ import models.User;
 import models.dao.UserDAO;
 import play.data.Form;
 import play.data.validation.ValidationError;
+import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Result;
 
@@ -33,20 +34,22 @@ public class AuthorizationController {
      * Attempts to login the user and returns ok if succes and badRequest if not
      * @return
      */
+    @Transactional(readOnly = true)
     public Result tryLogin() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
+        //Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
+        Form<User> form = Form.form(User.class).bindFromRequest();
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
         UserDAO ud = new UserDAO();
-        LoginForm data = form.get();
-        User foundUser = ud.getUserName(data.userName);
+        User loginUser = form.get();
+        User foundUser = ud.getUserName(loginUser.getUserName());
         String[] params = foundUser.getUserPass().split(">");
         int iterations = Integer.parseInt(params[0]);
         byte[] salt = fromHex(params[1]);
         byte[] hash = fromHex(params[2]);
-        byte[] testHash = pbkdf2(data.password.toCharArray(), salt, iterations, hash.length);
+        byte[] testHash = pbkdf2(loginUser.getUserPass().toCharArray(), salt, iterations, hash.length);
         if(slowEquals(hash, testHash)) {
             return ok("Logged in");
         } else {
@@ -55,9 +58,23 @@ public class AuthorizationController {
 
     }
 
+    @Transactional(readOnly = true)
     public Result registerUser() {
-        //TBA
-        return ok();
+        Form<User> form = Form.form(User.class).bindFromRequest();
+
+        if (form.hasErrors()) {
+            return badRequest("Invalid form");
+        }
+        UserDAO ud = new UserDAO();
+        User registerUser = form.get();
+        User foundUser = ud.getUserName(registerUser.getUserName());
+        if(foundUser != null) {
+            return badRequest("Username in use");
+        } else {
+            registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
+            ud.create(registerUser);
+        }
+        return ok("Success");
     }
 
     public static String hashPassword(final char[] password) {

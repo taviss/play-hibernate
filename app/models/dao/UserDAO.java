@@ -39,6 +39,7 @@ public class UserDAO {
      */
     public User create(User user) {
         user.setId(null);
+        user.setAdminLevel(0);
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
