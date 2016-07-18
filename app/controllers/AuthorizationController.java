@@ -38,7 +38,7 @@ public class AuthorizationController {
      * @return
      */
     @Transactional(readOnly = true)
-    public Result tryLogin() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public Result tryLogin() {
         //Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
         Form<User> form = Form.form(User.class).bindFromRequest();
 
@@ -63,6 +63,8 @@ public class AuthorizationController {
             }
         } catch (NullPointerException e) {
             return badRequest("User does not exist");
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            return badRequest("Internal error");
         }
 
     }
