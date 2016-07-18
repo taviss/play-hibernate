@@ -61,6 +61,16 @@ public class UserDAO {
         criteriaQuery.select(root);
         Predicate userNameP = this.criteriaBuilder.equal(root.get("userName"), userName);
 
+        criteriaQuery.where(userNameP);
+        Query query = this.em.createQuery(criteriaQuery);
+        @SuppressWarnings("unchecked")
+        List<User> foundUsers = (List<User>) query.getResultList();
+
+        if (foundUsers.isEmpty()) return null;
+        else if (foundUsers.size() == 1) return foundUsers.get(0);
+        //TBA: throw new exception
+        else return null;
+
         //TBA
     }
 }
