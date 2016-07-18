@@ -14,7 +14,10 @@ import play.mvc.Security;
 import views.html.index;
 import views.html.user;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by octavian.salcianu on 7/11/2016.
@@ -27,7 +30,8 @@ public class UserController extends Controller {
         //DynamicForm requestData = Form.form().bindFromRequest();
         //String productName = requestData.get("productName");
         ProductDAO pd = new ProductDAO();
-        List<Product> products = pd.findProductsByName(productName);
+        Set<Map.Entry<String,String[]>> queryString = request().queryString().entrySet();
+        List<Product> products = pd.findProductsByName(productName, queryString);
         if(products.isEmpty()) return notFound();
         else return ok(Json.toJson(products));
     }

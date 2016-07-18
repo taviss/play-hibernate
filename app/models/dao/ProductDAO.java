@@ -9,7 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -23,12 +23,25 @@ public class ProductDAO {
         this.criteriaBuilder = em.getCriteriaBuilder();
     }
 
-    public List<Product> findProductsByName(String productName) {
+    public List<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
         CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
         Root<Product> root = criteriaQuery.from(Product.class);
 
         criteriaQuery.select(root);
-        Predicate prodNameP = this.criteriaBuilder.like(root.get("prodName"), productName);
+        List<Predicate> predicates=new ArrayList<>();
+        for (Map.Entry<String,String[]> entry : queryString) {
+            String key = entry.getKey();
+            String value = Arrays.toString(entry.getValue());
+            /*
+            switch(key)
+            {
+                case "min-price": predicates.add(criteriaBuilder.greaterThan()
+            }*/
+
+            //TBA Price model + DAO + stuff
+        }
+
+        Predicate prodNameP = this.criteriaBuilder.like(root.get("prodName"), productName+"%");
 
         criteriaQuery.where(prodNameP);
         Query query = this.em.createQuery(criteriaQuery);
