@@ -1,6 +1,7 @@
 package models;
 
 import lombok.Data;
+import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,9 +22,11 @@ public class User {
     private Long id;
 
     @Column(name = "u_name", nullable = false)
+    @Constraints.MinLength(3)
     private String userName;
 
     @Column(name = "u_pass", nullable = false)
+    @Constraints.MinLength(6)
     private String userPass;
 
     @Column(name = "u_admin", nullable = false)
