@@ -25,13 +25,6 @@ public class UserDAO {
         this.criteriaBuilder = em.getCriteriaBuilder();
     }
 
-    public String testQuery() {
-        String hql = "SELECT COUNT(*) FROM User";
-        Query query = em.createQuery(hql);
-        Object x = query.getSingleResult();
-        return x.toString();
-    }
-
     /**
      * Adds the newly created user to the database(luckily) and returns the new user with the new "id" from db
      * @param user : User
@@ -55,6 +48,11 @@ public class UserDAO {
         return this.em.find(User.class, id);
     }
 
+    /**
+     * Returns the user with specific username or null if it doesn't exist
+     * @param userName
+     * @return
+     */
     public User getUserName(String userName) {
         CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
