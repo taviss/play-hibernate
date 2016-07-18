@@ -19,8 +19,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Map;
 
+import static play.mvc.Controller.flash;
+import static play.mvc.Controller.session;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.ok;
+import static play.mvc.Results.redirect;
 
 /**
  * Created by octavian.salcianu on 7/15/2016.
@@ -45,17 +48,29 @@ public class AuthorizationController {
         UserDAO ud = new UserDAO();
         User loginUser = form.get();
         User foundUser = ud.getUserName(loginUser.getUserName());
-        String[] params = foundUser.getUserPass().split(">");
-        int iterations = Integer.parseInt(params[0]);
-        byte[] salt = fromHex(params[1]);
-        byte[] hash = fromHex(params[2]);
-        byte[] testHash = pbkdf2(loginUser.getUserPass().toCharArray(), salt, iterations, hash.length);
-        if(slowEquals(hash, testHash)) {
-            return ok("Logged in");
-        } else {
-            return badRequest("Bad combination");
+        try {
+            String[] params = foundUser.getUserPass().split(">");
+            int iterations = Integer.parseInt(params[0]);
+            byte[] salt = fromHex(params[1]);
+            byte[] hash = fromHex(params[2]);
+            byte[] testHash = pbkdf2(loginUser.getUserPass().toCharArray(), salt, iterations, hash.length);
+            if (slowEquals(hash, testHash)) {
+                session().clear();
+                session("user", loginUser.getUserName());
+                return ok("Logged in");
+            } else {
+                return badRequest("Bad combination");
+            }
+        } catch (NullPointerException e) {
+            return badRequest("User does not exist");
         }
 
+    }
+
+    public Result logoutUser() {
+        session().clear();
+        //flash("success", "You've been logged out");
+        return redirect("/");
     }
 
     @Transactional(readOnly = true)

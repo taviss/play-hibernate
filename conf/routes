@@ -8,6 +8,7 @@ GET     /create                     @controllers.UserController.createUser()
 GET     /get                        @controllers.UserController.getUser()
 POST    /login/submit               @controllers.AuthorizationController.tryLogin()
 POST    /register/submit            @controllers.AuthorizationController.registerUser()
+GET     /logout                     @controllers.AuthorizationController.logoutUser()
 
 
 # Map static resources from the /public folder to the /assets URL path
