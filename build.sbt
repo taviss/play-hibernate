@@ -1,9 +1,9 @@
-import com.typesafe.sbt.packager.docker._
+//import com.typesafe.sbt.packager.docker._
 name := """play-hibernate"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava, JavaAppPackaging, DockerPlugin)
+lazy val root = (project in file(".")).enablePlugins(PlayJava, JavaAppPackaging/*, DockerPlugin*/)
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.
-routesGenerator := InjectedRoutesGenerator
+//routesGenerator := InjectedRoutesGenerator
 
 // --------------------
 // ------ DOCKER ------
@@ -35,7 +35,7 @@ routesGenerator := InjectedRoutesGenerator
 // build with activator docker:publishLocal
 
 // change to smaller base image
-dockerBaseImage := "frolvlad/alpine-oraclejdk8:latest"
+/*dockerBaseImage := "frolvlad/alpine-oraclejdk8:latest"
 dockerCommands := dockerCommands.value.flatMap {
   case cmd@Cmd("FROM", _) => List(cmd, Cmd("RUN", "apk update && apk add bash"))
   case other => List(other)
@@ -52,6 +52,7 @@ dockerExposedPorts in Docker := Seq(9000, 9443)
 //dockerUpdateLatest := true
 
 // run this with: docker run -p 9000:9000 <name>:<version>
+*/
 
 
 
