@@ -4,9 +4,12 @@
 
 # Home page
 GET     /                           @controllers.Application.index()
-GET     /create                     @controllers.UserController.createUser()
-GET     /get                        @controllers.UserController.getUser()
 GET		/site						@controllers.SiteController.addSite()
+=======
+POST    /login/submit               @controllers.AuthorizationController.tryLogin()
+POST    /register/submit            @controllers.AuthorizationController.registerUser()
+GET     /logout                     @controllers.AuthorizationController.logoutUser()
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               @controllers.Assets.versioned(path="/public", file: Asset)
