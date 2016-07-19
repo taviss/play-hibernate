@@ -6,10 +6,7 @@ import play.db.jpa.JPA;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 /**
@@ -34,8 +31,8 @@ public class SiteDAO {
         em.persist(site);
         return site;
     }
-	//No works!!!
-    public Site getSiteIDByKeyword(String keyword){
+
+    public Site getSiteByKeyword(String keyword){
 	    CriteriaQuery<Site> criteriaQuery = this.criteriaBuilder.createQuery(Site.class);
 	    Root<Site> root = criteriaQuery.from(Site.class);
 	    criteriaQuery.select(root);
@@ -47,6 +44,18 @@ public class SiteDAO {
 	    else if (sites.size() == 1) return sites.get(0);
 	    else return null;
     }
+
+	/*Delete site identified by its keyword(which should be unique).
+	* Transaction already active with em.getTransaction().begin();.
+	* */
+	public void delete(String keyword) {
+		Site s = getSiteByKeyword(keyword);
+		CriteriaDelete<Site> deleteQuery = criteriaBuilder.createCriteriaDelete(Site.class);
+		Root<Site> e = deleteQuery.from(Site.class);
+		deleteQuery.where(this.criteriaBuilder.equal(e.get("siteKeyword"), keyword));
+		Query finalQuery = this.em.createQuery(deleteQuery);
+		finalQuery.executeUpdate();
+	}
 
     /**
      * TBA: More stuff here

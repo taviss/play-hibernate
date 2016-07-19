@@ -7,7 +7,9 @@ import models.Site;
 import models.dao.SiteDAO;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
-import views.html.site;
+import views.html.siteAdd;
+import views.html.siteRemove;
+import controllers.Secured;
 
 
 /**
@@ -21,21 +23,25 @@ public class SiteController extends Controller {
 		/*adminLevel 3 means...for now...this user has enough privileges to add websites to the database.
 		* Using random values for testing purpose.*/
 		if(Secured.getAdminLevel() != 3){
-			return ok(site.render(null, "Thou art not admin!"));
+			return ok(siteAdd.render(null, "Thou art not admin!"));
 		}
 		SiteDAO sd = new SiteDAO();
 		Site s = new Site();
 		s.setSiteURL("emag.ro/test");
 		s.setSiteKeyword("emag");
 		s = sd.create(s);
-		return ok(site.render(s.getSiteURL(), "Thou art admin!"));
+		return ok(siteAdd.render(s.getSiteURL(), "Thou art admin!"));
 	}
 
+	@Security.Authenticated(Secured.class)
+	@Transactional
 	public Result removeSite(){
+		SiteDAO sd = new SiteDAO();
 		if(Secured.getAdminLevel() != 3){
-			return ok(site.render(null, "Thou art not admin!"));
+			return ok(siteRemove.render(null, "Thou art not admin!"));
 		} else{
-			return ok(site.render(null, "lalalalllla"));
+			sd.delete("keyword");
+			return ok(siteRemove.render(null, "Deleted"));
 		}
 	}
 }
