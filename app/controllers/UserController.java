@@ -1,9 +1,7 @@
 package controllers;
 
 import models.Product;
-import models.User;
 import models.dao.ProductDAO;
-import models.dao.UserDAO;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -11,10 +9,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import views.html.index;
-import views.html.user;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

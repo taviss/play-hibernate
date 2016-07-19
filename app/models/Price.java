@@ -1,5 +1,8 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -18,11 +21,21 @@ public class Price {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@Column(name = "product_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name="product_id")
+    //@JsonManagedReference
+    //@JsonIgnoreProperties("prices")
+    private Product product;
+
     @Column(name = "price", nullable = false)
     private Float price;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "input_date", nullable = false)
+    //@JsonManagedReference
     private Date inputDate;
+
+    public Product getProduct() {
+        return null;
+    }
 }

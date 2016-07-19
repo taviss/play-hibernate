@@ -1,5 +1,8 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,7 +27,10 @@ public class Product {
     @Column(name = "product_name", nullable = false)
     private String prodName;
 
-    @OneToMany(mappedBy="prices")
+
+    @OneToMany(mappedBy="product")
+    //@JsonBackReference
+    //@JsonIgnoreProperties("product")
     private Set<Price> prices;
 
     /**
