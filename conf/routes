@@ -5,7 +5,8 @@
 # Home page
 GET     /                           @controllers.Application.index()
 GET		/site						@controllers.SiteController.addSite()
-=======
+GET		/product					@controllers.ProductController.addProduct()
+
 POST    /login/submit               @controllers.AuthorizationController.tryLogin()
 POST    /register/submit            @controllers.AuthorizationController.registerUser()
 GET     /logout                     @controllers.AuthorizationController.logoutUser()

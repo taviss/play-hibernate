@@ -7,6 +7,10 @@ import play.db.jpa.JPA;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -29,6 +33,20 @@ public class SiteDAO {
         site.setId(null);
         em.persist(site);
         return site;
+    }
+
+    public Site getSite(String keyword){
+	    CriteriaQuery<Site> criteriaQuery = this.criteriaBuilder.createQuery(Site.class);
+	    Root<Site> root = criteriaQuery.from(Site.class);
+	    criteriaQuery.select(root);
+	    Predicate keywordp = this.criteriaBuilder.equal(root.get("siteKeyword"), keyword);
+	    criteriaQuery.where(keywordp);
+	    Query finalQuery = this.em.createQuery(criteriaQuery);
+	    List<Site> sites = (List<Site>) finalQuery.getResultList();
+	    if (sites.isEmpty()) return null;
+	    else if (sites.size() == 1) return sites.get(0);
+		    //TBA: throw new exception
+	    else return null;
     }
     /**
      * TBA: More stuff here

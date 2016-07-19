@@ -18,17 +18,15 @@ public class SiteController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addSite(){
-		User u = User.find.byId(request().username());
-		if(u.getAdminLevel() != 3){
-			return ok("You're not admin enough for this!");
+		if(Secured.getAdminLevel() != 3){
+			return ok(site.render(null, "Thou art not admin!"));
 		}
-		else{
-			SiteDAO sd = new SiteDAO();
-			Site s = new Site();
-			s.setSiteURL("emag.ro/test");
-			s.setSiteKeyword("keyword");
-			s = sd.create(s);
-			return ok(site.render(s.getSiteURL(), "Thou art admin!"));
-		}
+		SiteDAO sd = new SiteDAO();
+		Site s = new Site();
+		s.setSiteURL("emag.ro/test");
+		s.setSiteKeyword("keyword");
+		s = sd.create(s);
+		return ok(site.render(s.getSiteURL(), "Thou art admin!"));
+
 	}
 }
