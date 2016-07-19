@@ -28,6 +28,6 @@ public class Product {
      * TBE
      */
     @ManyToOne
-    @JoinColumn(name="site_id")
+    @JoinColumn(name="site_id", nullable = false)
     private Site site;
 }

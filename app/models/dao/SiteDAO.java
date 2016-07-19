@@ -34,8 +34,8 @@ public class SiteDAO {
         em.persist(site);
         return site;
     }
-
-    public Site getSite(String keyword){
+	//No works!!!
+    public Site getSiteIDByKeyword(String keyword){
 	    CriteriaQuery<Site> criteriaQuery = this.criteriaBuilder.createQuery(Site.class);
 	    Root<Site> root = criteriaQuery.from(Site.class);
 	    criteriaQuery.select(root);
@@ -45,9 +45,9 @@ public class SiteDAO {
 	    List<Site> sites = (List<Site>) finalQuery.getResultList();
 	    if (sites.isEmpty()) return null;
 	    else if (sites.size() == 1) return sites.get(0);
-		    //TBA: throw new exception
 	    else return null;
     }
+
     /**
      * TBA: More stuff here
      */

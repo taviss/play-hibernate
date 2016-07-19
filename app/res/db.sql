@@ -81,8 +81,7 @@ CREATE TABLE `products` (
   `site_id` bigint(20) DEFAULT NULL,
   `product_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FKlyvmh3w8439yc7ffllinlwfsa` (`site_id`),
-  CONSTRAINT `FKlyvmh3w8439yc7ffllinlwfsa` FOREIGN KEY (`site_id`) REFERENCES `websites` (`id`)
+  FOREIGN KEY (`site_id`) REFERENCES `websites` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
