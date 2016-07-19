@@ -6,7 +6,7 @@ import models.dao.SiteDAO;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
-import views.html.product;
+import views.html.productAdd;
 import views.html.index;
 
 /**
@@ -23,7 +23,7 @@ public class ProductController extends Controller {
 		p.setLinkAddress("emag.ro/asus-rog-something-test");
 		p.setSite(s.getSiteByKeyword("emag"));
 		p = pd.create(p);
-		return ok(product.render(p.getId().toString(), p.getLinkAddress(), p.getProdName()));
+		return ok(productAdd.render(p.getId().toString(), p.getLinkAddress(), p.getProdName()));
 	}
 
 

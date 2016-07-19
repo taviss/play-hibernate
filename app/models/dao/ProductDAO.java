@@ -25,4 +25,8 @@ public class ProductDAO {
 		em.persist(prod);
 		return prod;
 	}
+
+	public void delete(/* Parameters to be added after schema revamp */){
+		/* Delete product identified by something given as argument */
+	}
 }

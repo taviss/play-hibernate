@@ -6,7 +6,7 @@
 GET     /                           @controllers.Application.index()
 GET		/siteAdd					@controllers.SiteController.addSite()
 GET		/siteRemove					@controllers.SiteController.removeSite()
-GET		/product					@controllers.ProductController.addProduct()
+GET		/productAdd					@controllers.ProductController.addProduct()
 
 POST    /login/submit               @controllers.AuthorizationController.tryLogin()
 POST    /register/submit            @controllers.AuthorizationController.registerUser()

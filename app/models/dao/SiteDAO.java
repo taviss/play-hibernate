@@ -57,6 +57,10 @@ public class SiteDAO {
 		finalQuery.executeUpdate();
 	}
 
+	public void update(){
+		/*To be done sometime in the coming aeons*/
+	}
+
     /**
      * TBA: More stuff here
      */
