@@ -33,6 +33,9 @@ public class Product {
     //@JsonIgnoreProperties("product")
     private Set<Price> prices;
 
+    @OneToMany(mappedBy="product")
+    private Set<Keyword> keywords;
+
     /**
      * Multiple links @ one site
      * TBE
