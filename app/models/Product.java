@@ -3,6 +3,7 @@ package models;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -22,6 +23,9 @@ public class Product {
 
     @Column(name = "product_name", nullable = false)
     private String prodName;
+
+    @OneToMany(mappedBy="prices")
+    private Set<Price> prices;
 
     /**
      * Multiple links @ one site

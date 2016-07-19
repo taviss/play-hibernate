@@ -1,8 +1,7 @@
 package controllers;
 
-import models.User;
-import models.dao.UserDAO;
-import play.db.jpa.Transactional;
+import models.Product;
+import models.Site;
 import play.mvc.*;
 
 import views.html.*;

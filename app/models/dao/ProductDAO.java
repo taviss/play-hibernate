@@ -29,17 +29,18 @@ public class ProductDAO {
 
         criteriaQuery.select(root);
         List<Predicate> predicates=new ArrayList<>();
+        /*
         for (Map.Entry<String,String[]> entry : queryString) {
             String key = entry.getKey();
             String value = Arrays.toString(entry.getValue());
-            /*
+
             switch(key)
             {
                 case "min-price": predicates.add(criteriaBuilder.greaterThan()
-            }*/
+            }
 
             //TBA Price model + DAO + stuff
-        }
+        }*/
 
         Predicate prodNameP = this.criteriaBuilder.like(root.get("prodName"), productName+"%");
 
