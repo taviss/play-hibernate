@@ -1,5 +1,6 @@
 package controllers;
 
+import models.Keyword;
 import models.Product;
 import models.dao.ProductDAO;
 import play.data.DynamicForm;
@@ -25,7 +26,7 @@ public class UserController extends Controller {
         //String productName = requestData.get("productName");
         ProductDAO pd = new ProductDAO();
         Set<Map.Entry<String,String[]>> queryString = request().queryString().entrySet();
-        List<Product> products = pd.findProductsByName(productName, queryString);
+        Set<Product> products = pd.findProductsByName(productName, queryString);
         if(products.isEmpty()) return notFound();
         else return ok(Json.toJson(products));
     }

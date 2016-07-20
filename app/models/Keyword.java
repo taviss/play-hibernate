@@ -25,7 +25,9 @@ public class Keyword {
     @Column(name = "keyword", nullable = false)
     private String keyword;
 
-    public Product getProduct() {
+    //Commented out as it's used after getting keywords to determine products found
+    //StackOverflow solved by returning null in Product.getKeywords()
+    /*public Product getProduct() {
         return null;
-    }
+    }*/
 }

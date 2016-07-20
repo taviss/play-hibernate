@@ -43,4 +43,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name="site_id")
     private Site site;
+
+    public Set<Keyword> getKeywords() {
+        return null;
+    }
 }
