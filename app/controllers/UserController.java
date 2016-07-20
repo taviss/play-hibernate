@@ -1,16 +1,12 @@
 package controllers;
 
-import models.Keyword;
 import models.Product;
 import models.dao.ProductDAO;
-import play.data.DynamicForm;
-import play.data.Form;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

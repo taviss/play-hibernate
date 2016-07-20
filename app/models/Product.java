@@ -47,4 +47,14 @@ public class Product {
     public Set<Keyword> getKeywords() {
         return null;
     }
+
+    public Price getPrice() {
+        Price p = null;
+        for(Price o : prices){
+            if (p == null || o.getInputDate().compareTo(p.getInputDate()) > 0){
+                p = o;
+            }
+        }
+        return p;
+    }
 }

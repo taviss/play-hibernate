@@ -28,7 +28,7 @@ public class Price {
     private Product product;
 
     @Column(name = "price", nullable = false)
-    private Float price;
+    private Float value;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "input_date", nullable = false)

@@ -40,27 +40,28 @@ public class ProductDAO {
         Set<Product> foundProducts = new HashSet<>();
 
         foundProducts.addAll(foundKeywords.stream().map(Keyword::getProduct).collect(Collectors.toSet()));
-        //criteriaQuery.select(root);
-        //Join join = root.join("keywords");
-        //SetJoin<Product, Keyword> keywords = root.join("keywords");
-        List<Predicate> predicates=new ArrayList<>();
-        /*
         for (Map.Entry<String,String[]> entry : queryString) {
             String key = entry.getKey();
-            String value = Arrays.toString(entry.getValue());
+            String[] value = entry.getValue();
 
-            switch(key)
-            {
-                case "min-price": predicates.add(criteriaBuilder.greaterThan()
+            Float val = Float.parseFloat(value[0]);
+            switch (key) {
+                case "min-price": {
+                    //foundProducts.forEach(p -> Logger.info(p.getPrice().getValue().toString()));
+                    foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() > val).collect(Collectors.toSet());
+                    //Logger.info("Filtered " + foundProducts);
+                    break;
+                }
+
+                case "max-price": {
+                    foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() < val).collect(Collectors.toSet());
+                    break;
+                }
+
+                default:
+                    break;
             }
-
-            //TBA Price model + DAO + stuff
-        }*/
-        /*
-        for (Keyword key : join) {
-            predicates.add(criteriaBuilder.like(join.get("keyword"), productName));
-        }*/
-       //c.where(criteriaBuilder.and(predicates.toArray(new Predicate[] {})));
+        }
         Logger.info(foundKeywords.toString());
         return foundProducts;//empty check in controller
     }
