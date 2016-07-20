@@ -32,7 +32,7 @@ public class UserDAO {
      */
     public User create(User user) {
         user.setId(null);
-        user.setAdminLevel(3);
+        user.setAdminLevel(2);
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
