@@ -23,10 +23,12 @@ public class User {
 
     @Column(name = "u_name", nullable = false)
     @Constraints.MinLength(3)
+    @Constraints.MaxLength(40)
     private String userName;
 
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     private String userPass;
 
     @Column(name = "u_admin", nullable = false)

@@ -1,6 +1,7 @@
 package models;
 
 import lombok.Data;
+import play.data.validation.Constraints;
 
 import javax.persistence.*;
 
@@ -23,6 +24,7 @@ public class Keyword {
     private Product product;
 
     @Column(name = "keyword", nullable = false)
+    @Constraints.MaxLength(45)
     private String keyword;
 
     //Commented out as it's used after getting keywords to determine products found
