@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static play.mvc.Controller.flash;
 import static play.mvc.Controller.session;
@@ -82,6 +83,7 @@ public class AuthorizationController {
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
+
         UserDAO ud = new UserDAO();
         User registerUser = form.get();
         User foundUser = ud.getUserName(registerUser.getUserName());
@@ -89,6 +91,9 @@ public class AuthorizationController {
             return badRequest("Username in use");
         } else {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
+            registerUser.setUserToken(UUID.randomUUID().toString());
+            Mail m = new Mail();
+            m.sendEmail();
             ud.create(registerUser);
         }
         return ok("Success");

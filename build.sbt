@@ -22,6 +22,7 @@ libraryDependencies ++= Seq(
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.projectlombok" % "lombok" % "1.16.8",
+  "com.typesafe.play" %% "play-mailer" % "5.0.0",
   "dom4j" % "dom4j" % "1.6"
 )
 
@@ -58,6 +59,8 @@ dockerCommands := dockerCommands.value.flatMap {
 */
 
 
+
+fork in run := true
 
 fork in run := true
 

@@ -23,10 +23,20 @@ public class User {
 
     @Column(name = "u_name", nullable = false)
     @Constraints.MinLength(3)
+    @Constraints.Required
     private String userName;
+
+    @Column(name = "u_mail", nullable = false)
+    @Constraints.Required
+    @Constraints.Email
+    private String userMail;
+
+    @Column(name = "u_token", nullable = false)
+    private String userToken;
 
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
+    @Constraints.Required
     private String userPass;
 
     @Column(name = "u_admin", nullable = false)
