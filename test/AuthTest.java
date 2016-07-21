@@ -12,7 +12,6 @@ import static play.test.Helpers.contentType;
  */
 public class AuthTest {
 
-    @Mock
     UserDAO ud;
 
     @Test

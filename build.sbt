@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
   "dom4j" % "dom4j" % "1.6"
 )
 
-libraryDependencies += "org.mockito" % "mockito-core" % "1.9.5"
+libraryDependencies += "org.mockito" % "mockito-core" % "1.10.19"
 
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.
@@ -60,5 +60,7 @@ dockerCommands := dockerCommands.value.flatMap {
 */
 
 
+
+fork in run := true
 
 fork in run := true
