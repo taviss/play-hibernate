@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -26,7 +27,6 @@ public class Product {
 
     @Column(name = "product_name", nullable = false)
     private String prodName;
-
 
     @OneToMany(mappedBy="product")
     //@JsonBackReference
@@ -57,4 +57,10 @@ public class Product {
         }
         return p;
     }
+
+	public String siteFromURL(){
+		String URL = getLinkAddress();
+		String[] URLsite = URL.split("/");
+		return URLsite[0];
+	}
 }

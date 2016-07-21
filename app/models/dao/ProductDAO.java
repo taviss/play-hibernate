@@ -1,10 +1,9 @@
 package models.dao;
 
-import models.Product;
-import models.Keyword;
-import models.Price;
+import models.*;
 import models.Product;
 import play.Logger;
+import play.data.Form;
 import play.db.jpa.JPA;
 
 import javax.persistence.EntityManager;
@@ -30,56 +29,84 @@ public class ProductDAO {
 	}
 
 	public Product create(Product prod){
+		SiteDAO sd = new SiteDAO();
 		prod.setId(null);
+		Form<Product> form = Form.form(Product.class).bindFromRequest();
+		prod = form.get();
+
+		/* setSite expects Site as argument, returns void(but does its magic)
+		*  getSiteByURL expects String as argument, returns Site
+		*  siteFromURL expects nothing as argument, returns String*/
+		prod.setSite(sd.getSiteByURL(prod.siteFromURL()));
+
 		em.persist(prod);
 		return prod;
 	}
 
-	public Product getProductByName(String keyword){
+	public String[] keywordsFromSiteURL(Product p){
+		String URL = p.getLinkAddress();
+		String[] URLsite = URL.split("/");
+		String[] URLkeywords = URLsite[1].split("-");
+		return URLkeywords;
+	}
+
+	public Product getProductByName(String name){
 		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
 		Root<Product> root = criteriaQuery.from(Product.class);
 		criteriaQuery.select(root);
-		Predicate keywordp = this.criteriaBuilder.equal(root.get("prodName"), keyword);
+		Predicate keywordp = this.criteriaBuilder.equal(root.get("prodName"), name);
 		criteriaQuery.where(keywordp);
 		Query finalQuery = this.em.createQuery(criteriaQuery);
-		List<Product> sites = (List<Product>) finalQuery.getResultList();
-		if (sites.isEmpty()) return null;
-		else if (sites.size() == 1) return sites.get(0);
+		List<Product> prods = (List<Product>) finalQuery.getResultList();
+		if (prods.isEmpty()) return null;
+		else if (prods.size() == 1) return prods.get(0);
 		else return null;
 	}
 
-	/*Delete product identified by its full name(which should be unique).*/
-	public void delete(String name){
-//		Product p = getProductByName(name);
+	/* Delete product identified by its full name(which should be unique). */
+	public void delete(Product p){
+		Form<Product> form = Form.form(Product.class).bindFromRequest();
+		p = form.get();
 		CriteriaDelete<Product> deleteQuery = criteriaBuilder.createCriteriaDelete(Product.class);
 		Root<Product> e = deleteQuery.from(Product.class);
-		deleteQuery.where(this.criteriaBuilder.equal(e.get("prodName"), name));
+		deleteQuery.where(this.criteriaBuilder.equal(e.get("prodName"), p.getProdName()));
 		Query finalQuery = this.em.createQuery(deleteQuery);
 		finalQuery.executeUpdate();
 	}
 
 	/* Updates product entries*/
+	/* Current product name obtained from the endpoint;
+	 * New values obtained from postman form */
+	public void update(String name){
+		Product product;
+		ProductDAO productDAO = new ProductDAO();
+		SiteDAO siteDAO = new SiteDAO();
 
-	public void updateLink(String newLink, String productName){
+		/* Store current fields in order to use them if form fields are null */
+		String currentName = name;
+		String currentLink = productDAO.getProductByName(name).getLinkAddress();
+
+		/* Get new data from form */
+		Form<Product> form = Form.form(Product.class).bindFromRequest();
+		product = form.get();
+
 		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
 		Root<Product> p = updateQuery.from(Product.class);
-		updateQuery.set("linkAddress", newLink);
-		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), productName));
+		if(product.getLinkAddress() != null){
+			updateQuery.set("linkAddress", product.getLinkAddress());
+			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
+		}
+		if(product.getProdName() != null){
+			updateQuery.set("prodName", product.getProdName());
+		}
+		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
 		Query finalQuery = this.em.createQuery(updateQuery);
 		finalQuery.executeUpdate();
 	}
 
-	public void updateName(String newName, String productName){
-		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
-		Root<Product> p = updateQuery.from(Product.class);
-		updateQuery.set("prodName", newName);
-		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), productName));
-		Query finalQuery = this.em.createQuery(updateQuery);
-		finalQuery.executeUpdate();
-	}
-
-	public String getProductName(String nameToSearch){
-		return getProductByName(nameToSearch).getProdName();
+	public void setProductSite(Product product){
+		SiteDAO siteDAO = new SiteDAO();
+		product.setSite(siteDAO.getSiteByURL(product.siteFromURL()));
 	}
 
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {

@@ -45,6 +45,19 @@ public class SiteDAO {
 	    else return null;
     }
 
+	public Site getSiteByURL(String url){
+		CriteriaQuery<Site> criteriaQuery = this.criteriaBuilder.createQuery(Site.class);
+		Root<Site> root = criteriaQuery.from(Site.class);
+		criteriaQuery.select(root);
+		Predicate keywordp = this.criteriaBuilder.equal(root.get("siteURL"), url);
+		criteriaQuery.where(keywordp);
+		Query finalQuery = this.em.createQuery(criteriaQuery);
+		List<Site> sites = (List<Site>) finalQuery.getResultList();
+		if (sites.isEmpty()) return null;
+		else if (sites.size() == 1) return sites.get(0);
+		else return null;
+	}
+
 	/* Delete site identified by its keyword(which should be unique). */
 	public void delete(String keyword) {
 //		Site s = getSiteByKeyword(keyword);
