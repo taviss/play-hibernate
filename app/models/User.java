@@ -43,5 +43,7 @@ public class User {
     private String userPass;
 
     @Column(name = "u_admin", nullable = false)
+    @Constraints.Max(3)
+    @Constraints.Min(0)
     private int adminLevel;
 }
