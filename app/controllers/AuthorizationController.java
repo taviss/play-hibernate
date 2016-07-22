@@ -1,8 +1,8 @@
 package controllers;
 
-import forms.LoginForm;
 import models.User;
 import models.dao.UserDAO;
+import play.Logger;
 import play.data.Form;
 import play.data.validation.ValidationError;
 import play.db.jpa.Transactional;
@@ -13,12 +13,14 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.mail.EmailException;
 
 import static play.mvc.Controller.flash;
 import static play.mvc.Controller.session;
@@ -48,7 +50,7 @@ public class AuthorizationController {
         }
         UserDAO ud = new UserDAO();
         User loginUser = form.get();
-        User foundUser = ud.getUserName(loginUser.getUserName());
+        User foundUser = ud.getUserByName(loginUser.getUserName());
         try {
             String[] params = foundUser.getUserPass().split(">");
             int iterations = Integer.parseInt(params[0]);
@@ -77,7 +79,7 @@ public class AuthorizationController {
     }
 
     @Transactional(readOnly = true)
-    public Result registerUser() {
+    public Result registerUser() throws EmailException, MalformedURLException {
         Form<User> form = Form.form(User.class).bindFromRequest();
 
         if (form.hasErrors()) {
@@ -86,17 +88,20 @@ public class AuthorizationController {
 
         UserDAO ud = new UserDAO();
         User registerUser = form.get();
-        User foundUser = ud.getUserName(registerUser.getUserName());
-        if(foundUser != null) {
-            return badRequest("Username in use");
+        Logger.warn("User register:" + registerUser.getUserName() + " " + registerUser.getUserMail());
+        User foundUser = ud.getUserByName(registerUser.getUserName());
+        User foundEmail = ud.getUserByMail(registerUser.getUserMail());
+        if(foundUser != null || foundEmail != null) {
+            return badRequest("Username or email in use");
         } else {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
             registerUser.setUserToken(UUID.randomUUID().toString());
+            registerUser.setUserActive(false);
             Mail m = new Mail();
-            m.sendEmail();
+            m.sendConfirmationMail(registerUser);
             ud.create(registerUser);
         }
-        return ok("Success");
+        return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
     }
 
     public static String hashPassword(final char[] password) {

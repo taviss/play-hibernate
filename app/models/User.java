@@ -34,6 +34,9 @@ public class User {
     @Column(name = "u_token", nullable = false)
     private String userToken;
 
+    @Column(name = "u_active", nullable = false)
+    private Boolean userActive;
+
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
     @Constraints.Required

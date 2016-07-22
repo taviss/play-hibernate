@@ -53,7 +53,7 @@ public class UserDAO {
      * @param userName
      * @return
      */
-    public User getUserName(String userName) {
+    public User getUserByName(String userName) {
         CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
 
@@ -68,6 +68,25 @@ public class UserDAO {
         if (foundUsers.isEmpty()) return null;
         else if (foundUsers.size() == 1) return foundUsers.get(0);
         //TBA: throw new exception
+        else return null;
+
+        //TBA
+    }
+
+    public User getUserByMail(String userMail) {
+        CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+
+        criteriaQuery.select(root);
+        Predicate userMailP = this.criteriaBuilder.equal(root.get("userMail"), userMail);
+
+        criteriaQuery.where(userMailP);
+        Query query = this.em.createQuery(criteriaQuery);
+        @SuppressWarnings("unchecked")
+        List<User> foundUsers = (List<User>) query.getResultList();
+        if (foundUsers.isEmpty()) return null;
+        else if (foundUsers.size() == 1) return foundUsers.get(0);
+            //TBA: throw new exception
         else return null;
 
         //TBA

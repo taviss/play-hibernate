@@ -24,7 +24,7 @@ public class Secured extends Security.Authenticator {
 
     public static int getAdminLevel() {
         UserDAO ud = new UserDAO();
-        User u = ud.getUserName(Context.current().request().username());
+        User u = ud.getUserByName(Context.current().request().username());
         return u.getAdminLevel();
     }
 }
