@@ -39,6 +39,10 @@ public class UserDAO {
         return user;
     }
 
+    public User update(User user) {
+        return em.merge(user);
+    }
+
     /**
      * Returns the user with "id"
      * @param id
@@ -90,5 +94,22 @@ public class UserDAO {
         else return null;
 
         //TBA
+    }
+
+    public User getUserByToken(String userToken) {
+        CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+
+        criteriaQuery.select(root);
+        Predicate userTokenP = this.criteriaBuilder.equal(root.get("userToken"), userToken);
+
+        criteriaQuery.where(userTokenP);
+        Query query = this.em.createQuery(criteriaQuery);
+        @SuppressWarnings("unchecked")
+        List<User> foundUsers = (List<User>) query.getResultList();
+        if (foundUsers.isEmpty()) return null;
+        else if (foundUsers.size() == 1) return foundUsers.get(0);
+            //TBA: throw new exception
+        else return null;
     }
 }

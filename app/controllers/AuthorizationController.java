@@ -78,6 +78,21 @@ public class AuthorizationController {
         return redirect("/");
     }
 
+    @Transactional
+    public Result confirmUser(String token) {
+        UserDAO ud = new UserDAO();
+        User foundUser = ud.getUserByToken(token);
+        if(foundUser == null) {
+            return badRequest("Invalid token");
+        } else if(foundUser.getUserActive()) {
+            return badRequest("Invalid token");
+        } else {
+            foundUser.setUserActive(true);
+            ud.update(foundUser);
+            return ok("Account confirmed");
+        }
+    }
+
     @Transactional(readOnly = true)
     public Result registerUser() throws EmailException, MalformedURLException {
         Form<User> form = Form.form(User.class).bindFromRequest();
