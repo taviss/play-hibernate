@@ -1,5 +1,6 @@
 package controllers;
 
+import forms.PasswordChangeForm;
 import models.User;
 import models.dao.UserDAO;
 import play.Logger;
@@ -7,6 +8,7 @@ import play.data.Form;
 import play.data.validation.ValidationError;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.crypto.SecretKey;
@@ -21,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.mail.EmailException;
+import play.mvc.Security;
 
 import static play.mvc.Controller.flash;
+import static play.mvc.Controller.request;
 import static play.mvc.Controller.session;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.ok;
@@ -117,6 +121,40 @@ public class AuthorizationController {
             ud.create(registerUser);
         }
         return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
+    }
+
+    @Security.Authenticated(Secured.class)
+    @Transactional
+    public Result changeUserPassword() {
+        Form<PasswordChangeForm> form = Form.form(PasswordChangeForm.class).bindFromRequest();
+
+        if (form.hasErrors()) {
+            return badRequest("Invalid form");
+        }
+        if(!form.get().newPassword.equals(form.get().newPasswordRepeat)) {
+            return badRequest("Passwords don't match");
+        }
+
+        UserDAO ud = new UserDAO();
+        User foundUser = ud.getUserByName(Http.Context.current().request().username());
+        try {
+            String[] params = foundUser.getUserPass().split(">");
+            int iterations = Integer.parseInt(params[0]);
+            byte[] salt = fromHex(params[1]);
+            byte[] hash = fromHex(params[2]);
+            byte[] testHash = pbkdf2(form.get().oldPassword.toCharArray(), salt, iterations, hash.length);
+            if (slowEquals(hash, testHash)) {
+                foundUser.setUserPass(hashPassword(form.get().newPassword.toCharArray()));
+                ud.update(foundUser);
+                return ok("Password changed");
+            } else {
+                return badRequest("Wrong current password");
+            }
+        } catch (NullPointerException e) {
+            return badRequest("User does not exist");
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            return badRequest("Internal error");
+        }
     }
 
     public static String hashPassword(final char[] password) {
