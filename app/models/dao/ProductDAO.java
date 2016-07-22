@@ -104,11 +104,6 @@ public class ProductDAO {
 		finalQuery.executeUpdate();
 	}
 
-	public void setProductSite(Product product){
-		SiteDAO siteDAO = new SiteDAO();
-		product.setSite(siteDAO.getSiteByURL(product.siteFromURL()));
-	}
-
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
         CriteriaQuery<Keyword> criteriaQuery = this.criteriaBuilder.createQuery(Keyword.class);
         Root<Keyword> keywordRoot = criteriaQuery.from(Keyword.class);
