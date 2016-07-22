@@ -38,12 +38,19 @@ public class ProductDAO {
 		*  getSiteByURL expects String as argument, returns Site
 		*  siteFromURL expects nothing as argument, returns String*/
 		prod.setSite(sd.getSiteByURL(prod.siteFromURL()));
-
 		em.persist(prod);
+
+		/* Adding keywords for the product that was created */
+		String[] kw = keywordsFromProductURL(prod);
+		for(String s : kw){
+			KeywordDAO kd = new KeywordDAO();
+			Keyword k = new Keyword();
+			kd.create(k, prod, s);
+		}
 		return prod;
 	}
 
-	public String[] keywordsFromSiteURL(Product p){
+	public String[] keywordsFromProductURL(Product p){
 		String URL = p.getLinkAddress();
 		String[] URLsite = URL.split("/");
 		String[] URLkeywords = URLsite[1].split("-");
@@ -92,7 +99,8 @@ public class ProductDAO {
 
 		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
 		Root<Product> p = updateQuery.from(Product.class);
-		if(product.getLinkAddress() != null){
+		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
+		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
 			updateQuery.set("linkAddress", product.getLinkAddress());
 			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
 		}
@@ -102,6 +110,13 @@ public class ProductDAO {
 		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
 		Query finalQuery = this.em.createQuery(updateQuery);
 		finalQuery.executeUpdate();
+	}
+
+	public boolean linkUpdated(String newLink, String oldLink){
+		if(newLink.equalsIgnoreCase(oldLink))
+			return false;
+		else
+			return true;
 	}
 
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {

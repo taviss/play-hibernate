@@ -24,7 +24,6 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result addProduct(){
 		if(Secured.getAdminLevel() != 3){
-			/* Could do return redirect(routes.Application.index()); */
 			return ok("Not enough admin rights");
 		} else {
 			ProductDAO pd = new ProductDAO();
