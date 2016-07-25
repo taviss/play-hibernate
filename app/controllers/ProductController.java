@@ -9,11 +9,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-import views.html.productAdd;
-import views.html.productRemove;
-import views.html.productError;
-import views.html.productUpdate;
-import views.html.index;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -56,7 +51,7 @@ public class ProductController extends Controller {
 			ProductDAO pd = new ProductDAO();
 			KeywordDAO kd = new KeywordDAO();
 			pd.update(name);
-			kd.update(pd.getProductByName(name));
+//			kd.update(pd.getProductByName(name));
 			return ok("Product's fields updated");
 		}
 	}

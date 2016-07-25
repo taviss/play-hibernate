@@ -50,11 +50,49 @@ public class ProductDAO {
 		return prod;
 	}
 
-	public String[] keywordsFromProductURL(Product p){
-		String URL = p.getLinkAddress();
-		String[] URLsite = URL.split("/");
-		String[] URLkeywords = URLsite[1].split("-");
-		return URLkeywords;
+	/* Delete product identified by its full name(which should be unique). */
+	public void delete(Product p){
+		ProductDAO pd = new ProductDAO();
+		Form<Product> form = Form.form(Product.class).bindFromRequest();
+		p = form.get();
+		CriteriaDelete<Product> deleteQuery = criteriaBuilder.createCriteriaDelete(Product.class);
+		Root<Product> e = deleteQuery.from(Product.class);
+		deleteQuery.where(this.criteriaBuilder.equal(e.get("prodName"), p.getProdName()));
+		Query finalQuery = this.em.createQuery(deleteQuery);
+		finalQuery.executeUpdate();
+	}
+
+	/* Current product name obtained from the endpoint;
+	 * New values obtained from postman form */
+	public void update(String name){
+		Product product;
+		ProductDAO productDAO = new ProductDAO();
+		SiteDAO siteDAO = new SiteDAO();
+		KeywordDAO keywordDAO = new KeywordDAO();
+
+		/* Store current fields in order to use them if form fields are null */
+		String currentName = name;
+		String currentLink = productDAO.getProductByName(name).getLinkAddress();
+
+		/* Get new data from form */
+		Form<Product> form = Form.form(Product.class).bindFromRequest();
+		product = form.get();
+
+		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
+		Root<Product> p = updateQuery.from(Product.class);
+		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
+		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
+			updateQuery.set("linkAddress", product.getLinkAddress());
+			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
+		}
+		if(product.getProdName() != null){
+			updateQuery.set("prodName", product.getProdName());
+		}
+		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
+		Query finalQuery = this.em.createQuery(updateQuery);
+		finalQuery.executeUpdate();
+		keywordDAO.update(productDAO.getProductByName(name));
+
 	}
 
 	public Product getProductByName(String name){
@@ -83,46 +121,11 @@ public class ProductDAO {
 		else return null;
 	}
 
-	/* Delete product identified by its full name(which should be unique). */
-	public void delete(Product p){
-		ProductDAO pd = new ProductDAO();
-		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		p = form.get();
-		CriteriaDelete<Product> deleteQuery = criteriaBuilder.createCriteriaDelete(Product.class);
-		Root<Product> e = deleteQuery.from(Product.class);
-		deleteQuery.where(this.criteriaBuilder.equal(e.get("prodName"), p.getProdName()));
-		Query finalQuery = this.em.createQuery(deleteQuery);
-		finalQuery.executeUpdate();
-	}
-
-	/* Current product name obtained from the endpoint;
-	 * New values obtained from postman form */
-	public void update(String name){
-		Product product;
-		ProductDAO productDAO = new ProductDAO();
-		SiteDAO siteDAO = new SiteDAO();
-
-		/* Store current fields in order to use them if form fields are null */
-		String currentName = name;
-		String currentLink = productDAO.getProductByName(name).getLinkAddress();
-
-		/* Get new data from form */
-		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		product = form.get();
-
-		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
-		Root<Product> p = updateQuery.from(Product.class);
-		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
-		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
-			updateQuery.set("linkAddress", product.getLinkAddress());
-			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
-		}
-		if(product.getProdName() != null){
-			updateQuery.set("prodName", product.getProdName());
-		}
-		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
-		Query finalQuery = this.em.createQuery(updateQuery);
-		finalQuery.executeUpdate();
+	public String[] keywordsFromProductURL(Product p){
+		String URL = p.getLinkAddress();
+		String[] URLsite = URL.split("/");
+		String[] URLkeywords = URLsite[1].split("-");
+		return URLkeywords;
 	}
 
 	public boolean linkUpdated(String newLink, String oldLink){

@@ -7,8 +7,6 @@ import models.Site;
 import models.dao.SiteDAO;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
-import views.html.siteAdd;
-import views.html.siteRemove;
 import controllers.Secured;
 
 
@@ -30,7 +28,7 @@ public class SiteController extends Controller {
 		s.setSiteURL("emag.ro/test");
 		s.setSiteKeyword("emag");
 		s = sd.create(s);
-		return ok(siteAdd.render(s.getSiteURL(), "Thou art admin!"));
+		return ok("Thou art admin!");
 	}
 
 	@Security.Authenticated(Secured.class)
@@ -41,6 +39,6 @@ public class SiteController extends Controller {
 //			return ok(siteRemove.render(null, "Thou art not admin!"));
 //		} else{
 			sd.delete("keyword");
-			return ok(siteRemove.render(null, "Deleted"));
+			return ok("Deleted");
 	}
 }
