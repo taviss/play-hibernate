@@ -10,10 +10,14 @@ import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
 
+import javax.inject.Inject;
+
 /**
  * Created by octavian.salcianu on 7/14/2016.
  */
 public class ProductController extends Controller {
+	@Inject
+	private ProductDAO productDAO;
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
@@ -21,9 +25,7 @@ public class ProductController extends Controller {
 		if(Secured.getAdminLevel() != 3){
 			return ok("Not enough admin rights");
 		} else {
-			ProductDAO pd = new ProductDAO();
-			Product p = new Product();
-			p = pd.create(p);
+			productDAO.create();
 			return ok("Added");
 		}
 	}
@@ -34,9 +36,7 @@ public class ProductController extends Controller {
 		if(Secured.getAdminLevel() != 3){
 			return ok("Thou art not admin!");
 		} else {
-			Product p = new Product();
-			ProductDAO pd = new ProductDAO();
-			pd.delete(p);
+			productDAO.delete();
 			return ok("Deleted");
 		}
 	}
@@ -48,10 +48,7 @@ public class ProductController extends Controller {
 		if(Secured.getAdminLevel() != 3){
 			return ok("Thou art not admin!");
 		} else {
-			ProductDAO pd = new ProductDAO();
-			KeywordDAO kd = new KeywordDAO();
-			pd.update(name);
-//			kd.update(pd.getProductByName(name));
+			productDAO.update(name);
 			return ok("Product's fields updated");
 		}
 	}

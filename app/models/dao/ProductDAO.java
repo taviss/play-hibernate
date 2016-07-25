@@ -28,104 +28,91 @@ public class ProductDAO {
 		this.criteriaBuilder = em.getCriteriaBuilder();
 	}
 
-	public Product create(Product prod){
-		SiteDAO sd = new SiteDAO();
-		prod.setId(null);
-		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		prod = form.get();
-
-		/* setSite expects Site as argument, returns void(but does its magic)
-		*  getSiteByURL expects String as argument, returns Site
-		*  siteFromURL expects nothing as argument, returns String*/
-		prod.setSite(sd.getSiteByURL(prod.siteFromURL()));
-		em.persist(prod);
-
+	public void create(){
+		Product product = new Product();
+		SiteDAO siteDAO = new SiteDAO();
+		product.setId(null);
+		Form<Product> fieldsForm = Form.form(Product.class).bindFromRequest();
+		product = fieldsForm.get();
+		product.setSite(siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]));
+		em.persist(product);
 		/* Adding keywords for the product that was created */
-		String[] kw = keywordsFromProductURL(prod);
-		for(String s : kw){
-			KeywordDAO kd = new KeywordDAO();
-			Keyword k = new Keyword();
-			kd.create(k, prod, s);
-		}
-		return prod;
+//		String[] kw = keywordsFromProductURL(prod);
+//		for(String s : kw){
+//			KeywordDAO kd = new KeywordDAO();
+//			Keyword k = new Keyword();
+//			kd.create(k, prod, s);
+//		}
 	}
 
 	/* Delete product identified by its full name(which should be unique). */
-	public void delete(Product p){
-		ProductDAO pd = new ProductDAO();
+	public void delete(){
+		ProductDAO productDAO = new ProductDAO();
+		Product lookFor = new Product();
+		Product product = new Product();
 		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		p = form.get();
-		CriteriaDelete<Product> deleteQuery = criteriaBuilder.createCriteriaDelete(Product.class);
-		Root<Product> e = deleteQuery.from(Product.class);
-		deleteQuery.where(this.criteriaBuilder.equal(e.get("prodName"), p.getProdName()));
-		Query finalQuery = this.em.createQuery(deleteQuery);
-		finalQuery.executeUpdate();
+		lookFor = form.get();
+		product = productDAO.getProduct(lookFor.getProdName());
+		em.remove(product);
 	}
 
 	/* Current product name obtained from the endpoint;
 	 * New values obtained from postman form */
 	public void update(String name){
-		Product product;
-		ProductDAO productDAO = new ProductDAO();
 		SiteDAO siteDAO = new SiteDAO();
-		KeywordDAO keywordDAO = new KeywordDAO();
-
+		Product product = new Product();
+		Product newProduct =  new Product();
+		ProductDAO productDAO = new ProductDAO();
 		/* Store current fields in order to use them if form fields are null */
 		String currentName = name;
-		String currentLink = productDAO.getProductByName(name).getLinkAddress();
-
+		String currentLink = productDAO.getProduct(name).getLinkAddress();
+		product = productDAO.getProduct(name);
 		/* Get new data from form */
 		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		product = form.get();
+		newProduct = form.get();
 
-		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
-		Root<Product> p = updateQuery.from(Product.class);
-		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
-		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
-			updateQuery.set("linkAddress", product.getLinkAddress());
-			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
-		}
-		if(product.getProdName() != null){
-			updateQuery.set("prodName", product.getProdName());
-		}
-		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
-		Query finalQuery = this.em.createQuery(updateQuery);
-		finalQuery.executeUpdate();
-		keywordDAO.update(productDAO.getProductByName(name));
+		boolean sameName = product.getProdName().equalsIgnoreCase(newProduct.getProdName());
+		boolean sameLink = product.getLinkAddress().equalsIgnoreCase(newProduct.getLinkAddress());
 
+		if(!sameName){
+			product.setProdName(newProduct.getProdName());
+		}
+		if(!sameLink){
+			product.setLinkAddress(newProduct.getLinkAddress());
+			product.setSite(siteDAO.getSiteByURL(newProduct.getLinkAddress().split("/")[0]));
+		}
+//		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
+//		Root<Product> p = updateQuery.from(Product.class);
+//		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
+//		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
+//			updateQuery.set("linkAddress", product.getLinkAddress());
+//			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
+//		}
+//		if(product.getProdName() != null){
+//			updateQuery.set("prodName", product.getProdName());
+//		}
+//		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
+//		Query finalQuery = this.em.createQuery(updateQuery);
+//		finalQuery.executeUpdate();
+//		keywordDAO.update(productDAO.getProductByName(name));
 	}
 
-	public Product getProductByName(String name){
+	public Product getProduct(String name){
 		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
 		Root<Product> root = criteriaQuery.from(Product.class);
 		criteriaQuery.select(root);
-		Predicate keywordp = this.criteriaBuilder.equal(root.get("prodName"), name);
-		criteriaQuery.where(keywordp);
+		criteriaQuery.where(this.criteriaBuilder.equal(root.get("prodName"), name));
 		Query finalQuery = this.em.createQuery(criteriaQuery);
-		List<Product> prods = (List<Product>) finalQuery.getResultList();
-		if (prods.isEmpty()) return null;
-		else if (prods.size() == 1) return prods.get(0);
-		else return null;
-	}
-
-	public Product getProductByURL(String URL){
-		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
-		Root<Product> root = criteriaQuery.from(Product.class);
-		criteriaQuery.select(root);
-		Predicate keywordp = this.criteriaBuilder.equal(root.get("linkAddress"), URL);
-		criteriaQuery.where(keywordp);
-		Query finalQuery = this.em.createQuery(criteriaQuery);
-		List<Product> prods = (List<Product>) finalQuery.getResultList();
-		if (prods.isEmpty()) return null;
-		else if (prods.size() == 1) return prods.get(0);
-		else return null;
+		List<Product> products = finalQuery.getResultList();
+		return products.get(0);
 	}
 
 	public String[] keywordsFromProductURL(Product p){
-		String URL = p.getLinkAddress();
-		String[] URLsite = URL.split("/");
-		String[] URLkeywords = URLsite[1].split("-");
-		return URLkeywords;
+//		String URL = p.getLinkAddress();
+//		String[] URLsite = URL.split("/");
+//		String[] URLkeywords = URLsite[1].split("-");
+//		return URLkeywords;
+		return null;
 	}
 
 	public boolean linkUpdated(String newLink, String oldLink){
