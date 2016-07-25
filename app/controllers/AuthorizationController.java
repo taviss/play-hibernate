@@ -3,34 +3,34 @@ package controllers;
 import forms.PasswordChangeForm;
 import models.User;
 import models.dao.UserDAO;
+import play.Configuration;
 import play.Logger;
 import play.data.Form;
-import play.data.validation.ValidationError;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.mail.EmailException;
+import play.api.libs.mailer.MailerClient;
+import play.libs.mailer.Email;
 import play.mvc.Security;
 
-import static play.mvc.Controller.flash;
-import static play.mvc.Controller.request;
 import static play.mvc.Controller.session;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
+
+import javax.inject.Inject;
 
 /**
  * Created by octavian.salcianu on 7/15/2016.
@@ -39,6 +39,13 @@ public class AuthorizationController {
     public static final int SALT_BYTES = 24;
     public static final int HASH_BYTES = 24;
     public static final int PBKDF2_ITERATIONS = 1000;
+
+    private final MailerClient mailer;
+
+    @Inject
+    public AuthorizationController(MailerClient mailer) {
+        this.mailer = mailer;
+    }
 
     /**
      * Attempts to login the user and returns ok if succes and badRequest if not
@@ -116,11 +123,28 @@ public class AuthorizationController {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
             registerUser.setUserToken(UUID.randomUUID().toString());
             registerUser.setUserActive(false);
-            Mail m = new Mail();
-            m.sendConfirmationMail(registerUser);
+            //Mail m = new Mail();
+            //m.sendConfirmationMail(registerUser);
+            sendConfirmationMail(registerUser);
             ud.create(registerUser);
         }
         return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
+    }
+
+    public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
+        String subject = Messages.get("mail.confirmation.subject");
+
+        String urlString = "http://" + Configuration.root().getString("server.hostname");
+        urlString += "/confirm/" + user.getUserToken();
+        URL url = new URL(urlString);
+        String message = Messages.get("mail.confirmation.body");
+        message += ", " + url.toString();
+        Email email = new Email()
+                .setSubject(subject)
+                .setFrom("test@gmail.com")
+                .addTo(user.getUserMail())
+                .setBodyText(message);
+        mailer.send(email);
     }
 
     @Security.Authenticated(Secured.class)

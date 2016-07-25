@@ -1,6 +1,7 @@
 package models.dao;
 
 import models.User;
+import models.admin.UserRoles;
 import org.h2.api.Trigger;
 import play.db.jpa.JPA;
 
@@ -32,7 +33,7 @@ public class UserDAO {
      */
     public User create(User user) {
         user.setId(null);
-        user.setAdminLevel(2);
+        user.setAdminLevel(UserRoles.NORMAL_USER);
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();

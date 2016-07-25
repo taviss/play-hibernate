@@ -1,20 +1,27 @@
 package controllers;
 
-import com.google.inject.Inject;
+//import com.google.inject.Inject;
 import models.User;
 import play.Configuration;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
 import org.apache.commons.mail.EmailException;
+import javax.inject.Inject;
+import org.apache.commons.mail.EmailAttachment;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 
 public class Mail {
-    @Inject
+
     MailerClient mailerClient;
+
+    @Inject
+    public Mail(MailerClient mailer) {
+        this.mailerClient = mailer;
+    }
 
     public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
         String cid = "1234";
@@ -29,6 +36,6 @@ public class Mail {
                 .setFrom("test.localhost")
                 .addTo(user.getUserMail())
                 .setBodyText(message);
-        //mailerClient.send(email);
+        mailerClient.send(email);
     }
 }
