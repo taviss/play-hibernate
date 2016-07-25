@@ -22,12 +22,11 @@ public class KeywordDAO {
 		this.criteriaBuilder = em.getCriteriaBuilder();
 	}
 
-	public Keyword create(Keyword k, Product p, String keyword){
+	public void create(Keyword k, Product p, String keyword){
 		k.setId(null);
 		k.setProduct(p);
 		k.setKeyword(keyword);
 		em.persist(k);
-		return k;
 	}
 
 	public void delete(Product product){
@@ -47,14 +46,5 @@ public class KeywordDAO {
 		for(String s : kw){
 			kd.create(k, product, s);
 		}
-//		ProductDAO productDAO = new ProductDAO();
-//		CriteriaUpdate<Keyword> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Keyword.class);
-//		Root<Keyword> k = updateQuery.from(Keyword.class);
-//		updateQuery.where(this.criteriaBuilder.equal(k.get("product"), product.getId()));
-
 	}
-
-//	public Keyword[] getKeywordsByProduct(Product product){
-//
-//	}
 }

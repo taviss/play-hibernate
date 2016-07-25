@@ -70,8 +70,22 @@ public class ProductDAO {
 		else return null;
 	}
 
+	public Product getProductByURL(String URL){
+		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
+		Root<Product> root = criteriaQuery.from(Product.class);
+		criteriaQuery.select(root);
+		Predicate keywordp = this.criteriaBuilder.equal(root.get("linkAddress"), URL);
+		criteriaQuery.where(keywordp);
+		Query finalQuery = this.em.createQuery(criteriaQuery);
+		List<Product> prods = (List<Product>) finalQuery.getResultList();
+		if (prods.isEmpty()) return null;
+		else if (prods.size() == 1) return prods.get(0);
+		else return null;
+	}
+
 	/* Delete product identified by its full name(which should be unique). */
 	public void delete(Product p){
+		ProductDAO pd = new ProductDAO();
 		Form<Product> form = Form.form(Product.class).bindFromRequest();
 		p = form.get();
 		CriteriaDelete<Product> deleteQuery = criteriaBuilder.createCriteriaDelete(Product.class);
@@ -81,7 +95,6 @@ public class ProductDAO {
 		finalQuery.executeUpdate();
 	}
 
-	/* Updates product entries*/
 	/* Current product name obtained from the endpoint;
 	 * New values obtained from postman form */
 	public void update(String name){
