@@ -54,10 +54,10 @@ public class ProductController extends Controller {
 			return ok("Thou art not admin!");
 		} else {
 			ProductDAO pd = new ProductDAO();
+			KeywordDAO kd = new KeywordDAO();
 			pd.update(name);
+			kd.update(pd.getProductByName(name));
 			return ok("Product's fields updated");
 		}
 	}
-
-
 }

@@ -36,6 +36,7 @@ public class KeywordDAO {
 		deleteQuery.where(this.criteriaBuilder.equal(p.get("product"), product.getId()));
 		Query finalQuery = this.em.createQuery(deleteQuery);
 		finalQuery.executeUpdate();
+		em.close();
 	}
 
 	public void update(Product product){
@@ -47,7 +48,6 @@ public class KeywordDAO {
 		for(String s : kw){
 			kd.create(k, product, s);
 		}
-
 //		ProductDAO productDAO = new ProductDAO();
 //		CriteriaUpdate<Keyword> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Keyword.class);
 //		Root<Keyword> k = updateQuery.from(Keyword.class);
@@ -55,5 +55,7 @@ public class KeywordDAO {
 
 	}
 
+	public Keyword[] getKeywordsByProduct(Product product){
 
+	}
 }
