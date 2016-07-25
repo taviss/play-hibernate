@@ -24,16 +24,16 @@ public class Mail {
     }
 
     public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
-        String cid = "1234";
         String subject = Messages.get("mail.confirmation.subject");
 
         String urlString = "http://" + Configuration.root().getString("server.hostname");
         urlString += "/confirm/" + user.getUserToken();
-        URL url = new URL(urlString); // validate the URL, will throw an exception if bad.
-        String message = Messages.get("mail.confirmation.body", url.toString());
+        URL url = new URL(urlString);
+        String message = Messages.get("mail.confirmation.body");
+        message += ", " + url.toString();
         Email email = new Email()
                 .setSubject(subject)
-                .setFrom("test.localhost")
+                .setFrom("test@gmail.com")
                 .addTo(user.getUserMail())
                 .setBodyText(message);
         mailerClient.send(email);

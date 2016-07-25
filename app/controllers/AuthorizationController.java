@@ -123,28 +123,11 @@ public class AuthorizationController {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
             registerUser.setUserToken(UUID.randomUUID().toString());
             registerUser.setUserActive(false);
-            //Mail m = new Mail();
-            //m.sendConfirmationMail(registerUser);
-            sendConfirmationMail(registerUser);
+            Mail m = new Mail(mailer);
+            m.sendConfirmationMail(registerUser);
             ud.create(registerUser);
         }
         return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
-    }
-
-    public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
-        String subject = Messages.get("mail.confirmation.subject");
-
-        String urlString = "http://" + Configuration.root().getString("server.hostname");
-        urlString += "/confirm/" + user.getUserToken();
-        URL url = new URL(urlString);
-        String message = Messages.get("mail.confirmation.body");
-        message += ", " + url.toString();
-        Email email = new Email()
-                .setSubject(subject)
-                .setFrom("test@gmail.com")
-                .addTo(user.getUserMail())
-                .setBodyText(message);
-        mailer.send(email);
     }
 
     @Security.Authenticated(Secured.class)
