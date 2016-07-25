@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,9 +23,11 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
+    @Constraints.MaxLength(128)
     private String linkAddress;
 
     @Column(name = "product_name", nullable = false)
+    @Constraints.MaxLength(128)
     private String prodName;
 
 

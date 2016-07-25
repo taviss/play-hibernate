@@ -23,6 +23,7 @@ public class User {
 
     @Column(name = "u_name", nullable = false)
     @Constraints.MinLength(3)
+    @Constraints.MaxLength(40)
     @Constraints.Required
     private String userName;
 
@@ -39,6 +40,7 @@ public class User {
 
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     @Constraints.Required
     private String userPass;
 
