@@ -14,7 +14,13 @@ GET		/productMaster/:action		@controllers.ProductController.masterProduct(action
 POST    /login/submit               @controllers.AuthorizationController.tryLogin()
 POST    /register/submit            @controllers.AuthorizationController.registerUser()
 GET     /logout                     @controllers.AuthorizationController.logoutUser()
+GET     /confirm/:token             @controllers.AuthorizationController.confirmUser(token : String)
+POST    /changepassword/submit      @controllers.AuthorizationController.changeUserPassword()
+
 GET     /search/:name               @controllers.UserController.trySearch(name : String)
+
+POST    /setadmin/submit            @controllers.UserController.setAdminLevel()
+
 
 
 # Map static resources from the /public folder to the /assets URL path

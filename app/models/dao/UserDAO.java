@@ -1,6 +1,7 @@
 package models.dao;
 
 import models.User;
+import models.admin.UserRoles;
 import org.h2.api.Trigger;
 import play.db.jpa.JPA;
 
@@ -32,11 +33,15 @@ public class UserDAO {
      */
     public User create(User user) {
         user.setId(null);
-        user.setAdminLevel(2);
+        user.setAdminLevel(UserRoles.NORMAL_USER);
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
         return user;
+    }
+
+    public User update(User user) {
+        return em.merge(user);
     }
 
     /**
@@ -53,7 +58,7 @@ public class UserDAO {
      * @param userName
      * @return
      */
-    public User getUserName(String userName) {
+    public User getUserByName(String userName) {
         CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
 
@@ -71,5 +76,41 @@ public class UserDAO {
         else return null;
 
         //TBA
+    }
+
+    public User getUserByMail(String userMail) {
+        CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+
+        criteriaQuery.select(root);
+        Predicate userMailP = this.criteriaBuilder.equal(root.get("userMail"), userMail);
+
+        criteriaQuery.where(userMailP);
+        Query query = this.em.createQuery(criteriaQuery);
+        @SuppressWarnings("unchecked")
+        List<User> foundUsers = (List<User>) query.getResultList();
+        if (foundUsers.isEmpty()) return null;
+        else if (foundUsers.size() == 1) return foundUsers.get(0);
+            //TBA: throw new exception
+        else return null;
+
+        //TBA
+    }
+
+    public User getUserByToken(String userToken) {
+        CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+
+        criteriaQuery.select(root);
+        Predicate userTokenP = this.criteriaBuilder.equal(root.get("userToken"), userToken);
+
+        criteriaQuery.where(userTokenP);
+        Query query = this.em.createQuery(criteriaQuery);
+        @SuppressWarnings("unchecked")
+        List<User> foundUsers = (List<User>) query.getResultList();
+        if (foundUsers.isEmpty()) return null;
+        else if (foundUsers.size() == 1) return foundUsers.get(0);
+            //TBA: throw new exception
+        else return null;
     }
 }

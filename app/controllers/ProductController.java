@@ -1,6 +1,7 @@
 package controllers;
 
 import models.Product;
+import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.mvc.Controller;
@@ -32,7 +33,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addProduct(){
-		if(Secured.getAdminLevel() != 3){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			/* Could do return redirect(routes.Application.index()); */
 			return ok(productError.render("Not enough admin rights"));
 		} else {
@@ -50,7 +51,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result removeProduct(){
-		if(Secured.getAdminLevel() != 3){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok(productError.render("Thou art not admin!"));
 		} else {
 			ProductDAO pd = new ProductDAO();
@@ -62,7 +63,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result updateProductLink(){
-		if(Secured.getAdminLevel() != 3){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok(productError.render("Thou art not admin!"));
 		} else {
 			ProductDAO pd = new ProductDAO();
@@ -74,7 +75,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result updateProductName(){
-		if(Secured.getAdminLevel() != 3){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok(productError.render("Thou art not admin!"));
 		} else {
 			ProductDAO pd = new ProductDAO();
