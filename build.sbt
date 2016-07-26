@@ -28,6 +28,10 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "org.mockito" % "mockito-core" % "1.10.19"
 
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
+
+javaOptions in Test += "-Dlogger.file=conf/test-logger.xml"
+
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.
 //routesGenerator := InjectedRoutesGenerator
@@ -59,8 +63,6 @@ dockerCommands := dockerCommands.value.flatMap {
 
 // run this with: docker run -p 9000:9000 <name>:<version>
 */
-
-
 
 fork in run := true
 

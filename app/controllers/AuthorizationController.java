@@ -1,5 +1,6 @@
 package controllers;
 
+import forms.LoginForm;
 import forms.PasswordChangeForm;
 import models.User;
 import models.dao.UserDAO;
@@ -8,6 +9,7 @@ import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
+import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
@@ -35,16 +37,19 @@ import javax.inject.Inject;
 /**
  * Created by octavian.salcianu on 7/15/2016.
  */
-public class AuthorizationController {
+public class AuthorizationController extends Controller{
     public static final int SALT_BYTES = 24;
     public static final int HASH_BYTES = 24;
     public static final int PBKDF2_ITERATIONS = 1000;
 
-    private final MailerClient mailer;
+    @Inject
+    private MailerClient mailer;
 
     @Inject
-    public AuthorizationController(MailerClient mailer) {
-        this.mailer = mailer;
+    private UserDAO ud;
+
+    public void setUserDAO(UserDAO ud) {
+        this.ud = ud;
     }
 
     /**
@@ -53,24 +58,26 @@ public class AuthorizationController {
      */
     @Transactional(readOnly = true)
     public Result tryLogin() {
-        //Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
-        Form<User> form = Form.form(User.class).bindFromRequest();
+        Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
+        //Form<User> form = Form.form(User.class).bindFromRequest();
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
-        UserDAO ud = new UserDAO();
-        User loginUser = form.get();
-        User foundUser = ud.getUserByName(loginUser.getUserName());
+        User foundUser = ud.getUserByName(form.get().userName);
+        String remote = request().remoteAddress();
+        Logger.info("Login attempt: " + form.get().userName + " (" + remote + ")");
+
+
         try {
             String[] params = foundUser.getUserPass().split(">");
             int iterations = Integer.parseInt(params[0]);
             byte[] salt = fromHex(params[1]);
             byte[] hash = fromHex(params[2]);
-            byte[] testHash = pbkdf2(loginUser.getUserPass().toCharArray(), salt, iterations, hash.length);
+            byte[] testHash = pbkdf2(form.get().userPass.toCharArray(), salt, iterations, hash.length);
             if (slowEquals(hash, testHash)) {
                 session().clear();
-                session("user", loginUser.getUserName());
+                session("user", foundUser.getUserName());
                 return ok("Logged in");
             } else {
                 return badRequest("Bad combination");
@@ -91,7 +98,6 @@ public class AuthorizationController {
 
     @Transactional
     public Result confirmUser(String token) {
-        UserDAO ud = new UserDAO();
         User foundUser = ud.getUserByToken(token);
         if(foundUser == null) {
             return badRequest("Invalid token");
@@ -112,11 +118,14 @@ public class AuthorizationController {
             return badRequest("Invalid form");
         }
 
-        UserDAO ud = new UserDAO();
         User registerUser = form.get();
-        Logger.warn("User register:" + registerUser.getUserName() + " " + registerUser.getUserMail());
+
+        String remote = request().remoteAddress();
+        Logger.warn("User register:" + registerUser.getUserName() + " " + registerUser.getUserMail() + " (" + remote + ")");
+
         User foundUser = ud.getUserByName(registerUser.getUserName());
         User foundEmail = ud.getUserByMail(registerUser.getUserMail());
+
         if(foundUser != null || foundEmail != null) {
             return badRequest("Username or email in use");
         } else {
@@ -142,7 +151,6 @@ public class AuthorizationController {
             return badRequest("Passwords don't match");
         }
 
-        UserDAO ud = new UserDAO();
         User foundUser = ud.getUserByName(Http.Context.current().request().username());
         try {
             String[] params = foundUser.getUserPass().split(">");

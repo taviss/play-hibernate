@@ -13,5 +13,5 @@ public class LoginForm {
 
     @Constraints.Required()
     @Constraints.MinLength(6)
-    public String password;
+    public String userPass;
 }
