@@ -36,7 +36,7 @@ public class ProductController extends Controller {
 		if(Secured.getAdminLevel() != 3){
 			return ok("Thou art not admin!");
 		} else {
-			productDAO.delete();
+			productDAO.delete(productDAO);
 			return ok("Deleted");
 		}
 	}

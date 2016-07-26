@@ -47,14 +47,12 @@ public class ProductDAO {
 	}
 
 	/* Delete product identified by its full name(which should be unique). */
-	public void delete(){
-		ProductDAO productDAO = new ProductDAO();
+	public void delete(ProductDAO productDAO){
 		Product lookFor = new Product();
 		Product product = new Product();
 		Form<Product> form = Form.form(Product.class).bindFromRequest();
 		lookFor = form.get();
 		product = productDAO.getProduct(lookFor.getProdName());
-		em.remove(product);
 	}
 
 	/* Current product name obtained from the endpoint;
