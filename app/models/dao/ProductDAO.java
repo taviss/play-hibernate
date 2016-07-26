@@ -36,13 +36,14 @@ public class ProductDAO {
 		product = fieldsForm.get();
 		product.setSite(siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]));
 		em.persist(product);
+
 		/* Adding keywords for the product that was created */
-//		String[] kw = keywordsFromProductURL(prod);
-//		for(String s : kw){
-//			KeywordDAO kd = new KeywordDAO();
-//			Keyword k = new Keyword();
-//			kd.create(k, prod, s);
-//		}
+		String[] kw = keywordsFromProductURL(product);
+		for(String s : kw){
+			KeywordDAO kd = new KeywordDAO();
+			Keyword k = new Keyword();
+			kd.create(k, product, s);
+		}
 	}
 
 	/* Delete product identified by its full name(which should be unique). */
@@ -63,6 +64,7 @@ public class ProductDAO {
 		Product product = new Product();
 		Product newProduct =  new Product();
 		ProductDAO productDAO = new ProductDAO();
+		KeywordDAO keywordDAO =  new KeywordDAO();
 		/* Store current fields in order to use them if form fields are null */
 		String currentName = name;
 		String currentLink = productDAO.getProduct(name).getLinkAddress();
@@ -71,30 +73,14 @@ public class ProductDAO {
 		Form<Product> form = Form.form(Product.class).bindFromRequest();
 		newProduct = form.get();
 
-		boolean sameName = product.getProdName().equalsIgnoreCase(newProduct.getProdName());
-		boolean sameLink = product.getLinkAddress().equalsIgnoreCase(newProduct.getLinkAddress());
-
-		if(!sameName){
+		if(newProduct.getProdName() != null){
 			product.setProdName(newProduct.getProdName());
 		}
-		if(!sameLink){
+		if(newProduct.getProdName() != null){
 			product.setLinkAddress(newProduct.getLinkAddress());
-			product.setSite(siteDAO.getSiteByURL(newProduct.getLinkAddress().split("/")[0]));
+			product.setSite(siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]));
 		}
-//		CriteriaUpdate<Product> updateQuery = this.criteriaBuilder.createCriteriaUpdate(Product.class);
-//		Root<Product> p = updateQuery.from(Product.class);
-//		/* If product link changed, keywords need to be updated(old ones removed, add new ones) */
-//		if((product.getLinkAddress() != null) && (linkUpdated(product.getLinkAddress(), currentLink))){
-//			updateQuery.set("linkAddress", product.getLinkAddress());
-//			updateQuery.set("site", siteDAO.getSiteByURL(product.siteFromURL()));
-//		}
-//		if(product.getProdName() != null){
-//			updateQuery.set("prodName", product.getProdName());
-//		}
-//		updateQuery.where(this.criteriaBuilder.equal(p.get("prodName"), currentName));
-//		Query finalQuery = this.em.createQuery(updateQuery);
-//		finalQuery.executeUpdate();
-//		keywordDAO.update(productDAO.getProductByName(name));
+//		keywordDAO.update(product);
 	}
 
 	public Product getProduct(String name){
@@ -108,18 +94,10 @@ public class ProductDAO {
 	}
 
 	public String[] keywordsFromProductURL(Product p){
-//		String URL = p.getLinkAddress();
-//		String[] URLsite = URL.split("/");
-//		String[] URLkeywords = URLsite[1].split("-");
-//		return URLkeywords;
-		return null;
-	}
-
-	public boolean linkUpdated(String newLink, String oldLink){
-		if(newLink.equalsIgnoreCase(oldLink))
-			return false;
-		else
-			return true;
+		String URL = p.getLinkAddress();
+		String[] URLsite = URL.split("/");
+		String[] URLkeywords = URLsite[1].split("-");
+		return URLkeywords;
 	}
 
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
