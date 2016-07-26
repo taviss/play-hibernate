@@ -65,7 +65,8 @@ public class AuthorizationController extends Controller{
             return badRequest("Invalid form");
         }
         User foundUser = ud.getUserByName(form.get().userName);
-        Logger.info("Login attempt: " + form.get().userName);
+        String remote = request().remoteAddress();
+        Logger.info("Login attempt: " + form.get().userName + " (" + remote + ")");
 
 
         try {
@@ -97,7 +98,6 @@ public class AuthorizationController extends Controller{
 
     @Transactional
     public Result confirmUser(String token) {
-        UserDAO ud = new UserDAO();
         User foundUser = ud.getUserByToken(token);
         if(foundUser == null) {
             return badRequest("Invalid token");
@@ -118,11 +118,14 @@ public class AuthorizationController extends Controller{
             return badRequest("Invalid form");
         }
 
-        UserDAO ud = new UserDAO();
         User registerUser = form.get();
-        Logger.warn("User register:" + registerUser.getUserName() + " " + registerUser.getUserMail());
+
+        String remote = request().remoteAddress();
+        Logger.warn("User register:" + registerUser.getUserName() + " " + registerUser.getUserMail() + " (" + remote + ")");
+
         User foundUser = ud.getUserByName(registerUser.getUserName());
         User foundEmail = ud.getUserByMail(registerUser.getUserMail());
+
         if(foundUser != null || foundEmail != null) {
             return badRequest("Username or email in use");
         } else {
@@ -148,7 +151,6 @@ public class AuthorizationController extends Controller{
             return badRequest("Passwords don't match");
         }
 
-        UserDAO ud = new UserDAO();
         User foundUser = ud.getUserByName(Http.Context.current().request().username());
         try {
             String[] params = foundUser.getUserPass().split(">");
