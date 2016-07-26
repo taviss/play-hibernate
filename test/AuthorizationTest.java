@@ -253,6 +253,74 @@ public class AuthorizationTest extends WithApplication {
     }
 
     @Test
+    public void testResetUserPasswordSuccess() {
+        Map form = new HashMap<String, String>();
+        form.put("userName", "Abc");
+        form.put("userMail", "abc@abc.com");
+
+        User u = new User();
+        u.setUserName("Abc");
+        u.setUserPass(hashPassword("testtest".toCharArray()));
+        u.setUserMail("abc@abc.com");
+
+        when(ud.getUserByName(anyString())).thenReturn(u);
+
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        assertEquals(OK, res.status());
+    }
+
+    @Test
+    public void testResetUserPasswordNoSuchUser() {
+        Map form = new HashMap<String, String>();
+        form.put("userName", "Abc");
+        form.put("userMail", "abc@abc.com");
+
+        when(ud.getUserByName(anyString())).thenReturn(null);
+
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        assertEquals(BAD_REQUEST, res.status());
+    }
+
+    @Test
+    public void testResetUserPasswordMailNotMatching() {
+        Map form = new HashMap<String, String>();
+        form.put("userName", "Abc");
+        form.put("userPass", "abcabc");
+        form.put("userMail", "xyz@abc.com");
+
+        User u = new User();
+        u.setUserName("Abc");
+        u.setUserPass(hashPassword("testtest".toCharArray()));
+        u.setUserMail("abc@abc.com");
+
+        when(ud.getUserByName(anyString())).thenReturn(u);
+
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        assertEquals(BAD_REQUEST, res.status());
+    }
+
+    @Test
+    public void testConfirmPasswordResetSuccess() {
+        User u = new User();
+        u.setUserName("Abc");
+        u.setUserPass(hashPassword("testtest".toCharArray()));
+        u.setUserMail("abc@abc.com");
+
+        when(ud.getUserByToken(anyString())).thenReturn(u);
+
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.confirmPasswordReset("test")));
+        assertEquals(OK, res.status());
+    }
+
+    @Test
+    public void testConfirmPasswordResetNoSuchUser() {
+        when(ud.getUserByToken(anyString())).thenReturn(null);
+
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.confirmPasswordReset("test")));
+        assertEquals(BAD_REQUEST, res.status());
+    }
+
+    @Test
     public void testLogout() {
         Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.logoutUser()));
         Optional<String> url = res.redirectLocation();
