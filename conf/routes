@@ -15,7 +15,10 @@ POST    /login/submit               @controllers.AuthorizationController.tryLogi
 POST    /register/submit            @controllers.AuthorizationController.registerUser()
 GET     /logout                     @controllers.AuthorizationController.logoutUser()
 GET     /confirm/:token             @controllers.AuthorizationController.confirmUser(token : String)
+
 POST    /changepassword/submit      @controllers.AuthorizationController.changeUserPassword()
+POST    /resetpassword/submit       @controllers.AuthorizationController.resetUserPassword()
+GET     /confirmreset/:token        @controllers.AuthorizationController.confirmPasswordReset(token : String)
 
 GET     /search/:name               @controllers.UserController.trySearch(name : String)
 

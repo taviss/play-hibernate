@@ -38,4 +38,32 @@ public class Mail {
                 .setBodyText(message);
         mailerClient.send(email);
     }
+
+    public void sendPasswordResetMail(User user) throws EmailException, MalformedURLException {
+        String subject = Messages.get("mail.password.reset.subject");
+
+        String urlString = "http://" + Configuration.root().getString("server.hostname");
+        urlString += "/confirmreset/" + user.getUserToken();
+        URL url = new URL(urlString);
+        String message = Messages.get("mail.password.reset.body");
+        message += ", " + url.toString();
+        Email email = new Email()
+                .setSubject(subject)
+                .setFrom("test@gmail.com")
+                .addTo(user.getUserMail())
+                .setBodyText(message);
+        mailerClient.send(email);
+    }
+
+    public void sendRandomPasswordMail(User user) throws EmailException, MalformedURLException {
+        String subject = Messages.get("mail.password.random.subject");
+        String message = Messages.get("mail.password.random.body");
+        message += user.getUserPass();
+        Email email = new Email()
+                .setSubject(subject)
+                .setFrom("test@gmail.com")
+                .addTo(user.getUserMail())
+                .setBodyText(message);
+        mailerClient.send(email);
+    }
 }

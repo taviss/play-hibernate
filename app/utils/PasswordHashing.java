@@ -15,6 +15,11 @@ public class PasswordHashing {
     public static final int HASH_BYTES = 24;
     public static final int PBKDF2_ITERATIONS = 1000;
 
+    public static String getRandomString() {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
+
     public static String hashPassword(final char[] password) {
         try {
             byte[] salt = getSalt();

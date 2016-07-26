@@ -2,6 +2,7 @@ package controllers;
 
 import forms.LoginForm;
 import forms.PasswordChangeForm;
+import forms.PasswordResetForm;
 import models.User;
 import models.dao.UserDAO;
 import play.Logger;
@@ -18,6 +19,7 @@ import org.apache.commons.mail.EmailException;
 import play.api.libs.mailer.MailerClient;
 import play.libs.mailer.Email;
 import play.mvc.Security;
+import utils.PasswordHashing;
 
 import javax.inject.Inject;
 
@@ -180,6 +182,55 @@ public class AuthorizationController extends Controller {
             return badRequest("User does not exist");
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             return badRequest("Internal error");
+        }
+    }
+
+    @Transactional
+    public Result resetUserPassword() throws EmailException, MalformedURLException {
+        Form<PasswordResetForm> form = Form.form(PasswordResetForm.class).bindFromRequest();
+
+        if (form.hasErrors()) {
+            return badRequest("Invalid form");
+        }
+
+        User foundUser = ud.getUserByName(form.get().userName);
+
+        try {
+            //Check if user and email are valid
+            if(foundUser.getUserMail().equals(form.get().userMail)) {
+                foundUser.setUserToken(UUID.randomUUID().toString());
+                Mail m = new Mail(mailer);
+                m.sendPasswordResetMail(foundUser);
+                String remote = request().remoteAddress();
+                Logger.info("Password reset request: " + form.get().userName + "(" + remote + ")");
+                return ok("Password reset request sent");
+            } else {
+                String remote = request().remoteAddress();
+                Logger.info("Password reset attempt: " + form.get().userName + "(" + remote + ")");
+                return badRequest("User and email do not match");
+            }
+        } catch (NullPointerException e) {
+            String remote = request().remoteAddress();
+            Logger.info("Password reset attempt: " + form.get().userName + "(" + remote + ")");
+            return badRequest("User does not exist");
+        }
+    }
+
+    @Transactional
+    public Result confirmPasswordReset(String token) throws EmailException, MalformedURLException {
+        User foundUser = ud.getUserByToken(token);
+        if(foundUser == null) {
+            return badRequest("Invalid token");
+        } else {
+            //Set the password in plain text for the email sending
+            foundUser.setUserPass(PasswordHashing.getRandomString());
+            Mail m = new Mail(mailer);
+            m.sendRandomPasswordMail(foundUser);
+            //Now hash the password and save it
+            foundUser.setUserToken(UUID.randomUUID().toString());
+            foundUser.setUserPass(hashPassword(foundUser.getUserPass().toCharArray()));
+            ud.update(foundUser);
+            return ok("Password sent via email");
         }
     }
 }
