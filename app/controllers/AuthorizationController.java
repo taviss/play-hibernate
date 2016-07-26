@@ -27,7 +27,7 @@ import static utils.PasswordHashing.*;
  * Created by octavian.salcianu on 7/15/2016.
  * Controller for basic account/authorization operations like login, register, password change, etc.
  */
-public class AuthorizationController extends Controller{
+public class AuthorizationController extends Controller {
     @Inject
     private MailerClient mailer;
 
