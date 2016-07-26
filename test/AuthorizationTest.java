@@ -8,6 +8,7 @@ import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.route;
+import static utils.PasswordHashing.hashPassword;
 
 import controllers.AuthorizationController;
 import models.User;
@@ -54,7 +55,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Test");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
@@ -84,7 +85,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Test");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
@@ -101,7 +102,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Test");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
@@ -118,7 +119,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Test");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
@@ -181,7 +182,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Abc");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("test@test.com");
 
         when(ud.getUserByName(anyString())).thenReturn(u);
@@ -201,7 +202,7 @@ public class AuthorizationTest extends WithApplication {
 
         User u = new User();
         u.setUserName("Abc");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("abc@abc.com");
 
         when(ud.getUserByName(anyString())).thenReturn(null);
@@ -216,7 +217,7 @@ public class AuthorizationTest extends WithApplication {
     public void testConfirmUserSuccess() {
         User u = new User();
         u.setUserName("Abc");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("abc@abc.com");
         u.setUserActive(false);
 
@@ -240,7 +241,7 @@ public class AuthorizationTest extends WithApplication {
     public void testConfirmUserAlreadyActive() {
         User u = new User();
         u.setUserName("Abc");
-        u.setUserPass(AuthorizationController.hashPassword("testtest".toCharArray()));
+        u.setUserPass(hashPassword("testtest".toCharArray()));
         u.setUserMail("abc@abc.com");
         u.setUserActive(true);
 
