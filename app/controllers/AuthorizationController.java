@@ -38,7 +38,7 @@ public class AuthorizationController extends Controller {
 
     /**
      * Attempts to create the user in the db if it doesn't exist and returns http responses accordingly
-     * @return Response
+     * @return Result
      * @throws EmailException
      * @throws MalformedURLException
      */
@@ -79,7 +79,7 @@ public class AuthorizationController extends Controller {
     /**
      * Accessed from the email link. Given a token, it checks if the coresponding user is active or not and valides or not the account
      * @param token
-     * @return Response
+     * @return Result
      */
     @Transactional
     public Result confirmUser(String token) {
@@ -97,7 +97,7 @@ public class AuthorizationController extends Controller {
 
     /**
      * Attempts to login the user and returns ok if success and badRequest if not
-     * @return Response
+     * @return Result
      */
     @Transactional(readOnly = true)
     public Result tryLogin() {
@@ -134,7 +134,7 @@ public class AuthorizationController extends Controller {
 
     /**
      * Logs the user out by clearing the session and redirects to homepage
-     * @return Response(303)
+     * @return Result(303)
      */
     public Result logoutUser() {
         String remote = request().remoteAddress();
@@ -146,7 +146,7 @@ public class AuthorizationController extends Controller {
 
     /**
      * Accessed if the user is logged. Verifies if the old password is correct and if so changes the password to the new one
-     * @return Response
+     * @return Result
      */
     @Security.Authenticated(Secured.class)
     @Transactional
@@ -185,6 +185,12 @@ public class AuthorizationController extends Controller {
         }
     }
 
+    /**
+     * Send a token by email if userName and userMail match. The token can then be used to reset password
+     * @return Result
+     * @throws EmailException
+     * @throws MalformedURLException
+     */
     @Transactional
     public Result resetUserPassword() throws EmailException, MalformedURLException {
         Form<PasswordResetForm> form = Form.form(PasswordResetForm.class).bindFromRequest();
@@ -216,6 +222,13 @@ public class AuthorizationController extends Controller {
         }
     }
 
+    /**
+     * Takes a token and sends the coresponding user a new random password by email. Resets the token afterwards
+     * @param token
+     * @return Result
+     * @throws EmailException
+     * @throws MalformedURLException
+     */
     @Transactional
     public Result confirmPasswordReset(String token) throws EmailException, MalformedURLException {
         User foundUser = ud.getUserByToken(token);
