@@ -9,7 +9,6 @@ import play.db.jpa.JPA;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
-import play.db.jpa.JPA;
 
 import java.util.List;
 import java.util.*;
@@ -28,13 +27,13 @@ public class ProductDAO {
 		this.criteriaBuilder = em.getCriteriaBuilder();
 	}
 
-	public void create(){
+	public void create(String productName, String linkAddress){
 		Product product = new Product();
 		SiteDAO siteDAO = new SiteDAO();
 		product.setId(null);
-		Form<Product> fieldsForm = Form.form(Product.class).bindFromRequest();
-		product = fieldsForm.get();
-		product.setSite(siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]));
+		product.setProdName(productName);
+		product.setLinkAddress(linkAddress);
+		product.setSite(siteDAO.getSiteByURL(linkAddress.split("/")[0]));
 		em.persist(product);
 
 		/* Adding keywords for the product that was created */
@@ -47,12 +46,9 @@ public class ProductDAO {
 	}
 
 	/* Delete product identified by its full name(which should be unique). */
-	public void delete(ProductDAO productDAO){
-		Product lookFor = new Product();
-		Product product = new Product();
-		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		lookFor = form.get();
-		product = productDAO.getProduct(lookFor.getProdName());
+	public void delete(Product product){
+		EntityManager emRemove = JPA.em();
+		emRemove.remove(product);
 	}
 
 	/* Current product name obtained from the endpoint;

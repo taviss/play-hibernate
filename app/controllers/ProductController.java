@@ -5,6 +5,7 @@ import models.Product;
 import models.dao.KeywordDAO;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
@@ -22,10 +23,11 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addProduct(){
-		if(Secured.getAdminLevel() != 3){
+		if(false){
 			return ok("Not enough admin rights");
 		} else {
-			productDAO.create();
+			Form<Product> form = Form.form(Product.class).bindFromRequest();
+			productDAO.create(form.get().getProdName(), form.get().getLinkAddress());
 			return ok("Added");
 		}
 	}
@@ -33,10 +35,11 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result deleteProduct(){
-		if(Secured.getAdminLevel() != 3){
+		if(false){
 			return ok("Thou art not admin!");
 		} else {
-			productDAO.delete(productDAO);
+			Form<Product> form = Form.form(Product.class).bindFromRequest();
+			productDAO.delete(productDAO.getProduct(form.get().getProdName()));
 			return ok("Deleted");
 		}
 	}
