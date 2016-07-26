@@ -7,36 +7,34 @@ import play.db.jpa.JPA;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class KeywordDAO {
-	private EntityManager em;
+	private EntityManager emKW;
 	private CriteriaBuilder criteriaBuilder;
 
 	public KeywordDAO() {
-		this.em = JPA.em();
-		this.criteriaBuilder = em.getCriteriaBuilder();
+		this.emKW = JPA.em();
+		this.criteriaBuilder = emKW.getCriteriaBuilder();
 	}
 
 	public void create(Keyword k, Product p, String keyword){
 		k.setId(null);
 		k.setProduct(p);
 		k.setKeyword(keyword);
-		em.persist(k);
+		emKW.persist(k);
 	}
 
-	public void delete(String productName){
-		KeywordDAO keywordDAO =  new KeywordDAO();
-		List<Keyword> list = keywordDAO.getProductExistingKeywords(productName);
-		for(Keyword k : list){
-			em.remove(k);
-		}
+	public void delete(Product product){
+		CriteriaDelete<Keyword> deleteQ = this.emKW.getCriteriaBuilder().createCriteriaDelete(Keyword.class);
+		Root<Keyword> root = deleteQ.from(Keyword.class);
+
+		deleteQ.where(this.criteriaBuilder.equal(root.get("product"), product.getId()));
+		this.emKW.createQuery(deleteQ).executeUpdate();
 	}
 
 	public void update(Product product){
-		delete(product.getProdName());
+		delete(product);
 		KeywordDAO kd = new KeywordDAO();
 		Keyword k = new Keyword();
 		ProductDAO pd =  new ProductDAO();
@@ -54,8 +52,7 @@ public class KeywordDAO {
 		Root<Keyword> p = query.from(Keyword.class);
 		query.select(p);
 		query.where(this.criteriaBuilder.equal(p.get("product"), product.getId()));
-		Query finalQuery = this.em.createQuery(query);
-//		finalQuery.executeUpdate();
+		Query finalQuery = this.emKW.createQuery(query);
 		List<Keyword> keywords =  finalQuery.getResultList();
 		return keywords;
 	}

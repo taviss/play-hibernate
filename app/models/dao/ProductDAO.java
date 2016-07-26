@@ -5,6 +5,7 @@ import models.Product;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.JPA;
+import play.db.jpa.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -19,12 +20,12 @@ import java.util.stream.Collectors;
  * Created by octavian.salcianu on 7/14/2016.
  */
 public class ProductDAO {
-	private EntityManager em;
+	private EntityManager emPD;
 	private CriteriaBuilder criteriaBuilder;
 
 	public ProductDAO() {
-		this.em = JPA.em();
-		this.criteriaBuilder = em.getCriteriaBuilder();
+		this.emPD = JPA.em();
+		this.criteriaBuilder = emPD.getCriteriaBuilder();
 	}
 
 	public void create(String productName, String linkAddress){
@@ -34,7 +35,7 @@ public class ProductDAO {
 		product.setProdName(productName);
 		product.setLinkAddress(linkAddress);
 		product.setSite(siteDAO.getSiteByURL(linkAddress.split("/")[0]));
-		em.persist(product);
+		emPD.persist(product);
 
 		/* Adding keywords for the product that was created */
 		String[] kw = keywordsFromProductURL(product);
@@ -47,34 +48,25 @@ public class ProductDAO {
 
 	/* Delete product identified by its full name(which should be unique). */
 	public void delete(Product product){
-		EntityManager emRemove = JPA.em();
-		emRemove.remove(product);
+		emPD.remove(product);
 	}
 
-	/* Current product name obtained from the endpoint;
-	 * New values obtained from postman form */
-	public void update(String name){
-		SiteDAO siteDAO = new SiteDAO();
-		Product product = new Product();
-		Product newProduct =  new Product();
-		ProductDAO productDAO = new ProductDAO();
-		KeywordDAO keywordDAO =  new KeywordDAO();
-		/* Store current fields in order to use them if form fields are null */
-		String currentName = name;
-		String currentLink = productDAO.getProduct(name).getLinkAddress();
-		product = productDAO.getProduct(name);
-		/* Get new data from form */
-		Form<Product> form = Form.form(Product.class).bindFromRequest();
-		newProduct = form.get();
+	public void updateLink(Product p, String link){
+		SiteDAO sd = new SiteDAO();
+		KeywordDAO kd = new KeywordDAO();
+		p.setLinkAddress(link);
+		p.setSite(sd.getSiteByURL(link.split("/")[0]));
+	}
 
-		if(newProduct.getProdName() != null){
-			product.setProdName(newProduct.getProdName());
-		}
-		if(newProduct.getProdName() != null){
-			product.setLinkAddress(newProduct.getLinkAddress());
-			product.setSite(siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]));
-		}
-//		keywordDAO.update(product);
+	public void updateName(Product p, String name){
+		p.setProdName(name);
+	}
+
+	public void updateAll(Product p, String name, String link){
+		SiteDAO sd = new SiteDAO();
+		p.setProdName(name);
+		p.setLinkAddress(link);
+		p.setSite(sd.getSiteByURL(link.split("/")[0]));
 	}
 
 	public Product getProduct(String name){
@@ -82,7 +74,7 @@ public class ProductDAO {
 		Root<Product> root = criteriaQuery.from(Product.class);
 		criteriaQuery.select(root);
 		criteriaQuery.where(this.criteriaBuilder.equal(root.get("prodName"), name));
-		Query finalQuery = this.em.createQuery(criteriaQuery);
+		Query finalQuery = this.emPD.createQuery(criteriaQuery);
 		List<Product> products = finalQuery.getResultList();
 		return products.get(0);
 	}
@@ -103,7 +95,7 @@ public class ProductDAO {
         Predicate prodNameP = this.criteriaBuilder.like(keywordRoot.get("keyword"), "%"+productName+"%");
 
         criteriaQuery.where(prodNameP);
-        Query query = this.em.createQuery(criteriaQuery);
+        Query query = this.emPD.createQuery(criteriaQuery);
         @SuppressWarnings("unchecked")
         List<Keyword> foundKeywords = (List<Keyword>) query.getResultList();
 
