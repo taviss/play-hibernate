@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import play.api.libs.mailer.MailerClient;
 
-public class UserTest extends WithApplication {
+public class AuthorizationTest extends WithApplication {
 
     private UserDAO ud = mock(UserDAO.class);
     private MailerClient mailer = mock(MailerClient.class);
