@@ -34,10 +34,6 @@ public class AuthorizationController extends Controller {
     @Inject
     private UserDAO ud;
 
-    public void setUserDAO(UserDAO ud) {
-        this.ud = ud;
-    }
-
     /**
      * Attempts to create the user in the db if it doesn't exist and returns http responses accordingly
      * @return Response
