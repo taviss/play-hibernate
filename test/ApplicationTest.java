@@ -1,30 +1,26 @@
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.Status.OK;
 import org.junit.Test;
-import play.twirl.api.Content;
+import play.inject.guice.GuiceApplicationBuilder;
+import play.mvc.Result;
+import play.test.WithApplication;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertThat;
-import static play.test.Helpers.*;
+public class ApplicationTest extends WithApplication {
 
-
-/**
-*
-* Simple (JUnit) tests that can call all parts of a play app.
-* If you are interested in mocking a whole application, see the wiki for more details.
-*
-*/
-public class ApplicationTest {
-
-    @Test
-    public void simpleCheck() {
-        int a = 1 + 1;
-        assertEquals(2, a);
+    @Override
+    protected play.Application provideApplication() {
+        return new GuiceApplicationBuilder()
+                .configure("play.http.router", "router.Routes")
+                .build();
     }
 
     @Test
-    public void renderTemplate() {
-        Content html = views.html.index.render("Test", "Your new application is ready.");
-        assertEquals("text/html", contentType(html));
-        assertTrue(contentAsString(html).contains("Your new application is ready."));
+    public void testIndex() {
+        Result result = new controllers.Application().index();
+        assertEquals(OK, result.status());
+        assertEquals("text/html", result.contentType().get());
+        assertEquals("utf-8", result.charset().get());
+        //assertTrue(contentAsString(result).contains("Welcome"));
     }
 
 }
