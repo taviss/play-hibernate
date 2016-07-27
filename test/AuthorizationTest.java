@@ -2,6 +2,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
@@ -11,17 +12,22 @@ import static play.test.Helpers.route;
 import static utils.PasswordHashing.hashPassword;
 
 import controllers.AuthorizationController;
+import controllers.Mailer;
 import models.User;
 import models.dao.UserDAO;
+import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.mailer.Email;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +37,8 @@ import play.api.libs.mailer.MailerClient;
 public class AuthorizationTest extends WithApplication {
 
     private UserDAO ud = mock(UserDAO.class);
-    private MailerClient mailer = mock(MailerClient.class);
+    private Mailer mailer = mock(Mailer.class);
+
     @Before
     public void setUp() throws Exception {
         Http.Context context = mock(Http.Context.class);
@@ -43,8 +50,15 @@ public class AuthorizationTest extends WithApplication {
         return new GuiceApplicationBuilder()
                 .configure("play.http.router", "router.Routes")
                 .overrides(bind(UserDAO.class).toInstance(ud))
-                .overrides(bind(MailerClient.class).toInstance(mailer))
+                .overrides(bind(Mailer.class).toInstance(mailer))
                 .build();
+    }
+
+    @Before
+    public void setMailerUp() throws EmailException, MalformedURLException {
+        doNothing().when(mailer).sendConfirmationMail(any());
+        doNothing().when(mailer).sendPasswordResetMail(any());
+        doNothing().when(mailer).sendRandomPasswordMail(any());
     }
 
     @Test

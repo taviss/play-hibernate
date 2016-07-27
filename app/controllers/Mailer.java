@@ -14,14 +14,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-public class Mail {
-
-    MailerClient mailerClient;
-
+public class Mailer {
     @Inject
-    public Mail(MailerClient mailer) {
-        this.mailerClient = mailer;
-    }
+    private MailerClient mailerClient;
 
     public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
         String subject = Messages.get("mail.confirmation.subject");

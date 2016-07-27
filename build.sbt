@@ -23,10 +23,9 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.projectlombok" % "lombok" % "1.16.8",
   "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "org.mockito" % "mockito-core" % "1.10.19",
   "dom4j" % "dom4j" % "1.6"
 )
-
-libraryDependencies += "org.mockito" % "mockito-core" % "1.10.19"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 
@@ -63,7 +62,5 @@ dockerCommands := dockerCommands.value.flatMap {
 
 // run this with: docker run -p 9000:9000 <name>:<version>
 */
-
-fork in run := true
 
 fork in run := true

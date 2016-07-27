@@ -16,8 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 import org.apache.commons.mail.EmailException;
-import play.api.libs.mailer.MailerClient;
-import play.libs.mailer.Email;
 import play.mvc.Security;
 import utils.PasswordHashing;
 
@@ -31,10 +29,10 @@ import static utils.PasswordHashing.*;
  */
 public class AuthorizationController extends Controller {
     @Inject
-    private MailerClient mailer;
+    private UserDAO ud;
 
     @Inject
-    private UserDAO ud;
+    private Mailer m;
 
     /**
      * Attempts to create the user in the db if it doesn't exist and returns http responses accordingly
@@ -65,7 +63,6 @@ public class AuthorizationController extends Controller {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
             registerUser.setUserToken(UUID.randomUUID().toString());
             registerUser.setUserActive(false);
-            Mail m = new Mail(mailer);
             m.sendConfirmationMail(registerUser);
             ud.create(registerUser);
 
@@ -205,7 +202,6 @@ public class AuthorizationController extends Controller {
             //Check if user and email are valid
             if(foundUser.getUserMail().equals(form.get().userMail)) {
                 foundUser.setUserToken(UUID.randomUUID().toString());
-                Mail m = new Mail(mailer);
                 m.sendPasswordResetMail(foundUser);
                 String remote = request().remoteAddress();
                 Logger.info("Password reset request: " + form.get().userName + "(" + remote + ")");
@@ -237,7 +233,6 @@ public class AuthorizationController extends Controller {
         } else {
             //Set the password in plain text for the email sending
             foundUser.setUserPass(PasswordHashing.getRandomString());
-            Mail m = new Mail(mailer);
             m.sendRandomPasswordMail(foundUser);
             //Now hash the password and save it
             foundUser.setUserToken(UUID.randomUUID().toString());
