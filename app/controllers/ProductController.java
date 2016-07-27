@@ -38,12 +38,11 @@ public class ProductController extends Controller {
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
-	public Result deleteProduct(){
+	public Result deleteProduct(Long id){
 		if(false){
 			return ok("Thou art not admin!");
 		} else {
-			Form<ProductForm> form = Form.form(ProductForm.class).bindFromRequest();
-			Product product = productDAO.getProduct(form.get().productName);
+			Product product = productDAO.get(id);
 			productDAO.softDelete(product);
 			return ok("Deleted");
 		}

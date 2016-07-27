@@ -8,7 +8,7 @@ GET		/siteAdd								@controllers.SiteController.addSite()
 GET		/siteRemove								@controllers.SiteController.removeSite()
 PUT		/product/update							@controllers.ProductController.updateProduct()
 POST	/product/add							@controllers.ProductController.addProduct()
-POST	/product/delete							@controllers.ProductController.deleteProduct()
+DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id : Long)
 
 POST    /login/submit               @controllers.AuthorizationController.tryLogin()
 POST    /register/submit            @controllers.AuthorizationController.registerUser()

@@ -51,6 +51,8 @@ public class ProductDAO {
 		emPD.remove(product);
 	}
 
+	public Product get(Long id) { return emPD.find(Product.class, id); }
+
 	public void softDelete(Product product) {
 		product.setDeleted(true);
 		emPD.merge(product);
