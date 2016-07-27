@@ -77,7 +77,7 @@ public class AuthorizationController extends Controller {
     }
 
     /**
-     * Accessed from the email link. Given a token, it checks if the coresponding user is active or not and valides or not the account
+     * Accessed from the email link. Given a token, it checks if the corresponding user is active or not and validates or not the account
      * @param token
      * @return Result
      */
