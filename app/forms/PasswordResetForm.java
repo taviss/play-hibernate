@@ -1,17 +1,17 @@
 package forms;
 
-/**
- * Created by octavian.salcianu on 7/15/2016.
- */
 import play.data.validation.Constraints;
 
-public class LoginForm {
-
+/**
+ * Created by octavian.salcianu on 7/26/2016.
+ */
+public class PasswordResetForm {
     @Constraints.Required()
     @Constraints.MinLength(3)
     public String userName;
 
     @Constraints.Required()
-    @Constraints.MinLength(6)
-    public String userPass;
+    @Constraints.Email
+    public String userMail;
+
 }

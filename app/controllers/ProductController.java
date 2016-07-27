@@ -5,6 +5,7 @@ import forms.ProductUpdateForm;
 import models.Keyword;
 import models.Product;
 import models.dao.KeywordDAO;
+import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
@@ -27,7 +28,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addProduct(){
-		if(false){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok("Not enough admin rights");
 		} else {
 			Form<Product> form = Form.form(Product.class).bindFromRequest();
@@ -39,7 +40,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result deleteProduct(Long id){
-		if(false){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok("Thou art not admin!");
 		} else {
 			Product product = productDAO.get(id);
@@ -52,7 +53,7 @@ public class ProductController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result updateProduct(Long id){
-		if(false){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 			return ok("Thou art not admin!");
 		} else {
 				productDAO.update(id);

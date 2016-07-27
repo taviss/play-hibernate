@@ -1,4 +1,3 @@
-//import com.typesafe.sbt.packager.docker._
 name := """play-hibernate"""
 
 version := "1.0-SNAPSHOT"
@@ -22,44 +21,11 @@ libraryDependencies ++= Seq(
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.projectlombok" % "lombok" % "1.16.8",
-  "dom4j" % "dom4j" % "1.6",
-  "org.mockito" % "mockito-all" % "1.9.5"
+  "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "org.mockito" % "mockito-core" % "1.10.19",
+  "dom4j" % "dom4j" % "1.6"
 )
 
-// Play provides two styles of routers, one expects its actions to be injected, the
-// other, legacy style, accesses its actions statically.
-//routesGenerator := InjectedRoutesGenerator
-
-// --------------------
-// ------ DOCKER ------
-// --------------------
-// build with activator docker:publishLocal
-
-// change to smaller base image
-/*dockerBaseImage := "frolvlad/alpine-oraclejdk8:latest"
-dockerCommands := dockerCommands.value.flatMap {
-=======
-// dockerBaseImage := "frolvlad/alpine-oraclejdk8:latest"
-/*dockerCommands := dockerCommands.value.flatMap {
-  case cmd@Cmd("FROM", _) => List(cmd, Cmd("RUN", "apk update && apk add bash"))
-  case other => List(other)
-}*/
-
-// setting a maintainer which is used for all packaging types</pre>
-//maintainer := "Me"
-
-// exposing the play ports
-//dockerExposedPorts in Docker := Seq(9000, 9443)
-
-// publish to repo
-//dockerRepository := Some("quay.io/")
-//dockerUpdateLatest := true
-
-// run this with: docker run -p 9000:9000 <name>:<version>
-*/
-
-
-
-fork in run := true
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 
 fork in run := true

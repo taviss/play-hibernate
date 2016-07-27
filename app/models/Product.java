@@ -25,11 +25,11 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
-    @Constraints.Required
+    @Constraints.MaxLength(128)
     private String linkAddress;
 
     @Column(name = "product_name", nullable = false)
-    @Constraints.Required
+    @Constraints.MaxLength(128)
     private String prodName;
 
     @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)

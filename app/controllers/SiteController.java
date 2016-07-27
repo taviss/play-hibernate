@@ -20,7 +20,7 @@ public class SiteController extends Controller {
 	public Result addSite(){
 		/*adminLevel 3 means...for now...this user has enough privileges to add websites to the database.
 		* Using random values for testing purpose.*/
-//		if(Secured.getAdminLevel() != 3){
+//		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 //			return ok(siteAdd.render(null, "Thou art not admin!"));
 //		}
 		SiteDAO sd = new SiteDAO();
@@ -35,7 +35,7 @@ public class SiteController extends Controller {
 	@Transactional
 	public Result removeSite(){
 		SiteDAO sd = new SiteDAO();
-//		if(Secured.getAdminLevel() != 3){
+//		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
 //			return ok(siteRemove.render(null, "Thou art not admin!"));
 //		} else{
 			sd.delete("keyword");
