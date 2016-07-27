@@ -144,6 +144,7 @@ public class AuthorizationController extends Controller {
      * Logs the user out by clearing the session and redirects to homepage
      * @return Result(303)
      */
+    @Transactional
     public Result logoutUser() {
         String remote = request().remoteAddress();
         Logger.info("User logged out: " + session().get("user") + " (" + remote + ")");

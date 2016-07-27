@@ -48,8 +48,13 @@ public class Secured extends Security.Authenticator {
     }
 
     public static int getAdminLevel() {
-        UserDAO ud = new UserDAO();
-        User u = ud.getUserByName(Context.current().request().username());
-        return u.getAdminLevel();
+
+        try {
+            UserDAO ud = new UserDAO();
+            User u = ud.getUserByName(Context.current().request().username());
+            return u.getAdminLevel();
+        } catch (NullPointerException e) {
+            return 0;
+        }
     }
 }
