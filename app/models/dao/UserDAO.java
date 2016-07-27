@@ -34,14 +34,16 @@ public class UserDAO {
     public User create(User user) {
         user.setId(null);
         user.setAdminLevel(UserRoles.NORMAL_USER);
-        em.getTransaction().begin();
         em.persist(user);
-        em.getTransaction().commit();
         return user;
     }
 
     public User update(User user) {
         return em.merge(user);
+    }
+
+    public void delete(User user) {
+        em.remove(user);
     }
 
     /**

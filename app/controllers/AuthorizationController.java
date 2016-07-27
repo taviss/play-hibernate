@@ -40,7 +40,7 @@ public class AuthorizationController extends Controller {
      * @throws EmailException
      * @throws MalformedURLException
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Result registerUser() throws EmailException, MalformedURLException {
         Form<User> form = Form.form(User.class).bindFromRequest();
 
@@ -71,6 +71,17 @@ public class AuthorizationController extends Controller {
             Logger.info("User registered:" + registerUser.getUserName() + " " + registerUser.getUserMail() + " (" + remote + ")");
         }
         return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
+    }
+
+    @Transactional
+    public Result deleteUser(Long id) {
+        User foundUser = ud.get(id);
+        if(foundUser == null) {
+            return notFound();
+        } else {
+            ud.delete(foundUser);
+            return ok();
+        }
     }
 
     /**
@@ -202,6 +213,7 @@ public class AuthorizationController extends Controller {
             //Check if user and email are valid
             if(foundUser.getUserMail().equals(form.get().userMail)) {
                 foundUser.setUserToken(UUID.randomUUID().toString());
+                ud.update(foundUser);
                 m.sendPasswordResetMail(foundUser);
                 String remote = request().remoteAddress();
                 Logger.info("Password reset request: " + form.get().userName + "(" + remote + ")");
