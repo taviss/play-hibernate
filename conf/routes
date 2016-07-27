@@ -6,7 +6,7 @@
 GET     /                          				@controllers.Application.index()
 GET		/siteAdd								@controllers.SiteController.addSite()
 GET		/siteRemove								@controllers.SiteController.removeSite()
-PUT		/product/update							@controllers.ProductController.updateProduct()
+PUT		/product/update/:id						@controllers.ProductController.updateProduct(id : Long)
 POST	/product/add							@controllers.ProductController.addProduct()
 DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id : Long)
 

@@ -51,29 +51,11 @@ public class ProductController extends Controller {
 	/* name is the name of the product whose fields are to be updated*/
 	@Security.Authenticated(Secured.class)
 	@Transactional
-	public Result updateProduct(){
+	public Result updateProduct(Long id){
 		if(false){
 			return ok("Thou art not admin!");
 		} else {
-			try{
-				Form<ProductUpdateForm> form = Form.form(ProductUpdateForm.class).bindFromRequest();
-				/* Retrieves product to update */
-				Product product = productDAO.getProduct(form.get().product);
-				if((form.get().productName != null) && (form.get().linkAddress != null)){
-					productDAO.updateAll(product, form.get().productName, form.get().linkAddress);
-					return ok("Product's fields updated");
-				}
-				if(form.get().productName != null){
-					productDAO.updateName(product, form.get().productName);
-					return ok("Product's name updated");
-				}
-				if(form.get().linkAddress != null){
-					productDAO.updateLink(product, form.get().linkAddress);
-					return ok("Product's link updated");
-				}
-			} catch(IllegalStateException e){
-				return ok("Must give actual product name! How you think old chinese man finds product to update???");
-			}
+				productDAO.update(id);
 			return ok("You give old chinese man no new data. Bye!");
 		}
 	}

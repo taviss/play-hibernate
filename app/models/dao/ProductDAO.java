@@ -58,22 +58,9 @@ public class ProductDAO {
 		emPD.merge(product);
 	}
 
-	public void updateLink(Product p, String link){
-		SiteDAO sd = new SiteDAO();
-		KeywordDAO kd = new KeywordDAO();
-		p.setLinkAddress(link);
-		p.setSite(sd.getSiteByURL(link.split("/")[0]));
-	}
-
-	public void updateName(Product p, String name){
-		p.setProdName(name);
-	}
-
-	public void updateAll(Product p, String name, String link){
-		SiteDAO sd = new SiteDAO();
-		p.setProdName(name);
-		p.setLinkAddress(link);
-		p.setSite(sd.getSiteByURL(link.split("/")[0]));
+	public void update(Long id){
+		Product p = this.get(id);
+		emPD.merge(p);
 	}
 
 	public Product getProduct(String name){

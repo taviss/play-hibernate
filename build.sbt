@@ -22,7 +22,8 @@ libraryDependencies ++= Seq(
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.projectlombok" % "lombok" % "1.16.8",
-  "dom4j" % "dom4j" % "1.6"
+  "dom4j" % "dom4j" % "1.6",
+  "org.mockito" % "mockito-all" % "1.9.5"
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the
