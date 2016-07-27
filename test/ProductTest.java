@@ -33,6 +33,7 @@ import java.util.Optional;
 
 public class ProductTest extends WithApplication{
 
+	/*
 	private ProductDAO pd = mock(ProductDAO.class);
 	private SiteDAO sd = mock(SiteDAO.class);
 	private KeywordDAO kd = mock(KeywordDAO.class);
@@ -66,5 +67,5 @@ public class ProductTest extends WithApplication{
 
 		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.create()).bodyForm(form));
 		assertEquals(OK, r.status());
-	}
+	}*/
 }

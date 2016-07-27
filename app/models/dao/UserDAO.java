@@ -33,12 +33,7 @@ public class UserDAO {
      */
     public User create(User user) {
         user.setId(null);
-<<<<<<< HEAD
-        user.setAdminLevel(3);
-        em.getTransaction().begin();
-=======
         user.setAdminLevel(UserRoles.NORMAL_USER);
->>>>>>> 02e04a087c936a3c9cdb030fb64e8f881a3fb158
         em.persist(user);
         return user;
     }
