@@ -35,10 +35,9 @@ public class Secured extends Security.Authenticator {
         }
 
         String tickString = Long.toString(new Date().getTime());
-
         ctx.session().put("lastActivity", tickString);
 
-        Logger.warn("Last activity(" + ctx.session().get("user") + "): ", ctx.session().get("lastActivity"));
+        //Logger.warn("Last activity(" + ctx.session().get("user") + "): ", ctx.session().get("lastActivity"));
 
         return ctx.session().get("user");
     }
