@@ -10,10 +10,28 @@ import play.mvc.*;
 import play.mvc.Http.*;
 import models.*;
 
+import java.util.Date;
+
 public class Secured extends Security.Authenticator {
 
     @Override
     public String getUsername(Context ctx) {
+
+        String lastActivity = ctx.session().get("lastActivity");
+
+        if (lastActivity != null && !lastActivity.equals("")) {
+            long previousT = Long.valueOf(lastActivity);
+            long currentT = new Date().getTime();
+            long timeout = Long.valueOf(Configuration.root().getString("sessionTimeout")) * 1000 * 60;
+            if ((currentT - previousT) > timeout) {
+                ctx.session().clear();
+                return null;
+            }
+        }
+
+        String tickString = Long.toString(new Date().getTime());
+        ctx.session().replace("userTime", tickString);
+
         return ctx.session().get("user");
     }
 
