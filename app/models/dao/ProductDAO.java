@@ -51,6 +51,11 @@ public class ProductDAO {
 		emPD.remove(product);
 	}
 
+	public void softDelete(Product product) {
+		product.setDeleted(true);
+		emPD.merge(product);
+	}
+
 	public void updateLink(Product p, String link){
 		SiteDAO sd = new SiteDAO();
 		KeywordDAO kd = new KeywordDAO();

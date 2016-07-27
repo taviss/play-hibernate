@@ -32,12 +32,10 @@ public class Product {
     @Constraints.Required
     private String prodName;
 
-    @OneToMany(mappedBy="product")
-    //@JsonBackReference
-    //@JsonIgnoreProperties("product")
+    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
     private Set<Price> prices;
 
-    @OneToMany(mappedBy="product")
+    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
     private Set<Keyword> keywords;
 
     /**
@@ -47,6 +45,9 @@ public class Product {
     @ManyToOne
     @JoinColumn(name="site_id", nullable = false)
     private Site site;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
 
     public Set<Keyword> getKeywords() {
         return null;

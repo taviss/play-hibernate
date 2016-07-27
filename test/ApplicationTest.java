@@ -14,17 +14,6 @@ import static play.test.Helpers.*;
 */
 public class ApplicationTest {
 
-    @Test
-    public void simpleCheck() {
-        int a = 1 + 1;
-        assertEquals(2, a);
-    }
 
-    @Test
-    public void renderTemplate() {
-        Content html = views.html.index.render("Test", "Your new application is ready.");
-        assertEquals("text/html", contentType(html));
-        assertTrue(contentAsString(html).contains("Your new application is ready."));
-    }
 
 }

@@ -44,8 +44,7 @@ public class ProductController extends Controller {
 		} else {
 			Form<ProductForm> form = Form.form(ProductForm.class).bindFromRequest();
 			Product product = productDAO.getProduct(form.get().productName);
-//			keywordDAO.delete(product);
-			productDAO.delete(product);
+			productDAO.softDelete(product);
 			return ok("Deleted");
 		}
 	}
