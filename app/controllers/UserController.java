@@ -14,6 +14,10 @@ import play.mvc.Result;
 import play.mvc.Security;
 import utils.PasswordHashing;
 
+import java.util.UUID;
+
+import static utils.PasswordHashing.hashPassword;
+
 /**
  * Created by octavian.salcianu on 7/11/2016.
  */
@@ -21,6 +25,10 @@ public class UserController extends Controller {
     @Inject
     private UserDAO ud;
 
+    /**
+     * Adds an user to the database and activates it. Not to be confused with the registration process
+     * @return Result
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result createUser() {
@@ -39,6 +47,9 @@ public class UserController extends Controller {
             return badRequest("Username or email in use");
         } else {
             User createdUser = form.get();
+            createdUser.setUserPass(hashPassword(createdUser.getUserPass().toCharArray()));
+            createdUser.setUserToken(UUID.randomUUID().toString());
+            createdUser.setUserActive(true);
             ud.create(createdUser);
             return ok("Success");
         }
@@ -76,6 +87,11 @@ public class UserController extends Controller {
         }
     }
 
+    /**
+     * Returns the user with given id
+     * @param id
+     * @return Result
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result getUser(Long id) {
@@ -92,6 +108,10 @@ public class UserController extends Controller {
         }
     }
 
+    /**
+     * Updates adminLevel of an user given the userName
+     * @return Result
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result setAdminLevel() {
@@ -114,6 +134,11 @@ public class UserController extends Controller {
         }
     }
 
+    /**
+     * Deletes an user given the id
+     * @param id
+     * @return Result
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result deleteUser(Long id) {
