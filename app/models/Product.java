@@ -62,10 +62,4 @@ public class Product {
         }
         return p;
     }
-
-	public String siteFromURL(){
-		String URL = getLinkAddress();
-		String[] URLsite = URL.split("/");
-		return URLsite[0];
-	}
 }

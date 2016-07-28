@@ -63,7 +63,7 @@ public class ProductTest extends WithApplication{
 		Product p = new Product();
 		p.setProdName("Test");
 		p.setLinkAddress("test.test/test");
-		when(pd.getProduct(anyString())).thenReturn(p);
+		when(pd.getProductByName(anyString())).thenReturn(p);
 
 		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.create()).bodyForm(form));
 		assertEquals(OK, r.status());
