@@ -103,11 +103,11 @@ public class ProductController extends Controller {
 				return notFound("User doesn't exist");
 			} else {
 				Product formProduct = form.get();
-				if (! formProduct.getId().equals(id)) {
-					return badRequest();
-				} else {
+				if(formProduct != null){
 					productDAO.update(formProduct);
 					return ok("Success");
+				} else{
+					return badRequest("I was given null object");
 				}
 			}
 		}
