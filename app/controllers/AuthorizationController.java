@@ -124,6 +124,7 @@ public class AuthorizationController extends Controller {
                 session("user", foundUser.getUserName());
                 String remote = request().remoteAddress();
                 Logger.info("User logged in: " + form.get().userName + " (" + remote + ")");
+                flash("success", "You've been logged in");
                 return ok("Logged in");
             } else {
                 String remote = request().remoteAddress();
@@ -149,7 +150,7 @@ public class AuthorizationController extends Controller {
         String remote = request().remoteAddress();
         Logger.info("User logged out: " + session().get("user") + " (" + remote + ")");
         session().clear();
-        //flash("success", "You've been logged out");
+        flash("success", "You've been logged out");
         return redirect("/");
     }
 
