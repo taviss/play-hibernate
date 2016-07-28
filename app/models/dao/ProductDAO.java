@@ -29,6 +29,8 @@ public class ProductDAO {
 	}
 
 	public void create(Product product){
+		product.setId(null);
+		product.setDeleted(false);
 		/* Adding keywords for the product that was created */
 		KeywordDAO kd = new KeywordDAO();
 		Keyword k = new Keyword();

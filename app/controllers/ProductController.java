@@ -24,7 +24,11 @@ import javax.inject.Inject;
 public class ProductController extends Controller {
 	@Inject
 	private ProductDAO productDAO;
+
+	@Inject
 	private KeywordDAO keywordDAO;
+
+	@Inject
 	private SiteDAO siteDAO;
 
 	@Security.Authenticated(Secured.class)
@@ -37,10 +41,15 @@ public class ProductController extends Controller {
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
-
-			Product product = form.get();
-			product.setId(null);
-			product.setDeleted(false);
+			String smth = form.get().getLinkAddress().split("/")[0];
+			Product product = new Product();
+			if((form.get().getProdName()) != null &&
+					(form.get().getLinkAddress() != null) &&
+					(smth != null)){
+				product = form.get();
+			} else {
+				return badRequest("Invalid form");
+			}
 			Site site = siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]);
 			if (site != null) {
 				product.setSite(site);
@@ -59,8 +68,12 @@ public class ProductController extends Controller {
 			return ok("Thou art not admin!");
 		} else {
 			Product product = productDAO.get(id);
-			productDAO.softDelete(product);
-			return ok("Deleted");
+			if(product ==  null){
+				return notFound("No such product");
+			} else{
+				productDAO.softDelete(product);
+				return ok("Deleted");
+			}
 		}
 	}
 
