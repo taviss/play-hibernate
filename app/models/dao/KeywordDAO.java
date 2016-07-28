@@ -23,6 +23,7 @@ public class KeywordDAO {
 		k.setProduct(p);
 		k.setKeyword(keyword);
 //		emKW.persist(k);
+
 	}
 
 	public void delete(Product product){

@@ -39,6 +39,7 @@ public class ProductDAO {
 		emPD.persist(product);
 	}
 
+
 	/* Delete product identified by its full name(which should be unique). */
 	public void delete(Product product){
 		emPD.remove(product);

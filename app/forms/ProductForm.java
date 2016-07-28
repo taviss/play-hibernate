@@ -9,3 +9,4 @@ public class ProductForm {
 	@Constraints.MaxLength(15)
 	public String productName;
 }
+

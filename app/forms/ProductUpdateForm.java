@@ -15,6 +15,7 @@ public class ProductUpdateForm {
 	@Constraints.MaxLength(15)
 	public String productName;
 
+
 	/* New product link address */
 	@Constraints.Required
 	@Constraints.MinLength(20)

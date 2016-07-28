@@ -37,6 +37,7 @@ public class ProductController extends Controller {
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
+
 			Product product = form.get();
 			product.setId(null);
 			product.setDeleted(false);

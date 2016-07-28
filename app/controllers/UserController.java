@@ -96,6 +96,7 @@ public class UserController extends Controller {
         }
         User foundUser = ud.getUserByName(form.get().userName);
 
+
         if(foundUser == null) {
             return notFound("No such user");
         } else {
