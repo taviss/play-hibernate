@@ -18,47 +18,73 @@ public class Mailer {
     @Inject
     private MailerClient mailerClient;
 
+    /**
+     * Sends the newly registered user a confirmation mail containing a token that can be used to activate the account
+     * @param user
+     * @throws EmailException
+     * @throws MalformedURLException
+     */
     public void sendConfirmationMail(User user) throws EmailException, MalformedURLException {
+        //Create the strings
         String subject = Messages.get("mail.confirmation.subject");
-
-        String urlString = "http://" + Configuration.root().getString("server.hostname");
-        urlString += "/confirm/" + user.getUserToken();
+        String urlString = "http://" + Configuration.root().getString("server.hostname") + "/confirm/" + user.getUserToken();
         URL url = new URL(urlString);
-        String message = Messages.get("mail.confirmation.body");
-        message += ", " + url.toString();
+        String message = Messages.get("mail.confirmation.body") + ", " + url.toString();
+
+        //Compose the email
         Email email = new Email()
                 .setSubject(subject)
                 .setFrom("test@gmail.com")
                 .addTo(user.getUserMail())
                 .setBodyText(message);
+
+        //Send the email
         mailerClient.send(email);
     }
 
+    /**
+     * Sends the user an email containing a token that can be used to reset their password
+     * @param user
+     * @throws EmailException
+     * @throws MalformedURLException
+     */
     public void sendPasswordResetMail(User user) throws EmailException, MalformedURLException {
+        //Create the strings
         String subject = Messages.get("mail.password.reset.subject");
-
-        String urlString = "http://" + Configuration.root().getString("server.hostname");
-        urlString += "/confirmreset/" + user.getUserToken();
+        String urlString = "http://" + Configuration.root().getString("server.hostname") + "/confirmreset/" + user.getUserToken();
         URL url = new URL(urlString);
-        String message = Messages.get("mail.password.reset.body");
-        message += ", " + url.toString();
+        String message = Messages.get("mail.password.reset.body") + ", " + url.toString();
+
+        //Compose the email
         Email email = new Email()
                 .setSubject(subject)
                 .setFrom("test@gmail.com")
                 .addTo(user.getUserMail())
                 .setBodyText(message);
+
+        //Send the email
         mailerClient.send(email);
     }
 
+    /**
+     * Sends the user an email containing the random password generated upon validating the token
+     * @param user
+     * @throws EmailException
+     * @throws MalformedURLException
+     */
     public void sendRandomPasswordMail(User user) throws EmailException, MalformedURLException {
+        //Create the strings
         String subject = Messages.get("mail.password.random.subject");
-        String message = Messages.get("mail.password.random.body");
-        message += user.getUserPass();
+        String message = Messages.get("mail.password.random.body") + user.getUserPass();
+
+        //Compose the email
         Email email = new Email()
                 .setSubject(subject)
                 .setFrom("test@gmail.com")
                 .addTo(user.getUserMail())
                 .setBodyText(message);
+
+        //Send the email
         mailerClient.send(email);
     }
 }
