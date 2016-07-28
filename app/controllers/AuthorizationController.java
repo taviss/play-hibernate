@@ -73,17 +73,6 @@ public class AuthorizationController extends Controller {
         return ok("Success! Activate: http://localhost:9000/confirm/" + registerUser.getUserToken());
     }
 
-    @Transactional
-    public Result deleteUser(Long id) {
-        User foundUser = userDAO.get(id);
-        if(foundUser == null) {
-            return notFound();
-        } else {
-            userDAO.delete(foundUser);
-            return ok();
-        }
-    }
-
     /**
      * Accessed from the email link. Given a token, it checks if the corresponding user is active or not and validates or not the account
      * @param token
