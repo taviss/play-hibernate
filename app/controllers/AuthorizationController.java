@@ -29,10 +29,10 @@ import static utils.PasswordHashing.*;
  */
 public class AuthorizationController extends Controller {
     @Inject
-    private UserDAO ud;
+    private UserDAO userDAO;
 
     @Inject
-    private Mailer m;
+    private Mailer mailerClient;
 
     /**
      * Attempts to create the user in the db if it doesn't exist and returns http responses accordingly
@@ -50,8 +50,8 @@ public class AuthorizationController extends Controller {
 
         User registerUser = form.get();
 
-        User foundUser = ud.getUserByName(registerUser.getUserName());
-        User foundEmail = ud.getUserByMail(registerUser.getUserMail());
+        User foundUser = userDAO.getUserByName(registerUser.getUserName());
+        User foundEmail = userDAO.getUserByMail(registerUser.getUserMail());
 
         if(foundUser != null || foundEmail != null) {
             //Log attempt
@@ -63,8 +63,8 @@ public class AuthorizationController extends Controller {
             registerUser.setUserPass(hashPassword(registerUser.getUserPass().toCharArray()));
             registerUser.setUserToken(UUID.randomUUID().toString());
             registerUser.setUserActive(false);
-            m.sendConfirmationMail(registerUser);
-            ud.create(registerUser);
+            mailerClient.sendConfirmationMail(registerUser);
+            userDAO.create(registerUser);
 
             //Log created user
             String remote = request().remoteAddress();
@@ -75,11 +75,11 @@ public class AuthorizationController extends Controller {
 
     @Transactional
     public Result deleteUser(Long id) {
-        User foundUser = ud.get(id);
+        User foundUser = userDAO.get(id);
         if(foundUser == null) {
             return notFound();
         } else {
-            ud.delete(foundUser);
+            userDAO.delete(foundUser);
             return ok();
         }
     }
@@ -91,14 +91,14 @@ public class AuthorizationController extends Controller {
      */
     @Transactional
     public Result confirmUser(String token) {
-        User foundUser = ud.getUserByToken(token);
+        User foundUser = userDAO.getUserByToken(token);
         if(foundUser == null) {
             return badRequest("Invalid token");
         } else if(foundUser.getUserActive()) {
             return badRequest("Invalid token");
         } else {
             foundUser.setUserActive(true);
-            ud.update(foundUser);
+            userDAO.update(foundUser);
             return ok("Account confirmed");
         }
     }
@@ -114,7 +114,7 @@ public class AuthorizationController extends Controller {
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
-        User foundUser = ud.getUserByName(form.get().userName);
+        User foundUser = userDAO.getUserByName(form.get().userName);
 
         //Try to log in using form data and treat exceptions
         try {
@@ -173,11 +173,11 @@ public class AuthorizationController extends Controller {
         }
 
         //Try to find the user and validate the old password and change or don't change the password accordingly
-        User foundUser = ud.getUserByName(Http.Context.current().request().username());
+        User foundUser = userDAO.getUserByName(Http.Context.current().request().username());
         try {
             if (validatePassword(form.get().oldPassword.toCharArray(), foundUser.getUserPass())) {
                 foundUser.setUserPass(hashPassword(form.get().newPassword.toCharArray()));
-                ud.update(foundUser);
+                userDAO.update(foundUser);
                 String remote = request().remoteAddress();
                 Logger.info("Changed password: " + foundUser.getUserName() + " (" + remote + ")");
                 return ok("Password changed");
@@ -209,14 +209,14 @@ public class AuthorizationController extends Controller {
             return badRequest("Invalid form");
         }
 
-        User foundUser = ud.getUserByName(form.get().userName);
+        User foundUser = userDAO.getUserByName(form.get().userName);
 
         try {
             //Check if user and email are valid
             if(foundUser.getUserMail().equals(form.get().userMail)) {
                 foundUser.setUserToken(UUID.randomUUID().toString());
-                ud.update(foundUser);
-                m.sendPasswordResetMail(foundUser);
+                userDAO.update(foundUser);
+                mailerClient.sendPasswordResetMail(foundUser);
                 String remote = request().remoteAddress();
                 Logger.info("Password reset request: " + form.get().userName + "(" + remote + ")");
                 return ok("Password reset request sent");
@@ -241,17 +241,17 @@ public class AuthorizationController extends Controller {
      */
     @Transactional
     public Result confirmPasswordReset(String token) throws EmailException, MalformedURLException {
-        User foundUser = ud.getUserByToken(token);
+        User foundUser = userDAO.getUserByToken(token);
         if(foundUser == null) {
             return badRequest("Invalid token");
         } else {
             //Set the password in plain text for the email sending
             foundUser.setUserPass(PasswordHashing.getRandomString());
-            m.sendRandomPasswordMail(foundUser);
+            mailerClient.sendRandomPasswordMail(foundUser);
             //Now hash the password and save it
             foundUser.setUserToken(UUID.randomUUID().toString());
             foundUser.setUserPass(hashPassword(foundUser.getUserPass().toCharArray()));
-            ud.update(foundUser);
+            userDAO.update(foundUser);
             return ok("Password sent via email");
         }
     }
