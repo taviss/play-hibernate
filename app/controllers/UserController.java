@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import forms.SetAdminForm;
 import models.User;
 import models.admin.UserRoles;
-import models.dao.ProductDAO;
 import models.dao.UserDAO;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -12,10 +11,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import utils.PasswordHashing;
-
 import java.util.UUID;
-
 import static utils.PasswordHashing.hashPassword;
 
 /**
@@ -33,7 +29,7 @@ public class UserController extends Controller {
     @Transactional
     public Result createUser() {
         Form<User> form = Form.form(User.class).bindFromRequest();
-        if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+        if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
         if (form.hasErrors()) {
@@ -43,7 +39,7 @@ public class UserController extends Controller {
         User foundUser = ud.getUserByMail(form.get().getUserName());
         User foundMail = ud.getUserByName(form.get().getUserMail());
 
-        if(foundUser != null || foundMail != null) {
+        if (foundUser != null || foundMail != null) {
             return badRequest("Username or email in use");
         } else {
             User createdUser = form.get();
@@ -64,7 +60,7 @@ public class UserController extends Controller {
     @Transactional
     public Result updateUser(Long id) {
         Form<User> form = Form.form(User.class).bindFromRequest();
-        if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+        if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
         if (form.hasErrors()) {
@@ -73,12 +69,12 @@ public class UserController extends Controller {
 
         User foundUser = ud.get(id);
 
-        if(foundUser == null) {
+        if (foundUser == null) {
             return notFound("No such user");
         } else {
             User formUser = form.get();
 
-            if(!formUser.getId().equals(id)) {
+            if (!formUser.getId().equals(id)) {
                 return badRequest();
             } else {
                 ud.update(formUser);
@@ -95,13 +91,13 @@ public class UserController extends Controller {
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result getUser(Long id) {
-        if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+        if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
 
         User foundUser = ud.get(id);
 
-        if(foundUser == null) {
+        if (foundUser == null) {
             return notFound("No such user");
         } else {
             return ok(Json.toJson(foundUser));
@@ -117,7 +113,7 @@ public class UserController extends Controller {
     public Result setAdminLevel() {
         Form<SetAdminForm> form = Form.form(SetAdminForm.class).bindFromRequest();
 
-        if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+        if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
         if (form.hasErrors()) {
@@ -125,7 +121,7 @@ public class UserController extends Controller {
         }
         User foundUser = ud.getUserByName(form.get().userName);
 
-        if(foundUser == null) {
+        if (foundUser == null) {
             return notFound("No such user");
         } else {
             foundUser.setAdminLevel(form.get().adminLevel);
@@ -142,13 +138,13 @@ public class UserController extends Controller {
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result deleteUser(Long id) {
-        if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+        if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
 
         User foundUser = ud.get(id);
 
-        if(foundUser == null) {
+        if (foundUser == null) {
             return notFound("No such user");
         } else {
             ud.delete(foundUser);

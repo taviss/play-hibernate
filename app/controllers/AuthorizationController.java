@@ -18,9 +18,7 @@ import java.util.UUID;
 import org.apache.commons.mail.EmailException;
 import play.mvc.Security;
 import utils.PasswordHashing;
-
 import javax.inject.Inject;
-
 import static utils.PasswordHashing.*;
 
 /**
@@ -53,7 +51,7 @@ public class AuthorizationController extends Controller {
         User foundUser = userDAO.getUserByName(registerUser.getUserName());
         User foundEmail = userDAO.getUserByMail(registerUser.getUserMail());
 
-        if(foundUser != null || foundEmail != null) {
+        if (foundUser != null || foundEmail != null) {
             //Log attempt
             String remote = request().remoteAddress();
             Logger.info("User register attempt:" + registerUser.getUserName() + " " + registerUser.getUserMail() + " (" + remote + ")");
@@ -81,9 +79,9 @@ public class AuthorizationController extends Controller {
     @Transactional
     public Result confirmUser(String token) {
         User foundUser = userDAO.getUserByToken(token);
-        if(foundUser == null) {
+        if (foundUser == null) {
             return badRequest("Invalid token");
-        } else if(foundUser.getUserActive()) {
+        } else if (foundUser.getUserActive()) {
             return badRequest("Invalid token");
         } else {
             foundUser.setUserActive(true);
@@ -157,7 +155,7 @@ public class AuthorizationController extends Controller {
         }
 
         //Check if password repeat is the same as password
-        if(!form.get().newPassword.equals(form.get().newPasswordRepeat)) {
+        if (!form.get().newPassword.equals(form.get().newPasswordRepeat)) {
             return badRequest("Passwords don't match");
         }
 
@@ -202,7 +200,7 @@ public class AuthorizationController extends Controller {
 
         try {
             //Check if user and email are valid
-            if(foundUser.getUserMail().equals(form.get().userMail)) {
+            if (foundUser.getUserMail().equals(form.get().userMail)) {
                 foundUser.setUserToken(UUID.randomUUID().toString());
                 userDAO.update(foundUser);
                 mailerClient.sendPasswordResetMail(foundUser);
@@ -231,7 +229,7 @@ public class AuthorizationController extends Controller {
     @Transactional
     public Result confirmPasswordReset(String token) throws EmailException, MalformedURLException {
         User foundUser = userDAO.getUserByToken(token);
-        if(foundUser == null) {
+        if (foundUser == null) {
             return badRequest("Invalid token");
         } else {
             //Set the password in plain text for the email sending
