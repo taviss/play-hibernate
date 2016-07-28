@@ -1,12 +1,16 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import forms.SetAdminForm;
 import models.User;
 import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.UserDAO;
+import org.mockito.internal.matchers.Null;
+import play.Logger;
 import play.data.Form;
+import play.data.validation.Constraints;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -60,26 +64,44 @@ public class UserController extends Controller {
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result updateUser(Long id) {
-        Form<User> form = Form.form(User.class).bindFromRequest();
+        //Form<User> form = Form.form(User.class).bindFromRequest();
+
         if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
+        /*
         if (form.hasErrors()) {
             return badRequest("Invalid form");
-        }
+        }*/
 
         User foundUser = ud.get(id);
 
         if(foundUser == null) {
             return notFound("No such user");
         } else {
-            User formUser = form.get();
+            try {
+                JsonNode json = request().body().asJson();
+                if(json != null) {
+                    Form<User> user = Form.form(User.class);
+                    Form<User> form = user.bind(json);
 
-            if (!formUser.getId().equals(id)) {
-                return badRequest();
-            } else {
-                ud.update(formUser);
-                return ok("Success");
+                    if(form.hasErrors()){
+                        return badRequest("Invalid form");
+                    } else {
+                        User formUser = form.get();
+                        //Logger.warn("User: " + formUser.getUserMail() + "  " + formUser.getAdminLevel());
+                        if (!formUser.getId().equals(id)) {
+                            return badRequest();
+                        } else {
+                            ud.update(formUser);
+                            return ok("Success");
+                        }
+                    }
+                } else {
+                    return badRequest();
+                }
+            } catch (Exception e) {
+                return badRequest("Invalid form");
             }
         }
     }
