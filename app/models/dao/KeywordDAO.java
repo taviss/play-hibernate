@@ -22,7 +22,8 @@ public class KeywordDAO {
 		k.setId(null);
 		k.setProduct(p);
 		k.setKeyword(keyword);
-		emKW.persist(k);
+//		emKW.persist(k);
+
 	}
 
 	public void delete(Product product){
@@ -35,25 +36,35 @@ public class KeywordDAO {
 
 	public void update(Product product){
 		delete(product);
-		KeywordDAO kd = new KeywordDAO();
 		Keyword k = new Keyword();
-		ProductDAO pd =  new ProductDAO();
-		String[] kw =  pd.keywordsFromProductURL(product);
+		String[] kw =  this.keywordsFromProductURL(product);
 		for(String s : kw){
-			kd.create(k, product, s);
+			this.create(k, product, s);
 		}
 	}
 
-	public List<Keyword> getProductExistingKeywords(String productName){
-		ProductDAO productDAO = new ProductDAO();
-		Product product = new Product();
-		product = productDAO.getProduct(productName);
+	public List<Keyword> getProductExistingKeywords(Product product){
 		CriteriaQuery<Keyword> query = this.criteriaBuilder.createQuery(Keyword.class);
 		Root<Keyword> p = query.from(Keyword.class);
 		query.select(p);
 		query.where(this.criteriaBuilder.equal(p.get("product"), product.getId()));
 		Query finalQuery = this.emKW.createQuery(query);
 		List<Keyword> keywords =  finalQuery.getResultList();
-		return keywords;
+		if(keywords.isEmpty()){
+			return null;
+		} else{
+			return keywords;
+		}
+	}
+
+	public String[] keywordsFromProductURL(Product p){
+		String URL = p.getLinkAddress();
+		String[] URLsite = URL.split("/");
+		String[] URLkeywords = URLsite[1].split("-");
+		if(URLkeywords.length == 0){
+			return null;
+		} else {
+			return URLkeywords;
+		}
 	}
 }

@@ -8,7 +8,9 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import javax.validation.Constraint;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,10 +28,14 @@ public class Product {
 
     @Column(name = "link_address", nullable = false)
     @Constraints.MaxLength(128)
+    @Constraints.Required
+    @Constraints.MinLength(20)
     private String linkAddress;
 
     @Column(name = "product_name", nullable = false)
     @Constraints.MaxLength(128)
+    @Constraints.MinLength(4)
+    @Constraints.Required
     private String prodName;
 
     @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
@@ -62,10 +68,4 @@ public class Product {
         }
         return p;
     }
-
-	public String siteFromURL(){
-		String URL = getLinkAddress();
-		String[] URLsite = URL.split("/");
-		return URLsite[0];
-	}
 }

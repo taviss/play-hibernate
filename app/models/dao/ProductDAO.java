@@ -28,57 +28,52 @@ public class ProductDAO {
 		this.criteriaBuilder = emPD.getCriteriaBuilder();
 	}
 
-	public void create(String productName, String linkAddress){
-		Product product = new Product();
-		SiteDAO siteDAO = new SiteDAO();
+	public void create(Product product){
 		product.setId(null);
-		product.setProdName(productName);
-		product.setLinkAddress(linkAddress);
-		product.setSite(siteDAO.getSiteByURL(linkAddress.split("/")[0]));
-		emPD.persist(product);
-
+		product.setDeleted(false);
 		/* Adding keywords for the product that was created */
-		String[] kw = keywordsFromProductURL(product);
+		KeywordDAO kd = new KeywordDAO();
+		Keyword k = new Keyword();
+		String[] kw = kd.keywordsFromProductURL(product);
 		for(String s : kw){
-			KeywordDAO kd = new KeywordDAO();
-			Keyword k = new Keyword();
 			kd.create(k, product, s);
 		}
+		emPD.persist(product);
 	}
+
 
 	/* Delete product identified by its full name(which should be unique). */
 	public void delete(Product product){
 		emPD.remove(product);
 	}
 
-	public Product get(Long id) { return emPD.find(Product.class, id); }
+	public Product get(Long id) {
+		return emPD.find(Product.class, id);
+	}
 
 	public void softDelete(Product product) {
 		product.setDeleted(true);
 		emPD.merge(product);
 	}
 
-	public void update(Long id){
-		Product p = this.get(id);
-		emPD.merge(p);
+	public void update(Product product){
+		emPD.merge(product);
 	}
 
-	public Product getProduct(String name){
+	public Product getProductByName(String name){
 		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
 		Root<Product> root = criteriaQuery.from(Product.class);
 		criteriaQuery.select(root);
 		criteriaQuery.where(this.criteriaBuilder.equal(root.get("prodName"), name));
 		Query finalQuery = this.emPD.createQuery(criteriaQuery);
 		List<Product> products = finalQuery.getResultList();
-		return products.get(0);
+		if(products.isEmpty()){
+			return null;
+		} else{
+			return products.get(0);
+		}
 	}
 
-	public String[] keywordsFromProductURL(Product p){
-		String URL = p.getLinkAddress();
-		String[] URLsite = URL.split("/");
-		String[] URLkeywords = URLsite[1].split("-");
-		return URLkeywords;
-	}
 
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
         CriteriaQuery<Keyword> criteriaQuery = this.criteriaBuilder.createQuery(Keyword.class);

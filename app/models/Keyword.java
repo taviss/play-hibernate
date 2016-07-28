@@ -29,7 +29,7 @@ public class Keyword {
 
     //Commented out as it's used after getting keywords to determine products found
     //StackOverflow solved by returning null in Product.getKeywords()
-    /*public Product getProduct() {
+    /*public Product getProductByName() {
         return null;
     }*/
 }
