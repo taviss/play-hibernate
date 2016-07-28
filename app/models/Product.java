@@ -8,7 +8,9 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import javax.validation.Constraint;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**

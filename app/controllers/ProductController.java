@@ -14,6 +14,11 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -87,7 +92,12 @@ public class ProductController extends Controller {
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
-			Product product = productDAO.get(id);
+			Product product = new Product();
+			if(id != null){
+				product = productDAO.get(id);
+			} else{
+				badRequest("Pls provide ID!!!");
+			}
 
 			if (product == null) {
 				return notFound("User doesn't exist");
