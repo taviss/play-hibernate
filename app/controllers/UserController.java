@@ -12,6 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import utils.PasswordHashing;
 
 /**
  * Created by octavian.salcianu on 7/11/2016.
@@ -43,6 +44,11 @@ public class UserController extends Controller {
         }
     }
 
+    /**
+     * Updates an existing user. The method assumes the sender already has the complete model of the user
+     * @param id
+     * @return Result
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result updateUser(Long id) {
@@ -60,10 +66,13 @@ public class UserController extends Controller {
             return notFound("No such user");
         } else {
             User formUser = form.get();
-            formUser.setId(foundUser.getId());
-            foundUser = formUser;
-            ud.update(foundUser);
-            return ok("Success");
+
+            if(!formUser.getId().equals(id)) {
+                return badRequest();
+            } else {
+                ud.update(formUser);
+                return ok("Success");
+            }
         }
     }
 
