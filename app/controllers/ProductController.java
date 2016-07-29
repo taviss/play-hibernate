@@ -15,10 +15,7 @@ import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -48,9 +45,8 @@ public class ProductController extends Controller {
 			}
 			String smth = form.get().getLinkAddress().split("/")[0];
 			Product product = new Product();
-			if((form.get().getProdName()) != null &&
-					(form.get().getLinkAddress() != null) &&
-					(smth != null)){
+
+			if((form.get().getProdName()) != null && (form.get().getLinkAddress() != null) && (smth != null)){
 				product = form.get();
 			} else {
 				return badRequest("Invalid form");
@@ -61,6 +57,19 @@ public class ProductController extends Controller {
 			} else {
 				return badRequest("No such site");
 			}
+			String URL = product.getLinkAddress();
+			String[] URLsite = URL.split("/");
+			String[] URLkeywords = URLsite[1].split("-");
+			Set<Keyword> kk = new HashSet<>();
+			for(String s : URLkeywords){
+				Keyword tibi = new Keyword();
+				tibi.setId(null);
+				tibi.setProduct(product);
+				tibi.setKeyword(s);
+				keywordDAO.create(tibi);
+				kk.add(tibi);
+			}
+			product.setKeywords(kk);
 			productDAO.create(product);
 			return ok("Added");
 		}
@@ -90,25 +99,20 @@ public class ProductController extends Controller {
 		} else {
 			Form<Product> form = Form.form(Product.class).bindFromRequest();
 			if (form.hasErrors()) {
-				return badRequest("Invalid form");
+				return ok("Invalid form");
 			}
 			Product product = new Product();
 			if(id != null){
 				product = productDAO.get(id);
 			} else{
-				badRequest("Pls provide ID!!!");
+				ok("Pls provide ID!!!");
 			}
 
 			if (product == null) {
-				return notFound("User doesn't exist");
+				return ok("Product doesn't exist");
 			} else {
-				Product formProduct = form.get();
-				if(formProduct != null){
-					productDAO.update(formProduct);
-					return ok("Success");
-				} else{
-					return badRequest("I was given null object");
-				}
+				productDAO.update(product);
+				return ok("Success");
 			}
 		}
 	}

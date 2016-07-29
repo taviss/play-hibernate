@@ -18,12 +18,8 @@ public class KeywordDAO {
 		this.criteriaBuilder = emKW.getCriteriaBuilder();
 	}
 
-	public void create(Keyword k, Product p, String keyword){
-		k.setId(null);
-		k.setProduct(p);
-		k.setKeyword(keyword);
-//		emKW.persist(k);
-
+	public void create(Keyword k){
+		emKW.persist(k);
 	}
 
 	public void delete(Product product){
@@ -38,9 +34,9 @@ public class KeywordDAO {
 		delete(product);
 		Keyword k = new Keyword();
 		String[] kw =  this.keywordsFromProductURL(product);
-		for(String s : kw){
-			this.create(k, product, s);
-		}
+//		for(String s : kw){
+//			this.create(k, product, s);
+//		}
 	}
 
 	public List<Keyword> getProductExistingKeywords(Product product){

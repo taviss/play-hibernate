@@ -27,7 +27,3 @@ libraryDependencies ++= Seq(
 )
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
-
-fork in run := true
-
-fork in run := true
