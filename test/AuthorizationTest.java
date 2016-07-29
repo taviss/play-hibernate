@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.Json;
 import play.libs.mailer.Email;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -73,7 +74,7 @@ public class AuthorizationTest extends WithApplication {
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyJson(Json.toJson(form)));
         assertEquals(OK, res.status());
         assertEquals("Test", res.session().get("user"));
     }
@@ -86,7 +87,7 @@ public class AuthorizationTest extends WithApplication {
 
         when(ud.getUserByName(anyString())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
         assertEquals(null, res.session().get("user"));
     }
@@ -103,7 +104,7 @@ public class AuthorizationTest extends WithApplication {
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
         assertEquals(null, res.session().get("user"));
     }
@@ -120,7 +121,7 @@ public class AuthorizationTest extends WithApplication {
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
         assertEquals(null, res.session().get("user"));
     }
@@ -137,7 +138,7 @@ public class AuthorizationTest extends WithApplication {
         u.setUserMail("test@test.com");
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.tryLogin()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
         assertEquals(null, res.session().get("user"));
     }
@@ -153,7 +154,7 @@ public class AuthorizationTest extends WithApplication {
         when(ud.getUserByMail(anyString())).thenReturn(null);
         when(ud.create(any())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyJson(Json.toJson(form)));
         assertEquals(OK, res.status());
     }
 
@@ -168,7 +169,7 @@ public class AuthorizationTest extends WithApplication {
         when(ud.getUserByMail(anyString())).thenReturn(null);
         when(ud.create(any())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
@@ -183,7 +184,7 @@ public class AuthorizationTest extends WithApplication {
         when(ud.getUserByMail(anyString())).thenReturn(null);
         when(ud.create(any())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
@@ -203,7 +204,7 @@ public class AuthorizationTest extends WithApplication {
         when(ud.getUserByMail(anyString())).thenReturn(null);
         when(ud.create(any())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
@@ -223,7 +224,7 @@ public class AuthorizationTest extends WithApplication {
         when(ud.getUserByMail(anyString())).thenReturn(u);
         when(ud.create(any())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.registerUser()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
@@ -279,7 +280,7 @@ public class AuthorizationTest extends WithApplication {
 
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyJson(Json.toJson(form)));
         assertEquals(OK, res.status());
     }
 
@@ -291,7 +292,7 @@ public class AuthorizationTest extends WithApplication {
 
         when(ud.getUserByName(anyString())).thenReturn(null);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
@@ -309,7 +310,7 @@ public class AuthorizationTest extends WithApplication {
 
         when(ud.getUserByName(anyString())).thenReturn(u);
 
-        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyForm(form));
+        Result res = route(Helpers.fakeRequest(controllers.routes.AuthorizationController.resetUserPassword()).bodyJson(Json.toJson(form)));
         assertEquals(BAD_REQUEST, res.status());
     }
 
