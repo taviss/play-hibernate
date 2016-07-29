@@ -9,13 +9,16 @@ public class PasswordChangeForm {
 
     @Constraints.Required()
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     public String oldPassword;
 
     @Constraints.Required()
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     public String newPassword;
 
     @Constraints.Required()
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     public String newPasswordRepeat;
 }

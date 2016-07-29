@@ -2,9 +2,7 @@ package models.dao;
 
 import models.User;
 import models.admin.UserRoles;
-import org.h2.api.Trigger;
 import play.db.jpa.JPA;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;

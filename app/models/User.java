@@ -40,7 +40,7 @@ public class User {
 
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
-    //@Constraints.MaxLength(40)
+    @Constraints.MaxLength(40)
     @Constraints.Required
     private String userPass;
 

@@ -9,9 +9,11 @@ public class LoginForm {
 
     @Constraints.Required()
     @Constraints.MinLength(3)
+    @Constraints.MaxLength(40)
     public String userName;
 
     @Constraints.Required()
     @Constraints.MinLength(6)
+    @Constraints.MaxLength(40)
     public String userPass;
 }
