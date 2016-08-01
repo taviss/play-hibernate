@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.36",
   cache,
   javaWs,
+  evolutions,
   "org.assertj" % "assertj-core" % "3.1.0" % "test",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.projectlombok" % "lombok" % "1.16.8",
@@ -27,3 +28,6 @@ libraryDependencies ++= Seq(
 )
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
+
+
+fork in run := true
