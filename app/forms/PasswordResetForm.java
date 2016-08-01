@@ -8,11 +8,12 @@ import play.data.validation.Constraints;
 public class PasswordResetForm {
     @Constraints.Required()
     @Constraints.MinLength(3)
-    @Constraints.MaxLength(40)
+    @Constraints.MaxLength(64)
     public String userName;
 
     @Constraints.Required()
     @Constraints.Email
+    @Constraints.MaxLength(45)
     public String userMail;
 
 }
