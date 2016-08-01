@@ -7,8 +7,10 @@ import models.User;
 import models.admin.UserRoles;
 import models.dao.UserDAO;
 import play.data.Form;
+import play.data.FormFactory;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
@@ -20,7 +22,10 @@ import static utils.PasswordHashing.hashPassword;
  */
 public class UserController extends Controller {
     @Inject
-    private UserDAO ud;
+    private UserDAO userDAO;
+
+    @Inject
+    private FormFactory formFactory;
 
     /**
      * Adds an user to the database and activates it. Not to be confused with the registration process
@@ -28,26 +33,30 @@ public class UserController extends Controller {
      */
     @Security.Authenticated(Secured.class)
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result createUser() {
-        Form<User> form = Form.form(User.class).bindFromRequest();
         if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
+
+        JsonNode json = request().body().asJson();
+        Form<User> form = formFactory.form(User.class).bind(json);
+
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
 
-        User foundUser = ud.getUserByMail(form.get().getUserName());
-        User foundMail = ud.getUserByName(form.get().getUserMail());
+        User foundUser = userDAO.getUserByMail(form.get().getUserName());
+        User foundMail = userDAO.getUserByName(form.get().getUserMail());
 
         if (foundUser != null || foundMail != null) {
             return badRequest("Username or email in use");
         } else {
-            User createdUser = form.get();
+            User createdUser = Json.fromJson(json, User.class);
             createdUser.setUserPass(hashPassword(createdUser.getUserPass().toCharArray()));
             createdUser.setUserToken(UUID.randomUUID().toString());
             createdUser.setUserActive(true);
-            ud.create(createdUser);
+            userDAO.create(createdUser);
             return ok("Success");
         }
     }
@@ -59,45 +68,29 @@ public class UserController extends Controller {
      */
     @Security.Authenticated(Secured.class)
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result updateUser(Long id) {
-        //Form<User> form = Form.form(User.class).bindFromRequest();
-
         if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
-        /*
-        if (form.hasErrors()) {
-            return badRequest("Invalid form");
-        }*/
-
-        User foundUser = ud.get(id);
+        User foundUser = userDAO.get(id);
 
         if (foundUser == null) {
             return notFound("No such user");
         } else {
-            try {
-                JsonNode json = request().body().asJson();
-                if (json != null) {
-                    Form<User> user = Form.form(User.class);
-                    Form<User> form = user.bind(json);
+            JsonNode json = request().body().asJson();
+            Form<User> form = formFactory.form(User.class).bind(json);
 
-                    if (form.hasErrors()) {
-                        return badRequest("Invalid form");
-                    } else {
-                        User formUser = form.get();
-                        //Logger.warn("User: " + formUser.getUserMail() + "  " + formUser.getAdminLevel());
-                        if (!formUser.getId().equals(id)) {
-                            return badRequest();
-                        } else {
-                            ud.update(formUser);
-                            return ok("Success");
-                        }
-                    }
-                } else {
-                    return badRequest();
-                }
-            } catch (Exception e) {
+            if (form.hasErrors()) {
                 return badRequest("Invalid form");
+            } else {
+                User user = Json.fromJson(json, User.class);
+                if (!user.getId().equals(id)) {
+                    return badRequest();
+                } else {
+                    userDAO.update(user);
+                    return ok("Success");
+                }
             }
         }
     }
@@ -114,8 +107,7 @@ public class UserController extends Controller {
             return badRequest("Not enough privileges");
         }
 
-        User foundUser = ud.get(id);
-
+        User foundUser = userDAO.get(id);
         if (foundUser == null) {
             return notFound("No such user");
         } else {
@@ -129,22 +121,25 @@ public class UserController extends Controller {
      */
     @Security.Authenticated(Secured.class)
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result setAdminLevel() {
-        Form<SetAdminForm> form = Form.form(SetAdminForm.class).bindFromRequest();
-
         if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
             return badRequest("Not enough privileges");
         }
+
+        JsonNode json = request().body().asJson();
+        Form<SetAdminForm> form = formFactory.form(SetAdminForm.class).bind(json);
+
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
-        User foundUser = ud.getUserByName(form.get().userName);
 
+        User foundUser = userDAO.getUserByName(form.get().userName);
         if (foundUser == null) {
             return notFound("No such user");
         } else {
             foundUser.setAdminLevel(form.get().adminLevel);
-            ud.update(foundUser);
+            userDAO.update(foundUser);
             return ok("Success");
         }
     }
@@ -161,12 +156,12 @@ public class UserController extends Controller {
             return badRequest("Not enough privileges");
         }
 
-        User foundUser = ud.get(id);
+        User foundUser = userDAO.get(id);
 
         if (foundUser == null) {
             return notFound("No such user");
         } else {
-            ud.delete(foundUser);
+            userDAO.delete(foundUser);
             return ok("Deleted");
         }
     }

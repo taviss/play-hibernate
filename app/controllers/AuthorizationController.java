@@ -1,5 +1,6 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import forms.LoginForm;
 import forms.PasswordChangeForm;
 import forms.PasswordResetForm;
@@ -7,16 +8,15 @@ import models.User;
 import models.dao.UserDAO;
 import play.Logger;
 import play.data.Form;
+import play.data.FormFactory;
 import play.db.jpa.Transactional;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
+import play.libs.Json;
+import play.mvc.*;
 import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 import org.apache.commons.mail.EmailException;
-import play.mvc.Security;
 import utils.PasswordHashing;
 import javax.inject.Inject;
 import static utils.PasswordHashing.*;
@@ -32,6 +32,9 @@ public class AuthorizationController extends Controller {
     @Inject
     private Mailer mailerClient;
 
+    @Inject
+    private FormFactory formFactory;
+
     /**
      * Attempts to create the user in the db if it doesn't exist and returns http responses accordingly
      * @return Result
@@ -39,14 +42,16 @@ public class AuthorizationController extends Controller {
      * @throws MalformedURLException
      */
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result registerUser() throws EmailException, MalformedURLException {
-        Form<User> form = Form.form(User.class).bindFromRequest();
+        JsonNode json = request().body().asJson();
+        Form<User> form = formFactory.form(User.class).bind(json);
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");
         }
 
-        User registerUser = form.get();
+        User registerUser = Json.fromJson(json, User.class);
 
         User foundUser = userDAO.getUserByName(registerUser.getUserName());
         User foundEmail = userDAO.getUserByMail(registerUser.getUserMail());
@@ -95,8 +100,10 @@ public class AuthorizationController extends Controller {
      * @return Result
      */
     @Transactional(readOnly = true)
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result tryLogin() {
-        Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
+        JsonNode json = request().body().asJson();
+        Form<LoginForm> form = formFactory.form(LoginForm.class).bind(json);
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");
@@ -147,8 +154,10 @@ public class AuthorizationController extends Controller {
      */
     @Security.Authenticated(Secured.class)
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result changeUserPassword() {
-        Form<PasswordChangeForm> form = Form.form(PasswordChangeForm.class).bindFromRequest();
+        JsonNode json = request().body().asJson();
+        Form<PasswordChangeForm> form = formFactory.form(PasswordChangeForm.class).bind(json);
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");
@@ -189,8 +198,10 @@ public class AuthorizationController extends Controller {
      * @throws MalformedURLException
      */
     @Transactional
+    @BodyParser.Of(value = BodyParser.Json.class)
     public Result resetUserPassword() throws EmailException, MalformedURLException {
-        Form<PasswordResetForm> form = Form.form(PasswordResetForm.class).bindFromRequest();
+        JsonNode json = request().body().asJson();
+        Form<PasswordResetForm> form = formFactory.form(PasswordResetForm.class).bind(json);
 
         if (form.hasErrors()) {
             return badRequest("Invalid form");

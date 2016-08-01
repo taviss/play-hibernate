@@ -78,6 +78,11 @@ public class UserDAO {
         //TBA
     }
 
+    /**
+     * Returns the user with specific email or null if it doesn't exist
+     * @param userMail
+     * @return
+     */
     public User getUserByMail(String userMail) {
         CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
@@ -97,6 +102,11 @@ public class UserDAO {
         //TBA
     }
 
+    /**
+     * Returns the user with specific token or null if it doesn't exist
+     * @param userToken
+     * @return
+     */
     public User getUserByToken(String userToken) {
         CriteriaQuery<User> criteriaQuery = this.criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);

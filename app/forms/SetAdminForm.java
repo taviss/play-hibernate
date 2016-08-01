@@ -8,6 +8,8 @@ import play.data.validation.Constraints;
 public class SetAdminForm {
 
     @Constraints.Required
+    @Constraints.MinLength(3)
+    @Constraints.Max(64)
     public String userName;
 
     @Constraints.Required

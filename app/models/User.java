@@ -23,13 +23,14 @@ public class User {
 
     @Column(name = "u_name", nullable = false)
     @Constraints.MinLength(3)
-    @Constraints.MaxLength(40)
+    @Constraints.MaxLength(64)
     @Constraints.Required
     private String userName;
 
     @Column(name = "u_mail", nullable = false)
     @Constraints.Required
     @Constraints.Email
+    @Constraints.MaxLength(45)
     private String userMail;
 
     @Column(name = "u_token", nullable = false)
@@ -40,7 +41,7 @@ public class User {
 
     @Column(name = "u_pass", nullable = false)
     @Constraints.MinLength(6)
-    @Constraints.MaxLength(40)
+    @Constraints.MaxLength(256)
     @Constraints.Required
     private String userPass;
 
