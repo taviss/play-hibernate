@@ -57,6 +57,7 @@ public class ProductController extends Controller {
 			} else {
 				return badRequest("No such site");
 			}
+			/* I'm aware of this code duplication, will be fixed after release */
 			String URL = product.getLinkAddress();
 			String[] URLsite = URL.split("/");
 			String[] URLkeywords = URLsite[1].split("-");
@@ -85,7 +86,11 @@ public class ProductController extends Controller {
 			if(product ==  null){
 				return notFound("No such product");
 			} else{
-				productDAO.softDelete(product);
+				/* Hard delete */
+				productDAO.delete(product);
+
+				/* Soft delete */
+//				productDAO.softDelete(product);
 				return ok("Deleted");
 			}
 		}
@@ -101,17 +106,37 @@ public class ProductController extends Controller {
 			if (form.hasErrors()) {
 				return ok("Invalid form");
 			}
-			Product product = new Product();
+			Product current = new Product();
+			Product newP = new Product();
 			if(id != null){
-				product = productDAO.get(id);
+				current = productDAO.get(id);
 			} else{
 				ok("Pls provide ID!!!");
 			}
-
-			if (product == null) {
+			if (current == null) {
 				return ok("Product doesn't exist");
 			} else {
-				productDAO.update(product);
+				newP = form.get();
+				if(newP.getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
+					productDAO.update(current);
+				} else {
+					productDAO.delete(current);
+					/* I'm aware of this code duplication, will be fixed after release */
+					String URL = newP.getLinkAddress();
+					String[] URLsite = URL.split("/");
+					String[] URLkeywords = URLsite[1].split("-");
+					Set<Keyword> kk = new HashSet<>();
+					for(String s : URLkeywords){
+						Keyword tibi = new Keyword();
+						tibi.setId(null);
+						tibi.setProduct(newP);
+						tibi.setKeyword(s);
+						keywordDAO.create(tibi);
+						kk.add(tibi);
+					}
+					newP.setKeywords(kk);
+					productDAO.create(newP);
+				}
 				return ok("Success");
 			}
 		}
