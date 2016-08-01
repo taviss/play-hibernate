@@ -1,5 +1,6 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import forms.ProductForm;
 import forms.ProductUpdateForm;
 import models.Keyword;
@@ -10,6 +11,8 @@ import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
+import play.data.FormFactory;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
@@ -33,13 +36,17 @@ public class ProductController extends Controller {
 	@Inject
 	private SiteDAO siteDAO;
 
+	@Inject
+	private FormFactory formFactory;
+
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addProduct() {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
 			return ok("Not enough admin rights");
 		} else {
-			Form<Product> form = Form.form(Product.class).bindFromRequest();
+			JsonNode json = request().body().asJson();
+			Form<Product> form = formFactory.form(Product.class).bind(json);
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
@@ -98,11 +105,13 @@ public class ProductController extends Controller {
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
+	@BodyParser.Of(value = BodyParser.Json.class)
 	public Result updateProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
 			return ok("Thou art not admin!");
 		} else {
-			Form<Product> form = Form.form(Product.class).bindFromRequest();
+			JsonNode json = request().body().asJson();
+			Form<Product> form = formFactory.form(Product.class).bind(json);
 			if (form.hasErrors()) {
 				return ok("Invalid form");
 			}
