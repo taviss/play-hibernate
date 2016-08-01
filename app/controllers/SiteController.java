@@ -1,6 +1,12 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import models.Product;
 import models.User;
+import models.admin.UserRoles;
+import models.dao.ProductDAO;
+import play.data.Form;
+import play.data.FormFactory;
 import play.mvc.Security;
 import play.mvc.Controller;
 import models.Site;
@@ -9,36 +15,55 @@ import play.db.jpa.Transactional;
 import play.mvc.Result;
 import controllers.Secured;
 
+import javax.inject.Inject;
+
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
  */
 public class SiteController extends Controller {
 
+	@Inject
+	private SiteDAO siteDAO;
+
+	@Inject
+	private FormFactory formFactory;
+
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addSite(){
-		/*adminLevel 3 means...for now...this user has enough privileges to add websites to the database.
-		* Using random values for testing purpose.*/
-//		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
-//			return ok(siteAdd.render(null, "Thou art not admin!"));
-//		}
-		SiteDAO sd = new SiteDAO();
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
+			return badRequest("Thou art not admin!");
+		}
+		JsonNode json = request().body().asJson();
+		Form<Site> form = formFactory.form(Site.class).bind(json);
+
+		if (form.hasErrors()) {
+			return badRequest("Invalid form");
+		}
+
 		Site s = new Site();
-		s.setSiteURL("emag.ro/test");
-		s.setSiteKeyword("emag");
-		s = sd.create(s);
-		return ok("Thou art admin!");
+		s.setSiteURL(form.get().getSiteURL());
+		s.setSiteKeyword(form.get().getSiteURL().split("[.]")[0]);
+
+		siteDAO.create(s);
+		return ok("Site added!");
 	}
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
-	public Result removeSite(){
-		SiteDAO sd = new SiteDAO();
-//		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
-//			return ok(siteRemove.render(null, "Thou art not admin!"));
-//		} else{
-			sd.delete("keyword");
-			return ok("Deleted");
+	/* RollbackException if site has products assigned.
+	 * To fix this, uncomment member in Site.java and see ProductController.addProduct,
+	 * apply the same algorithm for product setting to site as I did for keyword setting to product.*/
+	public Result deleteSite(Long id){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
+			return badRequest("Thou art not admin!");
+		}
+		Site s = siteDAO.get(id);
+		if(s == null){
+			return notFound("Site doesn't exist");
+		}
+		siteDAO.delete(s);
+		return ok("Deleted");
 	}
 }
