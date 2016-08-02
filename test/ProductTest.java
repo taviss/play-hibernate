@@ -13,6 +13,7 @@ import static play.test.Helpers.route;
 import static utils.PasswordHashing.hashPassword;
 
 import controllers.AuthorizationController;
+import controllers.ProductController;
 import controllers.Secured;
 import models.Product;
 import models.User;
@@ -67,6 +68,10 @@ public class ProductTest extends WithApplication{
 	/* Fails miserably, problem unknown */
 	@Test
 	public void testCreateProduct(){
+
+		ProductController controller = new ProductController();
+
+		controller.addProduct();
 		Map form = new HashMap<String, String>();
 		form.put("prodName", "Test");
 		form.put("linkAddress", "test.com/te-st-manycharacters");
