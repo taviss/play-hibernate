@@ -24,10 +24,14 @@ libraryDependencies ++= Seq(
   "org.projectlombok" % "lombok" % "1.16.8",
   "com.typesafe.play" %% "play-mailer" % "5.0.0",
   "org.mockito" % "mockito-core" % "1.10.19",
+  "org.jsoup" % "jsoup" % "1.9.2",
   "dom4j" % "dom4j" % "1.6"
+
 )
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 
+
+fork in run := true
 
 fork in run := true

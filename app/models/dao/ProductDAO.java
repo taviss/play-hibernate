@@ -45,6 +45,21 @@ public class ProductDAO {
 		return emPD.find(Product.class, id);
 	}
 
+	public List<Product> getAll() {
+		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
+		Root<Product> root = criteriaQuery.from(Product.class);
+
+		criteriaQuery.select(root);
+
+		Predicate deletedP = this.criteriaBuilder.notEqual(root.get("deleted"), 1);
+
+		criteriaQuery.where(deletedP);
+		Query query = this.emPD.createQuery(criteriaQuery);
+		@SuppressWarnings("unchecked")
+		List<Product> resultList = (List<Product>) query.getResultList();
+		return resultList;
+	}
+
 	public void softDelete(Product product) {
 		product.setDeleted(true);
 		emPD.merge(product);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import forms.ProductForm;
 import forms.ProductUpdateForm;
 import models.Keyword;
+import models.Price;
 import models.Product;
 import models.Site;
 import models.dao.KeywordDAO;
@@ -12,14 +13,21 @@ import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import javax.inject.Inject;
 
@@ -43,7 +51,7 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result addProduct() {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Not enough admin rights");
+			return badRequest("You are not authorized to use this");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
@@ -87,7 +95,7 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result deleteProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return badRequest("You are not authorized to use this");
 		} else {
 			Product product = productDAO.get(id);
 			if(product ==  null){
@@ -108,12 +116,12 @@ public class ProductController extends Controller {
 	@BodyParser.Of(value = BodyParser.Json.class)
 	public Result updateProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return badRequest("You are not authorized to use this");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
 			if (form.hasErrors()) {
-				return ok("Invalid form");
+				return badRequest("Invalid form");
 			}
 			Product current = new Product();
 			Product newP = new Product();
@@ -123,7 +131,7 @@ public class ProductController extends Controller {
 				ok("Pls provide ID!!!");
 			}
 			if (current == null) {
-				return ok("Product doesn't exist");
+				return notFound("Product doesn't exist");
 			} else {
 				newP = form.get();
 				if(newP.getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
@@ -149,5 +157,33 @@ public class ProductController extends Controller {
 				return ok("Success");
 			}
 		}
+	}
+
+	//@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result startIndexing() {
+		if (/*Secured.getAdminLevel() != UserRoles.LEAD_ADMIN*/false) {
+			return badRequest("You are not authorized to use this");
+		} else {
+			List<Product> allProds = productDAO.getAll();
+			allProds.forEach(i -> startIndexingProduct(i));
+			return ok(Json.toJson(allProds));
+		}
+	}
+
+	public CompletionStage<Result> startIndexingProduct(Product product) {
+		return CompletableFuture.supplyAsync(() -> indexProduct(product))
+				.thenApply(i -> ok("Got result: " + i));
+	}
+
+	public Result indexProduct(Product product) {
+		Price p = new Price();
+		p.setProduct(product);
+		p.setValue((float)500);
+		p.setInputDate(new Date());
+		Set<Price> prices = product.getPrices();
+		prices.add(p);
+		product.setPrices(prices);
+		return ok("Product " + product.getId() + " updated!");
 	}
 }
