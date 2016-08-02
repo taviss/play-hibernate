@@ -5,7 +5,7 @@
 # Home page
 GET     /                          				@controllers.Application.index()
 POST	/site/add								@controllers.SiteController.addSite()
-PUT		/site/update/:id						@controllers.SiteControllers.updateSite(id : Long)
+PUT		/site/update/:id						@controllers.SiteController.updateSite(id : Long)
 DELETE	/site/delete/:id						@controllers.SiteController.deleteSite(id : Long)
 POST	/product/add							@controllers.ProductController.addProduct()
 PUT		/product/update/:id						@controllers.ProductController.updateProduct(id : Long)

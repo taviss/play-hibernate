@@ -3,9 +3,7 @@ package models.dao;
 import models.*;
 import models.Product;
 import play.Logger;
-import play.data.Form;
 import play.db.jpa.JPA;
-import play.db.jpa.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -33,7 +31,6 @@ public class ProductDAO {
 		product.setDeleted(false);
 		emPD.persist(product);
 	}
-
 
 	/* Delete product identified by its full name(which should be unique). */
 	public void delete(Product product){

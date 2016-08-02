@@ -1,10 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import models.Product;
-import models.User;
 import models.admin.UserRoles;
-import models.dao.ProductDAO;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Security;
@@ -13,10 +10,7 @@ import models.Site;
 import models.dao.SiteDAO;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
-import controllers.Secured;
-
 import javax.inject.Inject;
-
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -83,6 +77,7 @@ public class SiteController extends Controller {
 				} else{
 					s.setSiteURL(form.get().getSiteURL());
 					siteDAO.update(s);
+					return ok("Updated");
 				}
 			}
 		}

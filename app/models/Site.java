@@ -1,10 +1,7 @@
 package models;
 
 import lombok.Data;
-
-import javax.annotation.Generated;
 import javax.persistence.*;
-import java.util.Set;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.

@@ -30,14 +30,6 @@ public class KeywordDAO {
 		this.emKW.createQuery(deleteQ).executeUpdate();
 	}
 
-	public void update(Product product){
-		delete(product);
-		Keyword k = new Keyword();
-		String[] kw =  this.keywordsFromProductURL(product);
-//		for(String s : kw){
-//			this.create(k, product, s);
-//		}
-	}
 
 	public List<Keyword> getProductExistingKeywords(Product product){
 		CriteriaQuery<Keyword> query = this.criteriaBuilder.createQuery(Keyword.class);

@@ -1,8 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import forms.ProductForm;
-import forms.ProductUpdateForm;
 import models.Keyword;
 import models.Product;
 import models.Site;
@@ -17,10 +15,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-
 import java.util.*;
-import java.util.logging.Logger;
-
 import javax.inject.Inject;
 
 /**
@@ -111,19 +106,22 @@ public class ProductController extends Controller {
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
+
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
+
 			Product current = new Product();
+
 			if(id != null){
 				current = productDAO.get(id);
 			} else{
 				return notFound("Pls provide ID!!!");
 			}
+
 			if (current == null) {
 				return notFound("Product doesn't exist");
 			} else {
-
 				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
 					current.setProdName(form.get().getProdName());
 					current.setLinkAddress(form.get().getLinkAddress());
@@ -137,6 +135,7 @@ public class ProductController extends Controller {
 					String[] URLsite = URL.split("/");
 					String[] URLkeywords = URLsite[1].split("-");
 					Set<Keyword> kk = new HashSet<>();
+
 					for(String s : URLkeywords){
 						Keyword tibi = new Keyword();
 						tibi.setId(null);
@@ -144,9 +143,11 @@ public class ProductController extends Controller {
 						tibi.setKeyword(s);
 						kk.add(tibi);
 					}
+
 					current.setKeywords(kk);
 					productDAO.update(current);
 				}
+
 				return ok("Success");
 			}
 		}

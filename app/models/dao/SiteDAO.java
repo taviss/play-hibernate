@@ -1,7 +1,6 @@
 package models.dao;
 
 import models.Site;
-import models.User;
 import play.db.jpa.JPA;
 
 import javax.persistence.EntityManager;
