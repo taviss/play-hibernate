@@ -9,7 +9,7 @@ public class SetAdminForm {
 
     @Constraints.Required
     @Constraints.MinLength(3)
-    @Constraints.Max(64)
+    @Constraints.MaxLength(64)
     public String userName;
 
     @Constraints.Required
