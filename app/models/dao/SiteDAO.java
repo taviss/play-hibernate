@@ -64,8 +64,8 @@ public class SiteDAO {
 		em.remove(site);
 	}
 
-	public void update(){
-		/*To be done sometime in the coming aeons*/
+	public void update(Site site){
+		em.merge(site);
 	}
 
     /**

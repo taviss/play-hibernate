@@ -33,7 +33,7 @@ public class SiteController extends Controller {
 	@Transactional
 	public Result addSite(){
 		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
-			return badRequest("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		}
 		JsonNode json = request().body().asJson();
 		Form<Site> form = formFactory.form(Site.class).bind(json);
@@ -45,19 +45,16 @@ public class SiteController extends Controller {
 		Site s = new Site();
 		s.setSiteURL(form.get().getSiteURL());
 		s.setSiteKeyword(form.get().getSiteURL().split("[.]")[0]);
-
 		siteDAO.create(s);
 		return ok("Site added!");
 	}
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
-	/* RollbackException if site has products assigned.
-	 * To fix this, uncomment member in Site.java and see ProductController.addProduct,
-	 * apply the same algorithm for product setting to site as I did for keyword setting to product.*/
+	/* RollbackException if site has products assigned. */
 	public Result deleteSite(Long id){
 		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
-			return badRequest("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		}
 		Site s = siteDAO.get(id);
 		if(s == null){
@@ -65,5 +62,29 @@ public class SiteController extends Controller {
 		}
 		siteDAO.delete(s);
 		return ok("Deleted");
+	}
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	/* If someone ever needs to update a site, here you go...
+	*  RollbackException if site has products assigned. */
+	public Result updateSite(Long id){
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
+			return forbidden("Thou art not admin!");
+		} else{
+			Site s = siteDAO.get(id);
+			if(s == null){
+				return notFound("Site doesn't exist");
+			} else{
+				JsonNode json = request().body().asJson();
+				Form<Site> form = formFactory.form(Site.class).bind(json);
+				if(form.hasErrors()){
+					return badRequest("Invalid form");
+				} else{
+					s.setSiteURL(form.get().getSiteURL());
+					siteDAO.update(s);
+				}
+			}
+		}
 	}
 }
