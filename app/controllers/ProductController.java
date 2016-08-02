@@ -127,6 +127,7 @@ public class ProductController extends Controller {
 				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
 					current.setProdName(form.get().getProdName());
 					current.setLinkAddress(form.get().getLinkAddress());
+					keywordDAO.delete(current);
 					productDAO.update(current);
 				} else {
 					current.setProdName(form.get().getProdName());
