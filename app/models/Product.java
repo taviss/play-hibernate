@@ -35,7 +35,7 @@ public class Product {
     @Constraints.Required
     private String prodName;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy="product", cascade = CascadeType.ALL)
     private Set<Price> prices;
 
     @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
@@ -66,10 +66,7 @@ public class Product {
         return p;
     }
 
-    public void setPrice(Float value) {
-        Price p = new Price();
-        p.setInputDate(new Date());
-        p.setProduct(this);
-        p.setValue(value);
+    public void setPrice(Price price) {
+        prices.add(price);
     }
 }

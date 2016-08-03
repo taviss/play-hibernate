@@ -20,6 +20,8 @@ import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -32,6 +34,8 @@ import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import utils.CurrencyCalculator;
+import utils.URLFixer;
 
 import javax.inject.Inject;
 
@@ -70,6 +74,7 @@ public class ProductController extends Controller {
 			} else {
 				return badRequest("Invalid form");
 			}
+			Logger.info(smth);
 			Site site = siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]);
 			if (site != null) {
 				product.setSite(site);
@@ -170,7 +175,14 @@ public class ProductController extends Controller {
 			return badRequest("You are not authorized to use this");
 		} else {
 			List<Product> allProds = productDAO.getAll();
-			allProds.forEach(i -> startIndexingProduct(i));
+			allProds.forEach(i -> indexProduct(i));
+			/*
+			indexProduct(productDAO.get(36L));
+			indexProduct(productDAO.get(37L));
+			indexProduct(productDAO.get(38L));
+			indexProduct(productDAO.get(39L));
+			indexProduct(productDAO.get(40L));
+			*/
 			return ok(Json.toJson(allProds));
 		}
 	}
@@ -189,40 +201,72 @@ public class ProductController extends Controller {
 	 * @param product
 	 * @return
      */
+	@Transactional
 	public Result indexProduct(Product product) {
+		Logger.info("Indexing product " + product.getId() + "...");
 		try {
-			Document doc = Jsoup.connect(product.getLinkAddress()).userAgent("Mozilla/5.0") .get();
+			//Only update if the last update is 7 days old or older
+			if (product.getPrice() == null || new Date().compareTo(product.getPrice().getInputDate()) >= 7) {
+				URL testURL = new URL(URLFixer.fixURL(product.getLinkAddress()));
+				Document doc = Jsoup.connect(URLFixer.fixURL(product.getLinkAddress())).userAgent("Mozilla/5.0").get();
 
-			//Patterns for finding the price
-			//<..."price"...>ACTUAL_PRICE
-			//String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
-			//..."price"...ACTUAL_PRICE
-			String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
+				//Patterns for finding the price
+				//<..."price"...>ACTUAL_PRICE
+				//String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
+				//..."price"...ACTUAL_PRICE
+				String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
 
-			//
-			String currencyPattern = "(?is)(.*?" + product.getSite().getCurrencyElement() + ".*?)(\\w+)";
+				//
+				String currencyPattern = "(?is)(.*?" + product.getSite().getCurrencyElement() + ".*?)(\\w+)";
 
-			Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
+				Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
 
-			Pattern pPattern = Pattern.compile(pricePattern);
-			Matcher priceMatcher = pPattern.matcher(productElement.html());
+				Pattern pPattern = Pattern.compile(pricePattern);
+				Matcher priceMatcher = pPattern.matcher(productElement.html());
 
-			Pattern cPattern = Pattern.compile(currencyPattern);
-			Matcher currencyMatcher = cPattern.matcher(productElement.html());
+				Pattern cPattern = Pattern.compile(currencyPattern);
+				Matcher currencyMatcher = cPattern.matcher(productElement.html());
 
-			Logger.info("Info for product " + doc.title());
+				Float productPrice = null;
+				String productCurrency = null;
 
-			if(priceMatcher.find()) {
-				Logger.info("Price:" + priceMatcher.group(2));
+				//Logger.info(productElement.html());
+
+				if (priceMatcher.find()) {
+					productPrice = Float.parseFloat(priceMatcher.group(2));
+					//Logger.info(productPrice.toString());
+				}
+
+				if (currencyMatcher.find()) {
+					productCurrency = currencyMatcher.group(2);
+					//Logger.info(productCurrency);
+				}
+
+				if (productPrice != null && productCurrency != null) {
+					Price p = new Price();
+					p.setInputDate(new Date());
+					p.setProduct(product);
+					p.setValue(CurrencyCalculator.convert(productPrice, productCurrency, "EUR"));
+					product.setPrice(p);
+					productDAO.update(product);
+					Logger.info("Updated product " + product.getProdName());
+					return ok("Product " + product.getId() + " updated!");
+				} else {
+					Logger.error("Error while updating product " + product.getProdName() + "(ID:" + product.getId() + ")");
+					return badRequest();
+				}
+			} else {
+				Logger.info("Product " + product.getId() + " was up to date");
+				return ok("Product already up to date");
 			}
-
-			if(currencyMatcher.find()) {
-				Logger.info("Currency:" + currencyMatcher.group(2));
-			}
-			return ok("Product " + product.getId() + " updated!");
-		} catch (IOException e) {
-			Logger.warn("Error while indexing product " + product.getId() + " " + e.toString());
+		} catch (MalformedURLException e) {
+			Logger.error("Bad URL while indexing product " + product.getId() + " " + e.getMessage());
 			return badRequest();
+		} catch (IOException|NullPointerException e) {
+			Logger.error("Error while indexing product " + product.getId() + " " + e.getMessage());
+			return badRequest();
+		} finally {
+			Logger.info("EOU " + product.getId());
 		}
 	}
 }
