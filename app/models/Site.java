@@ -23,6 +23,12 @@ public class Site {
     @Column(name = "keyword", nullable = false)
     private String siteKeyword;
 
+    @Column(name = "price_element", nullable = false)
+    private String priceElement;
+
+    @Column(name = "currency_element", nullable = false)
+    private String currencyElement;
+
     /**
      * TBA: Site parsing rules
      */

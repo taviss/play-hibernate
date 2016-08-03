@@ -8,10 +8,7 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import javax.validation.Constraint;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -67,5 +64,12 @@ public class Product {
             }
         }
         return p;
+    }
+
+    public void setPrice(Float value) {
+        Price p = new Price();
+        p.setInputDate(new Date());
+        p.setProduct(this);
+        p.setValue(value);
     }
 }

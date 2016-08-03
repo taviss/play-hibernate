@@ -19,10 +19,14 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import play.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
@@ -176,14 +180,49 @@ public class ProductController extends Controller {
 				.thenApply(i -> ok("Got result: " + i));
 	}
 
+	/**
+	 * Returns the price by accesing the website of the product.
+	 *
+	 * Method works by taking the closest parent(class, siteKeyword) of the element containing the price on which it tests
+	 * the pattern using the price keyword(priceElement) for finding the price value and currency keyword(currencyElement)
+	 * for finding the currency.
+	 * @param product
+	 * @return
+     */
 	public Result indexProduct(Product product) {
-		Price p = new Price();
-		p.setProduct(product);
-		p.setValue((float)500);
-		p.setInputDate(new Date());
-		Set<Price> prices = product.getPrices();
-		prices.add(p);
-		product.setPrices(prices);
-		return ok("Product " + product.getId() + " updated!");
+		try {
+			Document doc = Jsoup.connect(product.getLinkAddress()).userAgent("Mozilla/5.0") .get();
+
+			//Patterns for finding the price
+			//<..."price"...>ACTUAL_PRICE
+			//String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
+			//..."price"...ACTUAL_PRICE
+			String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
+
+			//
+			String currencyPattern = "(?is)(.*?" + product.getSite().getCurrencyElement() + ".*?)(\\w+)";
+
+			Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
+
+			Pattern pPattern = Pattern.compile(pricePattern);
+			Matcher priceMatcher = pPattern.matcher(productElement.html());
+
+			Pattern cPattern = Pattern.compile(currencyPattern);
+			Matcher currencyMatcher = cPattern.matcher(productElement.html());
+
+			Logger.info("Info for product " + doc.title());
+
+			if(priceMatcher.find()) {
+				Logger.info("Price:" + priceMatcher.group(2));
+			}
+
+			if(currencyMatcher.find()) {
+				Logger.info("Currency:" + currencyMatcher.group(2));
+			}
+			return ok("Product " + product.getId() + " updated!");
+		} catch (IOException e) {
+			Logger.warn("Error while indexing product " + product.getId() + " " + e.toString());
+			return badRequest();
+		}
 	}
 }
