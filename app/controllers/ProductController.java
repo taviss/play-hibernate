@@ -265,8 +265,6 @@ public class ProductController extends Controller {
 		} catch (IOException|NullPointerException e) {
 			Logger.error("Error while indexing product " + product.getId() + " " + e.getMessage());
 			return badRequest();
-		} finally {
-			Logger.info("EOU " + product.getId());
 		}
 	}
 }
