@@ -13,6 +13,7 @@ import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -25,6 +26,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,7 @@ import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import scala.concurrent.ExecutionContext;
 import utils.CurrencyCalculator;
 import utils.URLFixer;
 
@@ -170,32 +173,34 @@ public class ProductController extends Controller {
 
 	//@Security.Authenticated(Secured.class)
 	@Transactional
-	public Result startIndexing() {
+	public Result startIndexing(Long id) {
 		if (/*Secured.getAdminLevel() != UserRoles.LEAD_ADMIN*/false) {
 			return badRequest("You are not authorized to use this");
 		} else {
-			List<Product> allProds = productDAO.getAll();
+			List<Product> allProds = productDAO.getProductsBySiteId(id);
 			//allProds.forEach(i -> startIndexingProduct(i));
 			int size = allProds.size();
+			if(size > 0) Logger.info("Started indexing " + size + " product(s) for website " + allProds.get(0).getSite().getSiteURL());
 			for(int i = 0; i < size; i++) {
 				startIndexingProduct(allProds.get(i));
 			}
-			/*
-			//Works fine, web client blocking
-			indexProduct(productDAO.get(36L));
-			indexProduct(productDAO.get(37L));
-			indexProduct(productDAO.get(38L));
-			indexProduct(productDAO.get(39L));
-			indexProduct(productDAO.get(40L));
-			*/
 			return ok("Indexing");
 		}
 	}
 
 	@Transactional
 	//Doesn't matter if transactional or not
-	public CompletionStage<Result> startIndexingProduct(Product id) {
-		return CompletableFuture.supplyAsync(() -> indexProduct(id))
+	public CompletionStage<Result> startIndexingProduct(Long product) {
+		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
+		return CompletableFuture.supplyAsync(() -> indexProduct(productDAO.get(product)), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+	}
+
+	@Transactional
+	//Doesn't matter if transactional or not
+	public CompletionStage<Result> startIndexingProduct(Product product) {
+		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
+		return CompletableFuture.supplyAsync(() -> indexProduct(product), play.libs.concurrent.HttpExecution.fromThread(ec))
 				.thenApply(i -> ok("Got result: " + i));
 	}
 

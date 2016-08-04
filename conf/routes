@@ -27,8 +27,8 @@ GET     /users/:id                              @controllers.UserController.getU
 POST    /users                                  @controllers.UserController.createUser()
 DELETE  /users/:id                              @controllers.UserController.deleteUser(id : Long)
 
-GET     /indexing                               @controllers.ProductController.startIndexing()
-
+GET     /sites/index/:id                        @controllers.ProductController.startIndexing(id : Long)
+GET     /test/index/:id                         @controllers.ProductController.startIndexingProduct(id : Long)
 
 
 # Map static resources from the /public folder to the /assets URL path
