@@ -175,20 +175,27 @@ public class ProductController extends Controller {
 			return badRequest("You are not authorized to use this");
 		} else {
 			List<Product> allProds = productDAO.getAll();
-			allProds.forEach(i -> indexProduct(i));
+			//allProds.forEach(i -> startIndexingProduct(i));
+			int size = allProds.size();
+			for(int i = 0; i < size; i++) {
+				startIndexingProduct(allProds.get(i));
+			}
 			/*
+			//Works fine, web client blocking
 			indexProduct(productDAO.get(36L));
 			indexProduct(productDAO.get(37L));
 			indexProduct(productDAO.get(38L));
 			indexProduct(productDAO.get(39L));
 			indexProduct(productDAO.get(40L));
 			*/
-			return ok(Json.toJson(allProds));
+			return ok("Indexing");
 		}
 	}
 
-	public CompletionStage<Result> startIndexingProduct(Product product) {
-		return CompletableFuture.supplyAsync(() -> indexProduct(product))
+	@Transactional
+	//Doesn't matter if transactional or not
+	public CompletionStage<Result> startIndexingProduct(Product id) {
+		return CompletableFuture.supplyAsync(() -> indexProduct(id))
 				.thenApply(i -> ok("Got result: " + i));
 	}
 
@@ -202,7 +209,7 @@ public class ProductController extends Controller {
 	 * @return
      */
 	@Transactional
-	public Result indexProduct(Product product) {
+	public boolean indexProduct(Product product) {
 		Logger.info("Indexing product " + product.getId() + "...");
 		try {
 			//Only update if the last update is 7 days old or older
@@ -216,7 +223,7 @@ public class ProductController extends Controller {
 				//..."price"...ACTUAL_PRICE
 				String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
 
-				//
+				//Pattern for finding the currency
 				String currencyPattern = "(?is)(.*?" + product.getSite().getCurrencyElement() + ".*?)(\\w+)";
 
 				Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
@@ -243,28 +250,33 @@ public class ProductController extends Controller {
 				}
 
 				if (productPrice != null && productCurrency != null) {
-					Price p = new Price();
-					p.setInputDate(new Date());
-					p.setProduct(product);
-					p.setValue(CurrencyCalculator.convert(productPrice, productCurrency, "EUR"));
-					product.setPrice(p);
+					Price price = new Price();
+					price.setInputDate(new Date());
+					price.setProduct(product);
+					price.setValue(CurrencyCalculator.convert(productPrice, productCurrency, "EUR"));
+					product.setPrice(price);
 					productDAO.update(product);
 					Logger.info("Updated product " + product.getProdName());
-					return ok("Product " + product.getId() + " updated!");
+					return true;
+					//return ok("Product " + product.getId() + " updated!");
 				} else {
 					Logger.error("Error while updating product " + product.getProdName() + "(ID:" + product.getId() + ")");
-					return badRequest();
+					return false;
+					// return badRequest();
 				}
 			} else {
 				Logger.info("Product " + product.getId() + " was up to date");
-				return ok("Product already up to date");
+				return false;
+				//return ok("Product already up to date");
 			}
 		} catch (MalformedURLException e) {
 			Logger.error("Bad URL while indexing product " + product.getId() + " " + e.getMessage());
-			return badRequest();
+			return false;
+			//return badRequest();
 		} catch (IOException|NullPointerException e) {
 			Logger.error("Error while indexing product " + product.getId() + " " + e.getMessage());
-			return badRequest();
+			return false;
+			//return badRequest();
 		}
 	}
 }
