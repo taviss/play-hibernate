@@ -32,9 +32,16 @@ import javax.inject.Inject;
 import play.Logger;
 import utils.URLFixer;
 
+import static utils.LinkParser.parseKeywords;
+import static utils.LinkParser.parseSite;
+
+
 /**
  * Created by octavian.salcianu on 7/14/2016.
  */
+
+/* TODO: method for parsing keywords out of product's site(so the code looks nice) */
+
 public class ProductController extends Controller {
 	@Inject
 	private ProductDAO productDAO;
@@ -73,77 +80,38 @@ public class ProductController extends Controller {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
 			return forbidden("Not enough admin rights");
 		} else {
-			/* First real product:
-			 * prodName: Memorie Kingston 8GB 1333MHz DDR3 Non-ECC CL9 SODIMM
-			 * linkAddress: http://www.emag.ro/memorie-kingston-8gb-1333mhz-ddr3-non-ecc-cl9-sodimm-kvr1333d3s9-8g/pd/EMQRDBBBM
-			 *
-			 * prodName: Telefon mobil Lenovo A6010, Dual SIM, 8GB, 4G, Black
-			 * linkAddress: http://www.emag.ro/telefon-mobil-lenovo-a6010-dual-sim-8gb-4g-black-pa220081ro/pd/DS5KVYBBM/
-			 * */
-
-			Set<Keyword> kk = new HashSet<>();
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
-			if (form.hasErrors()) {
+			if (form.hasErrors())
 				return badRequest("Invalid form");
-			}
-			String smth = form.get().getLinkAddress().split("/")[0];
 			Product product = new Product();
 
-			if((form.get().getProdName()) != null && (form.get().getLinkAddress() != null) && (smth != null)){
-				product = form.get();
-			} else {
-				return badRequest("Invalid form");
-			}
-			/* .split("[.]", 2)[1].split("/", 2)[0] */
-			String URL = URLFixer.fixURL(product.getLinkAddress().split("[.]", 2)[1].split("/", 2)[0]);
-			Site site = siteDAO.getSiteByURL(URL);
-			if (site != null) {
+			product = form.get();
+
+			Site site = siteDAO.getSiteByURL(parseSite(product.getLinkAddress()));
+
+			if(site != null)
 				product.setSite(site);
-			} else {
-				return notFound("No such site: " + URL);
-			}
+			else
+				return badRequest("No such site");
 
-			/* Keyword parsing from site */
-			try{
-				Connection connection = Jsoup.connect(product.getLinkAddress());
-				/* Needed to get content from page */
-				connection.userAgent("Mozilla/5.0");
+			String[] keywords = parseKeywords(product.getLinkAddress());
+			if(keywords == null)
+				return badRequest("Invalid site or missing keywords tag");
 
-				/* Get content of the page */
-				Document document = connection.get();
+			Set<Keyword> kk = new HashSet<>();
 
-				/* Get the meta tag with the name keywords */
-				Elements elements = document.select("meta[name=keywords]");
-				if(elements.isEmpty())
-					return badRequest("No keywords meta tag in " + product.getLinkAddress());
-
-				/* Get all keywords as one string */
-				String s = elements.attr("content");
-
-				/* Split keywords string in order ot get individual keywords */
-				String[] split = s.split(", ");
-
-				/* Remove , or . from individual keywords */
-				for(int i = 0;i<split.length;i++){
-					if(split[i].endsWith(",") || split[i].endsWith("."))
-						split[i]=split[i].substring(0, split[i].length() - 1);
-				}
-
-				/* Create keyword objects */
-				for(String kw : split){
-					Keyword tibi = new Keyword();
-					tibi.setId(null);
-					tibi.setProduct(product);
-					tibi.setKeyword(kw);
-					kk.add(tibi);
-				}
-			} catch(IOException e){
-				Logger.info("Could not connect to link: " + product.getLinkAddress());
+			/* Create keyword objects */
+			for(String kw : keywords){
+				Keyword tibi = new Keyword();
+				tibi.setId(null);
+				tibi.setProduct(product);
+				tibi.setKeyword(kw);
+				kk.add(tibi);
 			}
 			product.setKeywords(kk);
 			productDAO.create(product);
-			return ok("Added product:" + product.getProdName());
+			return ok("Added product: " + product.getProdName());
 		}
 	}
 

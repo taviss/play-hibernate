@@ -4,26 +4,31 @@
 
 # Home page
 GET     /                          				@controllers.Application.index()
+
+# Site stuff
 POST	/site/add								@controllers.SiteController.addSite()
 DELETE	/site/delete/:id						@controllers.SiteController.deleteSite(id : Long)
+
+# Product stuff
 PUT		/product/update/:id						@controllers.ProductController.updateProduct(id : Long)
 POST	/product/add							@controllers.ProductController.addProduct()
 DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id : Long)
 
-#Test jsoup
-GET		/keywords								@controllers.ProductController.testJsoup()
-
+# Authorization
 POST    /login/submit                           @controllers.AuthorizationController.tryLogin()
 POST    /register/submit                        @controllers.AuthorizationController.registerUser()
 GET     /logout                                 @controllers.AuthorizationController.logoutUser()
 GET     /confirm/:token                         @controllers.AuthorizationController.confirmUser(token : String)
 
+# Password stuff
 POST    /changepassword/submit                  @controllers.AuthorizationController.changeUserPassword()
 POST    /resetpassword/submit                   @controllers.AuthorizationController.resetUserPassword()
 GET     /confirmreset/:token                    @controllers.AuthorizationController.confirmPasswordReset(token : String)
 
+# Search
 GET     /search/:name                           @controllers.SearchController.trySearch(name : String)
 
+# User stuff
 PUT     /users/setadmin/submit                  @controllers.UserController.setAdminLevel()
 PUT     /users/:id                              @controllers.UserController.updateUser(id : Long)
 GET     /users/:id                              @controllers.UserController.getUser(id : Long)
