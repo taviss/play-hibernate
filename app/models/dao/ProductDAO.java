@@ -75,7 +75,6 @@ public class ProductDAO {
 		List<Predicate> predicates = new ArrayList<>();
 
 		for(int i = 0; i < productKeywords.length; i++) {
-			Logger.info(productKeywords[i]);
 			Predicate prodNameP = this.criteriaBuilder.like(keywordRoot.get("keyword"), "%"+productKeywords[i]+"%");
 			predicates.add(prodNameP);
 		}
@@ -110,7 +109,6 @@ public class ProductDAO {
                     break;
             }
         }
-        Logger.info(foundKeywords.toString());
         return foundProducts;//empty check in controller
     }
 }
