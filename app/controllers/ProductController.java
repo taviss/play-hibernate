@@ -32,8 +32,7 @@ import javax.inject.Inject;
 import play.Logger;
 import utils.URLFixer;
 
-import static utils.LinkParser.parseKeywords;
-import static utils.LinkParser.parseSite;
+import static utils.LinkParser.*;
 
 
 /**
@@ -54,25 +53,6 @@ public class ProductController extends Controller {
 
 	@Inject
 	private FormFactory formFactory;
-
-	@Transactional
-	public Result testJsoup(){
-		try{
-			Connection connection = Jsoup.connect("http://www.emag.ro/memorie-kingston-8gb-1333mhz-ddr3-non-ecc-cl9-sodimm-kvr1333d3s9-8g/pd/EMQRDBBBM/");
-			connection.userAgent("Mozilla/5.0");
-			Document document = connection.get();
-			Elements elements = document.select("meta[name=keywords]");
-//			for(Element e : elements){
-			String s = elements.attr("content");
-			String[] split = s.split(", ");
-
-//			}
-			return ok(Json.toJson(split));
-		} catch(IOException e){
-			Logger.info("Could not connect to link: http://www.emag.ro/memorie-kingston-8gb-1333mhz-ddr3-non-ecc-cl9-sodimm-kvr1333d3s9-8g/pd/EMQRDBBBM/");
-		}
-		return ok("1");
-	}
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
@@ -95,9 +75,12 @@ public class ProductController extends Controller {
 			else
 				return badRequest("No such site");
 
-			String[] keywords = parseKeywords(product.getLinkAddress());
+			String[] keywords = parseKeywordsFromLink(product.getLinkAddress());
 			if(keywords == null)
-				return badRequest("Invalid site or missing keywords tag");
+				return badRequest("Invalid site or missing meta tag");
+
+			if(keywords.length == 1 && keywords[0].equals("getFromName"))
+				keywords = parseKeywordsFromName(product.getProdName());
 
 			Set<Keyword> kk = new HashSet<>();
 
@@ -160,17 +143,29 @@ public class ProductController extends Controller {
 				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
 					current.setProdName(form.get().getProdName());
 					current.setLinkAddress(form.get().getLinkAddress());
-					keywordDAO.delete(current);
+//					keywordDAO.delete(current);
 					productDAO.update(current);
 				} else {
 					current.setProdName(form.get().getProdName());
 					current.setLinkAddress(form.get().getLinkAddress());
-					/* I'm aware of this code duplication, will be fixed after release */
-					String URL = current.getLinkAddress();
-					String[] URLsite = URL.split("/");
-					String[] URLkeywords = URLsite[1].split("-");
+
+					Site site = siteDAO.getSiteByURL(parseSite(current.getLinkAddress()));
+
+					if(site != null)
+						current.setSite(site);
+					else
+						return badRequest("No such site");
+
+					String[] keywords = parseKeywordsFromLink(current.getLinkAddress());
+					if(keywords == null)
+						return badRequest("Invalid site or missing meta tag");
+
+					if(keywords.length == 1 && keywords[0].equals("getFromName"))
+						keywords = parseKeywordsFromName(current.getProdName());
+
+					keywordDAO.delete(current);
 					Set<Keyword> kk = new HashSet<>();
-					for(String s : URLkeywords){
+					for(String s : keywords){
 						Keyword tibi = new Keyword();
 						tibi.setId(null);
 						tibi.setProduct(current);

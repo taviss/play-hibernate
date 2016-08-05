@@ -20,7 +20,7 @@ public class LinkParser {
 		return link.split("[.]", 2)[1].split("/", 2)[0];
 	}
 
-	public static String[] parseKeywords(String link){
+	public static String[] parseKeywordsFromLink(String link){
 		try{
 			Connection connection = Jsoup.connect(link);
 				/* Needed in order to to get content from page */
@@ -33,43 +33,43 @@ public class LinkParser {
 
 				/* Get the meta tag with the name keywords */
 			Elements keywordsElements = document.select("meta[name=keywords]");
-			Elements descriptionElements = document.select("meta[name=description]");
-			if(keywordsElements.isEmpty() && descriptionElements.isEmpty())
-				return null;
-
-			if(!keywordsElements.isEmpty()){
-				/* Get all keywords as one string */
-				String s = keywordsElements.attr("content");
-
-				/* Split keywords string in order ot get individual keywords */
-				String[] split = s.split(", ");
-
-				/* Remove , or . from individual keywords */
-				for(int i = 0;i<split.length;i++){
-					if(split[i].endsWith(",") || split[i].endsWith("."))
-						split[i]=split[i].substring(0, split[i].length() - 1);
-				}
-				return split;
+			if(keywordsElements.isEmpty()){
+				/* Then user product name to get keywords, TY PCGARAGE */
+				String gtfo[] = {"getFromName"};
+				return gtfo;
 			}
 
-			if(!descriptionElements.isEmpty()){
-				/* Get all keywords as one string */
-				String s = descriptionElements.attr("content");
+			/* Get all keywords as one string */
+			String keywordsString = keywordsElements.attr("content");
 
-				/* Split keywords string in order ot get individual keywords */
-				String[] split = s.split(", ");
+			/* Split keywords string in order to get individual keywords */
+			String[] individualKeywords = keywordsString.split(" ");
 
-				/* Remove , or . from individual keywords */
-				for(int i = 0;i<split.length;i++){
-					if(split[i].endsWith(",") || split[i].endsWith("."))
-						split[i]=split[i].substring(0, split[i].length() - 1);
-				}
-				return split;
-			}
+			/* Remove , or . from individual keywords */
+			individualKeywords = removePunctuation(individualKeywords);
+			return individualKeywords;
 
 		} catch(IOException e){
 			Logger.info("Could not connect to link: " + link);
 		}
 		return null;
+	}
+
+	public static String[] parseKeywordsFromName(String name){
+		/* TY PCGARAGE */
+		String[] tyPCGarage = name.split(" ");
+		tyPCGarage = removePunctuation(tyPCGarage);
+		return tyPCGarage;
+	}
+
+	/* Remove , or . from individual keywords */
+	public static String[] removePunctuation(String[] str){
+		for(int i = 0;i<str.length;i++){
+			if(str[i].contains("."))
+				str[i] = str[i].replace(".", "");
+			if(str[i].contains(","))
+				str[i] = str[i].replace(",", "");
+		}
+		return str;
 	}
 }
