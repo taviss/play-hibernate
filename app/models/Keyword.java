@@ -2,7 +2,6 @@ package models;
 
 import lombok.Data;
 import play.data.validation.Constraints;
-
 import javax.persistence.*;
 
 /**

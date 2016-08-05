@@ -3,14 +3,10 @@ package models.dao;
 import models.*;
 import models.Product;
 import play.Logger;
-import play.data.Form;
 import play.db.jpa.JPA;
-import play.db.jpa.Transactional;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
-
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,16 +65,22 @@ public class ProductDAO {
 		}
 	}
 
-
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
         CriteriaQuery<Keyword> criteriaQuery = this.criteriaBuilder.createQuery(Keyword.class);
         Root<Keyword> keywordRoot = criteriaQuery.from(Keyword.class);
 
 
         criteriaQuery.select(keywordRoot);
-        Predicate prodNameP = this.criteriaBuilder.like(keywordRoot.get("keyword"), "%"+productName+"%");
+		String[] productKeywords = productName.split(" ");
+		List<Predicate> predicates = new ArrayList<>();
 
-        criteriaQuery.where(prodNameP);
+		for(int i = 0; i < productKeywords.length; i++) {
+			Logger.info(productKeywords[i]);
+			Predicate prodNameP = this.criteriaBuilder.like(keywordRoot.get("keyword"), "%"+productKeywords[i]+"%");
+			predicates.add(prodNameP);
+		}
+
+        criteriaQuery.where(criteriaBuilder.or(predicates.toArray(new Predicate[]{})));
         Query query = this.emPD.createQuery(criteriaQuery);
         @SuppressWarnings("unchecked")
         List<Keyword> foundKeywords = (List<Keyword>) query.getResultList();
