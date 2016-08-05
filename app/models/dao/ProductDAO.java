@@ -60,6 +60,7 @@ public class ProductDAO {
 		criteriaQuery.select(root);
 		criteriaQuery.where(this.criteriaBuilder.equal(root.get("prodName"), name));
 		Query finalQuery = this.emPD.createQuery(criteriaQuery);
+		@SuppressWarnings("unchecked")
 		List<Product> products = finalQuery.getResultList();
 		if(products.isEmpty()){
 			return null;
