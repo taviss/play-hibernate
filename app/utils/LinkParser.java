@@ -13,13 +13,12 @@ import java.io.IOException;
 import java.util.Set;
 
 public class LinkParser {
-
-	private static SiteDAO sd =  new SiteDAO();
-
+	/* Returns site URL in the format that URLs are stored in the DB */
 	public static String parseSite(String link){
 		return link.split("[.]", 2)[1].split("/", 2)[0];
 	}
 
+	/* Returns array of strings that contains our keywords */
 	public static String[] parseKeywordsFromLink(String link){
 		try{
 			Connection connection = Jsoup.connect(link);
@@ -29,12 +28,10 @@ public class LinkParser {
 				/* Get content of the page */
 			Document document = connection.get();
 
-			String site = parseSite(link);
-
 				/* Get the meta tag with the name keywords */
 			Elements keywordsElements = document.select("meta[name=keywords]");
 			if(keywordsElements.isEmpty()){
-				/* Then user product name to get keywords, TY PCGARAGE */
+				/* Then use product name to get keywords */
 				String gtfo[] = {"getFromName"};
 				return gtfo;
 			}
@@ -56,7 +53,6 @@ public class LinkParser {
 	}
 
 	public static String[] parseKeywordsFromName(String name){
-		/* TY PCGARAGE */
 		String[] tyPCGarage = name.split(" ");
 		tyPCGarage = removePunctuation(tyPCGarage);
 		return tyPCGarage;
