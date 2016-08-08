@@ -2,6 +2,9 @@ package models.dao;
 
 import models.*;
 import models.Product;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import play.Logger;
 import play.db.jpa.JPA;
 import javax.persistence.EntityManager;
@@ -65,6 +68,70 @@ public class ProductDAO {
 		}
 	}
 
+	public List testSearch() {
+		FullTextEntityManager fullTextEntityManager =
+				org.hibernate.search.jpa.Search.getFullTextEntityManager(emPD);
+		QueryBuilder qb = fullTextEntityManager.getSearchFactory()
+				.buildQueryBuilder().forEntity(Keyword.class).get();
+		org.apache.lucene.search.Query luceneQuery = qb
+				.keyword()
+				.onFields("keyword")
+				.matching("samsung galaxy")
+				.createQuery();
+
+		javax.persistence.Query jpaQuery =
+				fullTextEntityManager.createFullTextQuery(luceneQuery, Keyword.class);
+
+		List result = jpaQuery.getResultList();
+		return result;
+	}
+
+	public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
+		FullTextEntityManager fullTextEntityManager =
+				org.hibernate.search.jpa.Search.getFullTextEntityManager(emPD);
+		QueryBuilder qb = fullTextEntityManager.getSearchFactory()
+				.buildQueryBuilder().forEntity(Keyword.class).get();
+		org.apache.lucene.search.Query luceneQuery = qb
+				.keyword()
+				.onFields("keyword")
+				.matching(productName)
+				.createQuery();
+
+		javax.persistence.Query jpaQuery =
+				fullTextEntityManager.createFullTextQuery(luceneQuery, Keyword.class);
+
+		@SuppressWarnings("unchecked")
+		List<Keyword> foundKeywords = (List<Keyword>) jpaQuery.getResultList();
+
+		Set<Product> foundProducts = new HashSet<>();
+
+		foundProducts.addAll(foundKeywords.stream().map(Keyword::getProduct).collect(Collectors.toSet()));
+		for (Map.Entry<String,String[]> entry : queryString) {
+			String key = entry.getKey();
+			String[] value = entry.getValue();
+
+			Float val = Float.parseFloat(value[0]);
+			switch (key) {
+				case "min-price": {
+					//foundProducts.forEach(p -> Logger.info(p.getPrice().getValue().toString()));
+					foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() > val).collect(Collectors.toSet());
+					//Logger.info("Filtered " + foundProducts);
+					break;
+				}
+
+				case "max-price": {
+					foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() < val).collect(Collectors.toSet());
+					break;
+				}
+
+				default:
+					break;
+			}
+		}
+		return foundProducts;//empty check in controller
+	}
+
+	/*
     public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
         CriteriaQuery<Keyword> criteriaQuery = this.criteriaBuilder.createQuery(Keyword.class);
         Root<Keyword> keywordRoot = criteriaQuery.from(Keyword.class);
@@ -111,4 +178,5 @@ public class ProductDAO {
         }
         return foundProducts;//empty check in controller
     }
+    */
 }
