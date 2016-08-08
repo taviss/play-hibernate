@@ -1,9 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mysql.jdbc.Constants;
-import forms.ProductForm;
-import forms.ProductUpdateForm;
 import models.Keyword;
 import models.Product;
 import models.Site;
@@ -11,26 +8,17 @@ import models.dao.KeywordDAO;
 import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import play.data.Form;
 import play.data.FormFactory;
-import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.inject.Inject;
-import play.Logger;
-import utils.URLFixer;
 
 import static utils.LinkParser.*;
 
@@ -39,7 +27,6 @@ import static utils.LinkParser.*;
  * Created by octavian.salcianu on 7/14/2016.
  */
 
-/* TODO: method for parsing keywords out of product's site(so the code looks nice) */
 
 public class ProductController extends Controller {
 	@Inject
@@ -113,7 +100,8 @@ public class ProductController extends Controller {
 
 				/* Soft delete */
 //				productDAO.softDelete(product);
-				return ok("Deleted");
+				return ok("Product deleted: " + product.getProdName());
+
 			}
 		}
 	}
@@ -143,7 +131,6 @@ public class ProductController extends Controller {
 				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
 					current.setProdName(form.get().getProdName());
 					current.setLinkAddress(form.get().getLinkAddress());
-//					keywordDAO.delete(current);
 					productDAO.update(current);
 				} else {
 					current.setProdName(form.get().getProdName());
@@ -175,7 +162,7 @@ public class ProductController extends Controller {
 					current.setKeywords(kk);
 					productDAO.update(current);
 				}
-				return ok("Success");
+				return ok("Product updated: " + current.getProdName());
 			}
 		}
 	}
