@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.annotation.Generated;
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -20,8 +21,11 @@ public class Site {
     @Column(name = "s_url", nullable = false)
     private String siteURL;
 
-    @Column(name = "keyword", nullable = false)
+    @Column(name = "keyword")
     private String siteKeyword;
+
+//    @OneToMany(mappedBy="site", cascade = CascadeType.REMOVE)
+//    private Set<Product> products;
 
     /**
      * TBA: Site parsing rules

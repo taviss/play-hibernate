@@ -43,7 +43,7 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result addProduct() {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Not enough admin rights");
+			return forbidden("Not enough admin rights");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
@@ -62,7 +62,7 @@ public class ProductController extends Controller {
 			if (site != null) {
 				product.setSite(site);
 			} else {
-				return badRequest("No such site");
+				return notFound("No such site");
 			}
 			/* I'm aware of this code duplication, will be fixed after release */
 			String URL = product.getLinkAddress();
@@ -74,7 +74,6 @@ public class ProductController extends Controller {
 				tibi.setId(null);
 				tibi.setProduct(product);
 				tibi.setKeyword(s);
-				keywordDAO.create(tibi);
 				kk.add(tibi);
 			}
 			product.setKeywords(kk);
@@ -87,17 +86,17 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result deleteProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		} else {
 			Product product = productDAO.get(id);
 			if(product ==  null){
 				return notFound("No such product");
 			} else{
 				/* Hard delete */
-				productDAO.delete(product);
+//				productDAO.delete(product);
 
 				/* Soft delete */
-//				productDAO.softDelete(product);
+				productDAO.softDelete(product);
 				return ok("Deleted");
 			}
 		}
@@ -108,43 +107,45 @@ public class ProductController extends Controller {
 	@BodyParser.Of(value = BodyParser.Json.class)
 	public Result updateProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
 			if (form.hasErrors()) {
-				return ok("Invalid form");
+				return badRequest("Invalid form");
 			}
 			Product current = new Product();
-			Product newP = new Product();
 			if(id != null){
 				current = productDAO.get(id);
 			} else{
-				ok("Pls provide ID!!!");
+				return notFound("Pls provide ID!!!");
 			}
 			if (current == null) {
-				return ok("Product doesn't exist");
+				return notFound("Product doesn't exist");
 			} else {
-				newP = form.get();
-				if(newP.getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
+
+				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
+					current.setProdName(form.get().getProdName());
+					current.setLinkAddress(form.get().getLinkAddress());
+					keywordDAO.delete(current);
 					productDAO.update(current);
 				} else {
-					productDAO.delete(current);
+					current.setProdName(form.get().getProdName());
+					current.setLinkAddress(form.get().getLinkAddress());
 					/* I'm aware of this code duplication, will be fixed after release */
-					String URL = newP.getLinkAddress();
+					String URL = current.getLinkAddress();
 					String[] URLsite = URL.split("/");
 					String[] URLkeywords = URLsite[1].split("-");
 					Set<Keyword> kk = new HashSet<>();
 					for(String s : URLkeywords){
 						Keyword tibi = new Keyword();
 						tibi.setId(null);
-						tibi.setProduct(newP);
+						tibi.setProduct(current);
 						tibi.setKeyword(s);
-						keywordDAO.create(tibi);
 						kk.add(tibi);
 					}
-					newP.setKeywords(kk);
-					productDAO.create(newP);
+					current.setKeywords(kk);
+					productDAO.update(current);
 				}
 				return ok("Success");
 			}

@@ -41,7 +41,7 @@ public class Product {
     @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
     private Set<Price> prices;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy="product", cascade = CascadeType.ALL)
     private Set<Keyword> keywords;
 
     /**
