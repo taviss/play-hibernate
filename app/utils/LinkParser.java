@@ -46,8 +46,11 @@ public class LinkParser {
 			individualKeywords = removePunctuation(individualKeywords);
 			return individualKeywords;
 
-		} catch(IOException e){
-			Logger.info("Could not connect to link: " + link);
+		} catch(IOException | IllegalArgumentException e){
+			if(e instanceof IOException)
+				Logger.info("Could not connect to link: " + link);
+			else
+				Logger.error("Malformed URL ", e);
 		}
 		return null;
 	}
