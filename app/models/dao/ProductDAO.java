@@ -3,11 +3,9 @@ package models.dao;
 import models.*;
 import models.Product;
 import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import play.Logger;
 import play.db.jpa.JPA;
-import utils.ProductComparator;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -68,24 +66,6 @@ public class ProductDAO {
 		} else{
 			return products.get(0);
 		}
-	}
-
-	public List testSearch() {
-		FullTextEntityManager fullTextEntityManager =
-				org.hibernate.search.jpa.Search.getFullTextEntityManager(emPD);
-		QueryBuilder qb = fullTextEntityManager.getSearchFactory()
-				.buildQueryBuilder().forEntity(Keyword.class).get();
-		org.apache.lucene.search.Query luceneQuery = qb
-				.keyword()
-				.onFields("keyword")
-				.matching("samsung galaxy")
-				.createQuery();
-
-		javax.persistence.Query jpaQuery =
-				fullTextEntityManager.createFullTextQuery(luceneQuery, Keyword.class);
-
-		List result = jpaQuery.getResultList();
-		return result;
 	}
 
 	public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
