@@ -7,6 +7,8 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import play.Logger;
 import play.db.jpa.JPA;
+import utils.ProductComparator;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
@@ -87,6 +89,7 @@ public class ProductDAO {
 	}
 
 	public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
+		//Fetch the matching keywords
 		FullTextEntityManager fullTextEntityManager =
 				org.hibernate.search.jpa.Search.getFullTextEntityManager(emPD);
 		QueryBuilder qb = fullTextEntityManager.getSearchFactory()
@@ -102,10 +105,32 @@ public class ProductDAO {
 
 		@SuppressWarnings("unchecked")
 		List<Keyword> foundKeywords = (List<Keyword>) jpaQuery.getResultList();
+		//Get the corresponding products
+		List<Product> foundProducts = new ArrayList<>();
+		foundProducts.addAll(foundKeywords.stream().map(Keyword::getProduct).collect(Collectors.toList()));
 
-		Set<Product> foundProducts = new HashSet<>();
+		//Get the count for every product
+		Map<Product, Integer> counter = new HashMap<>();
+		for (Product prod : foundProducts) {
+			counter.put(prod, 1 + (counter.containsKey(prod) ? counter.get(prod) : 0));
+		}
 
-		foundProducts.addAll(foundKeywords.stream().map(Keyword::getProduct).collect(Collectors.toSet()));
+		//Sort the product list by frequency
+		List<Product> list = new ArrayList<>(counter.keySet());
+		Collections.sort(list, new Comparator<Product>() {
+			@Override
+			public int compare(Product x, Product y) {
+				return counter.get(y) - counter.get(x);
+			}
+		});
+
+		//Logger.info(foundProducts.toString());
+
+		//Convert it to set and maintain the order(LinkedHashSet)
+		//!!!Not necessary
+		Set<Product> sortedProducts = new HashSet<>();
+
+		sortedProducts.addAll(list.stream().collect(Collectors.toCollection(LinkedHashSet::new)));
 		for (Map.Entry<String,String[]> entry : queryString) {
 			String key = entry.getKey();
 			String[] value = entry.getValue();
@@ -114,13 +139,13 @@ public class ProductDAO {
 			switch (key) {
 				case "min-price": {
 					//foundProducts.forEach(p -> Logger.info(p.getPrice().getValue().toString()));
-					foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() > val).collect(Collectors.toSet());
+					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() > val).collect(Collectors.toSet());
 					//Logger.info("Filtered " + foundProducts);
 					break;
 				}
 
 				case "max-price": {
-					foundProducts = foundProducts.stream().filter(p -> p.getPrice().getValue() < val).collect(Collectors.toSet());
+					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() < val).collect(Collectors.toSet());
 					break;
 				}
 
@@ -128,7 +153,7 @@ public class ProductDAO {
 					break;
 			}
 		}
-		return foundProducts;//empty check in controller
+		return sortedProducts;//empty check in controller
 	}
 
 	/*
