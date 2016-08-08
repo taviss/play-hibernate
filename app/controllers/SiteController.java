@@ -40,7 +40,7 @@ public class SiteController extends Controller {
 		s.setSiteURL(form.get().getSiteURL());
 		s.setSiteKeyword(form.get().getSiteURL().split("[.]")[0]);
 		siteDAO.create(s);
-		return ok("Site added!");
+		return ok("Site added: " + s.getSiteURL());
 	}
 
 	@Security.Authenticated(Secured.class)
@@ -55,7 +55,7 @@ public class SiteController extends Controller {
 			return notFound("Site doesn't exist");
 		}
 		siteDAO.delete(s);
-		return ok("Deleted");
+		return ok("Site deleted: " + s.getSiteURL());
 	}
 
 	@Security.Authenticated(Secured.class)
