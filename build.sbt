@@ -14,7 +14,8 @@ libraryDependencies ++= Seq(
   // If you enable PlayEbean plugin you must remove these
   // JPA dependencies to avoid conflicts.
   javaJpa,
-  "org.hibernate" % "hibernate-entitymanager" % "5.2.1.Final",
+  "org.hibernate" % "hibernate-core" % "4.3.10.Final",
+  "org.hibernate" % "hibernate-entitymanager" % "4.3.10.Final",
   "mysql" % "mysql-connector-java" % "5.1.36",
   cache,
   javaWs,
@@ -31,6 +32,8 @@ libraryDependencies ++= Seq(
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 
+
+fork in run := true
 
 fork in run := true
 
