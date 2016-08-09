@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import play.data.validation.Constraints;
 
@@ -49,6 +51,10 @@ public class Product {
     private Boolean deleted;
 
     public Set<Keyword> getKeywords() {
+        return null;
+    }
+
+    public Set<Product> getPrices() {
         return null;
     }
 

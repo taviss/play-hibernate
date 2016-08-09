@@ -2,14 +2,17 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Keyword;
+import models.Price;
 import models.Product;
 import models.Site;
 import models.dao.KeywordDAO;
 import models.admin.UserRoles;
+import models.dao.PriceDAO;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -37,6 +40,9 @@ public class ProductController extends Controller {
 
 	@Inject
 	private SiteDAO siteDAO;
+
+	@Inject
+	private PriceDAO priceDAO;
 
 	@Inject
 	private FormFactory formFactory;
@@ -163,6 +169,21 @@ public class ProductController extends Controller {
 					productDAO.update(current);
 				}
 				return ok("Product updated: " + current.getProdName());
+			}
+		}
+	}
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result getProductPriceHistory(Long id) {
+		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+			return forbidden("You are not authorized to do this!");
+		} else {
+			List<Price> prices = priceDAO.getPricesByProductId(id);
+			if(prices.isEmpty()) {
+				return notFound("This product doesn't have a price history");
+			} else {
+				return ok(Json.toJson(prices));
 			}
 		}
 	}
