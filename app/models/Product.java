@@ -48,6 +48,10 @@ public class Product {
     @Column(name = "deleted")
     private Boolean deleted;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
     public Set<Keyword> getKeywords() {
         return null;
     }

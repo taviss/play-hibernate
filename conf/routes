@@ -14,6 +14,9 @@ PUT		/product/update/:id						@controllers.ProductController.updateProduct(id : 
 POST	/product/add							@controllers.ProductController.addProduct()
 DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id : Long)
 
+# Category stuff
+POST	/category/add							@controllers.CategoryController.addCategory()
+
 # Authorization
 POST    /login/submit                           @controllers.AuthorizationController.tryLogin()
 POST    /register/submit                        @controllers.AuthorizationController.registerUser()

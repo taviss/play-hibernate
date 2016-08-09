@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.Keyword;
 import models.Product;
 import models.Site;
+import models.dao.CategoryDAO;
 import models.dao.KeywordDAO;
 import models.admin.UserRoles;
 import models.dao.ProductDAO;
@@ -40,6 +41,9 @@ public class ProductController extends Controller {
 
 	@Inject
 	private FormFactory formFactory;
+
+	@Inject
+	private CategoryDAO catDAO;
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
@@ -80,8 +84,9 @@ public class ProductController extends Controller {
 				kk.add(tibi);
 			}
 			product.setKeywords(kk);
+//			product.setCategory(catDAO.determineCategory(kk));
 			productDAO.create(product);
-			return ok("Added product: " + product.getProdName());
+			return ok("Added product: " + product.getProdName() + " " + catDAO.determineCategory(kk));
 		}
 	}
 
