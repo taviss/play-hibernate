@@ -145,17 +145,24 @@ public class ProductDAO {
 			String key = entry.getKey();
 			String[] value = entry.getValue();
 
-			Float val = Float.parseFloat(value[0]);
 			switch (key) {
 				case "min-price": {
+					Float val = Float.parseFloat(value[0]);
 					//foundProducts.forEach(p -> Logger.info(p.getPrice().getValue().toString()));
-					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() > val).collect(Collectors.toSet());
+					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() >= val).collect(Collectors.toSet());
 					//Logger.info("Filtered " + foundProducts);
 					break;
 				}
 
 				case "max-price": {
-					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() < val).collect(Collectors.toSet());
+					Float val = Float.parseFloat(value[0]);
+					sortedProducts = sortedProducts.stream().filter(p -> p.getPrice().getValue() <= val).collect(Collectors.toSet());
+					break;
+				}
+
+				case "category": {
+					String category = value[0];
+					sortedProducts = sortedProducts.stream().filter(p -> p.getCategory().getCatName().equals(category)).collect(Collectors.toSet());
 					break;
 				}
 
