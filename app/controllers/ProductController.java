@@ -16,6 +16,8 @@ import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
 import play.data.FormFactory;
+import play.db.jpa.JPAApi;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -208,10 +210,10 @@ public class ProductController extends Controller {
 		}
 	}
 
-	//@Security.Authenticated(Secured.class)
+	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result startIndexing(Long id) {
-		if (/*Secured.getAdminLevel() != UserRoles.LEAD_ADMIN*/false) {
+		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
 			return badRequest("You are not authorized to use this");
 		} else {
 			List<Product> allProds = productDAO.getProductsBySiteId(id);
