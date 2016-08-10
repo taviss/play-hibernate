@@ -121,9 +121,15 @@ public class ProductDAO {
 
 		//Get the count for every product
 		Map<Product, Integer> counter = new HashMap<>();
+		int maxCount = 0;
 		for (Product prod : foundProducts) {
 			counter.put(prod, 1 + (counter.containsKey(prod) ? counter.get(prod) : 0));
+			if(counter.get(prod) > maxCount) maxCount = counter.get(prod);
 		}
+
+		final int MIN_KEYWORDS = maxCount - 1;
+
+
 
 		//Sort the product list by frequency
 		List<Product> list = new ArrayList<>(counter.keySet());
@@ -137,10 +143,15 @@ public class ProductDAO {
 		//Logger.info(foundProducts.toString());
 
 		//Convert it to set and maintain the order(LinkedHashSet)
-		//!!!Not necessary
 		Set<Product> sortedProducts = new HashSet<>();
 
-		sortedProducts.addAll(list.stream().collect(Collectors.toCollection(LinkedHashSet::new)));
+		//Only keep the products that have at least maxCount-1 keywords
+		/*
+		The logic is that if you find a product with maxCount keywords, then there is for sure a match, so any other products
+		/that have the same no of keywords-1 can be kept and all others discarded(not relevant)
+		*/
+		sortedProducts.addAll(list.stream().filter(p -> counter.get(p) >= MIN_KEYWORDS).collect(Collectors.toCollection(LinkedHashSet::new)));
+
 		for (Map.Entry<String,String[]> entry : queryString) {
 			String key = entry.getKey();
 			String[] value = entry.getValue();
