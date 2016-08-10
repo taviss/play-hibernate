@@ -84,7 +84,7 @@ public class ProductController extends Controller {
 				kk.add(tibi);
 			}
 			product.setKeywords(kk);
-//			product.setCategory(catDAO.determineCategory(kk));
+			product.setCategory(catDAO.determineCategory(kk));
 			productDAO.create(product);
 			return ok("Added product: " + product.getProdName() + " " + catDAO.determineCategory(kk));
 		}

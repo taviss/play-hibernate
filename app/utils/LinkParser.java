@@ -27,6 +27,9 @@ public class LinkParser {
 
 				/* Get content of the page */
 			Document document = connection.get();
+			Logger logger;
+
+			Logger.info(document.getElementsContainingText("keywords").toString());
 
 				/* Get the meta tag with the name keywords */
 			Elements keywordsElements = document.select("meta[name=keywords]");

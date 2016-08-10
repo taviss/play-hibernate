@@ -20,7 +20,7 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
-    @Constraints.MaxLength(128)
+    @Constraints.MaxLength(300)
     @Constraints.Required
     @Constraints.MinLength(20)
     private String linkAddress;

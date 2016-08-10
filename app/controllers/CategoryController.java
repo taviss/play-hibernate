@@ -42,4 +42,16 @@ public class CategoryController extends Controller {
 			return ok("Category added: " + cat.getCatName());
 		}
 	}
+
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result deleteCategory(Long id){
+		Category cat = catDAO.get(id);
+		if(cat == null){
+			return notFound("Category with id " + id + " could not be found!");
+		}
+		catDAO.delete(cat);
+		return ok("Category with id " + id + " deleted");
+	}
 }

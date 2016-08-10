@@ -54,44 +54,28 @@ public class CategoryDAO {
 	}
 
 	public Category determineCategory(Set<Keyword> keywords){
-		Map<Category, Integer> counter = new HashMap<>();
 		List<Category> cats = getAllCategories();
 		String keyword;
 		String category;
-		String[] scategory;
+		Object[] bestMatch = new Object[2];
+		int count;
+		int max = Integer.MIN_VALUE;
 		for(Category c : cats){
+			count = 0;
 			for(Keyword k : keywords){
 				category = c.getCatName();
 				keyword = k.getKeyword();
-				if(category.contains(" ")){
-					scategory = category.split(" ");
-					for(String s : scategory){
-						if(keyword.equalsIgnoreCase(s)){
-							int count = counter.containsKey(c) ? counter.get(c) : 0;
-							counter.put(c, count + 1);
-						}
-					}
+				if(category.toLowerCase().contains(keyword.toLowerCase())) {
+					count++;
 				}
 			}
+			/* Store the category with most keyword matches and the number of matches */
+			if(count > max){
+				max = count;
+				bestMatch[0] = c;
+				bestMatch[1] = max;
+			}
 		}
-
-		List<Integer> max = Lists.newArrayList(counter.values());
-		Collections.sort(max);
-		Map<Integer, Category> inversed = new HashMap<Integer, Category>();
-		Iterator it = counter.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Category, Integer> pair = (Map.Entry)it.next();
-			if(!inversed.containsKey(pair.getValue()))
-				inversed.put(pair.getValue(), pair.getKey());
-		}
-//		Map.Entry<Category, Integer> max = null;
-//		for(Map.Entry<Category, Integer> entry : counter.entrySet()){
-//			if(entry.getValue() > max.getValue())
-//			{
-//				test.add(entry.getKey().toString());
-//				max = entry;
-//			}
-//		}
-		return inversed.get(max);
+		return (Category)bestMatch[0];
 	}
 }

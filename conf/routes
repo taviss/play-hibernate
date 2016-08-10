@@ -16,6 +16,7 @@ DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id 
 
 # Category stuff
 POST	/category/add							@controllers.CategoryController.addCategory()
+DELETE	/category/delete/:id					@controllers.CategoryController.deleteCategory(id : Long)
 
 # Authorization
 POST    /login/submit                           @controllers.AuthorizationController.tryLogin()
