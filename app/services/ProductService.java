@@ -2,20 +2,15 @@ package services;
 
 import models.Price;
 import models.Product;
-import models.dao.ProductDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import play.Configuration;
 import play.Logger;
 import play.api.Play;
-import play.db.jpa.JPA;
 import play.db.jpa.JPAApi;
-import play.db.jpa.Transactional;
 import utils.CurrencyCalculator;
 import utils.URLFixer;
-
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -87,13 +82,12 @@ public class ProductService {
                 //Find the patterns and collect data
                 if (priceMatcher.find()) {
                     productPrice = Float.parseFloat(priceMatcher.group(2));
-                    Logger.info(productPrice.toString());
                     //Logger.info(productPrice.toString());
                 }
 
                 if (currencyMatcherTag.find()) {
                     productCurrency = currencyMatcherTag.group(2);
-                    Logger.info(productCurrency);
+                   // Logger.info(productCurrency);
                     //Check if the found string is a currency because of the false matching sometimes
                     try {
                         Set<Currency> currencies = Currency.getAvailableCurrencies();
@@ -106,7 +100,7 @@ public class ProductService {
                 //If there is no currency found, search using the second pattern and also check if the currency exists
                 if (currencyMatcherProp.find() && productCurrency == null) {
                     productCurrency = currencyMatcherProp.group(2);
-                    Logger.info(productCurrency);
+                    //Logger.info(productCurrency);
                     try {
                         Set<Currency> currencies = Currency.getAvailableCurrencies();
                         Currency c = Currency.getInstance(CurrencyCalculator.solveBadCurrency(productCurrency));
