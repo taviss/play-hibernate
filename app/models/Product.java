@@ -6,6 +6,10 @@ import lombok.Data;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import javax.validation.Constraint;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,7 +26,7 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
-    @Constraints.MaxLength(300)
+    @Constraints.MaxLength(512)
     @Constraints.Required
     @Constraints.MinLength(20)
     private String linkAddress;
@@ -33,7 +37,7 @@ public class Product {
     @Constraints.Required
     private String prodName;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="product", cascade = CascadeType.ALL)
     private Set<Price> prices;
 
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL)
@@ -70,5 +74,9 @@ public class Product {
             }
         }
         return p;
+    }
+
+    public void setPrice(Price price) {
+        prices.add(price);
     }
 }

@@ -1,5 +1,8 @@
 package controllers;
 
+import actors.ProductIndexer;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Keyword;
 import models.Price;
@@ -19,9 +22,12 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-
 import java.util.*;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import play.Logger;
+import scala.concurrent.ExecutionContext;
+import services.ProductService;
 import javax.inject.Inject;
 
 import static utils.LinkParser.*;
@@ -47,6 +53,15 @@ public class ProductController extends Controller {
 
 	@Inject
 	private FormFactory formFactory;
+
+	@Inject
+	private JPAApi jpa;
+
+	final ActorRef productIndexer;
+
+	@Inject public ProductController(ActorSystem system) {
+		productIndexer = system.actorOf(ProductIndexer.props);
+	}
 
 	@Inject
 	private CategoryDAO catDAO;
@@ -191,5 +206,36 @@ public class ProductController extends Controller {
 				return ok(Json.toJson(prices));
 			}
 		}
+	}
+
+	//@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result startIndexing(Long id) {
+		if (/*Secured.getAdminLevel() != UserRoles.LEAD_ADMIN*/false) {
+			return badRequest("You are not authorized to use this");
+		} else {
+			List<Product> allProds = productDAO.getProductsBySiteId(id);
+			int size = allProds.size();
+			if(size > 0) Logger.info("Started indexing " + size + " product(s) for website " + allProds.get(0).getSite().getSiteURL());
+			for(int i = 0; i < size; i++) {
+				startIndexingProduct(allProds.get(i));
+			}
+			return ok("Indexing");
+		}
+	}
+
+	public CompletionStage<Result> startIndexingProduct(Long product) {
+		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
+		ProductService productService = new ProductService();
+		return CompletableFuture.supplyAsync(() -> jpa.withTransaction("default", false, ()-> productService.indexProduct(productDAO.get(product))), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+	}
+
+	public CompletionStage<Result> startIndexingProduct(Product product) {
+		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
+		ProductService productService = new ProductService();
+
+		return CompletableFuture.supplyAsync(() -> jpa.withTransaction("default", true, ()-> productService.indexProduct(product)), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
 	}
 }

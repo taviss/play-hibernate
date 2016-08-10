@@ -1,6 +1,8 @@
 package models;
 
 import lombok.Data;
+
+import javax.annotation.Generated;
 import javax.persistence.*;
 
 /**
@@ -21,8 +23,11 @@ public class Site {
     @Column(name = "keyword")
     private String siteKeyword;
 
-//    @OneToMany(mappedBy="site", cascade = CascadeType.REMOVE)
-//    private Set<Product> products;
+    @Column(name = "price_element", nullable = false)
+    private String priceElement;
+
+    @Column(name = "currency_element", nullable = false)
+    private String currencyElement;
 
     /**
      * TBA: Site parsing rules
