@@ -5,7 +5,9 @@ package utils;
 public class URLFixer {
 
 	public static String fixURL(String URL) {
-		if (!URL.contains("http://www.")) {
+		if(URL.contains("https://")) {
+			return URL;
+		} else if (!URL.contains("http://www.")) {
 			return "http://www." + URL;
 		} else if (!URL.contains("http://")) {
 			return "http://" + URL;
