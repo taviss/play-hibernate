@@ -53,6 +53,21 @@ public class CategoryDAO {
 		}
 	}
 
+	public Category getCategoryByName(String name){
+		CriteriaQuery<Category> criteriaQuery = this.criteriaBuilder.createQuery(Category.class);
+		Root<Category> root = criteriaQuery.from(Category.class);
+		criteriaQuery.select(root);
+		criteriaQuery.where(this.criteriaBuilder.equal(root.get("catName"), name));
+		Query finalQuery = this.em.createQuery(criteriaQuery);
+		@SuppressWarnings("unchecked")
+		List<Category> categories = finalQuery.getResultList();
+		if(categories.isEmpty()){
+			return null;
+		} else{
+			return categories.get(0);
+		}
+	}
+
 	public Category determineCategory(Set<Keyword> keywords){
 		List<Category> cats = getAllCategories();
 		String keyword;
@@ -72,10 +87,10 @@ public class CategoryDAO {
 			/* Store the category with most keyword matches and the number of matches */
 			if(count > max){
 				max = count;
-				bestMatch[0] = c;
+				bestMatch[0] = c.getCatName();
 				bestMatch[1] = max;
 			}
 		}
-		return (Category)bestMatch[0];
+		return getCategoryByName(bestMatch[0].toString());
 	}
 }

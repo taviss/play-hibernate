@@ -10,9 +10,16 @@ import org.jsoup.select.Elements;
 import play.Logger;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 
 public class LinkParser {
+
+	private static List<String> irrelevantKeywords = new ArrayList<String>(
+			Arrays.asList("drept", "zile", "return", "avantajos", "rapida", "online", "cumpara", "livrare", "dupa", "platesti",
+			"deschizi", "pret", "emag", "coletul", "numai"));
+
+//	private static  String[] irrelevantKeywords = {"drept", "zile", "return", "avantajos", "rapida", "online", "cumpara", "livrare"};
+
 	/* Returns site URL in the format that URLs are stored in the DB */
 	public static String parseSite(String link){
 		return link.split("[.]", 2)[1].split("/", 2)[0];
@@ -31,7 +38,7 @@ public class LinkParser {
 
 				/* Get the meta tag with the name keywords */
 			Elements keywordsElements = document.select("meta[name=keywords]");
-			if(keywordsElements.isEmpty()){
+			if(keywordsElements.isEmpty() || link.contains("flanco")){
 				/* Then use product name to get keywords */
 				String gtfo[] = {"getFromName"};
 				return gtfo;
@@ -43,8 +50,10 @@ public class LinkParser {
 			/* Split keywords string in order to get individual keywords */
 			String[] individualKeywords = keywordsString.split(" ");
 
-			/* Remove , or . from individual keywords */
 			individualKeywords = removePunctuation(individualKeywords);
+
+			individualKeywords = removeIrrelevantKeywords(individualKeywords);
+
 			return individualKeywords;
 
 		} catch(IOException | IllegalArgumentException e){
@@ -71,5 +80,16 @@ public class LinkParser {
 				str[i] = str[i].replace(",", "");
 		}
 		return str;
+	}
+
+	/* Remove irrelevant keywords from keyword array */
+	public static String[] removeIrrelevantKeywords(String[] keywords){
+		List<String> oldList = new ArrayList<>(Arrays.asList(keywords));
+		List<String> newList = new ArrayList<>();
+		for(String s : oldList){
+			if(!irrelevantKeywords.contains(s))
+				newList.add(s);
+		}
+		return newList.toArray(new String[0]);
 	}
 }

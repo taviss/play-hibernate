@@ -38,6 +38,12 @@ public class SiteController extends Controller {
 
 		Site s = new Site();
 		s.setSiteURL(form.get().getSiteURL());
+		Site siteCheck = siteDAO.getSiteByURL(s.getSiteURL());
+
+		if(siteCheck != null){
+			return badRequest("Site already exists!");
+		}
+
 		s.setSiteKeyword(form.get().getSiteURL().split("[.]")[0]);
 		siteDAO.create(s);
 		return ok("Site added: " + s.getSiteURL());

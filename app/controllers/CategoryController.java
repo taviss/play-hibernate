@@ -38,6 +38,9 @@ public class CategoryController extends Controller {
 			Category cat =  new Category();
 
 			cat = form.get();
+			Category catCheck = catDAO.getCategoryByName(cat.getCatName());
+			if(catCheck != null)
+				return badRequest("Category already exists!");
 			catDAO.create(cat);
 			return ok("Category added: " + cat.getCatName());
 		}
