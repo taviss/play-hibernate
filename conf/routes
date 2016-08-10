@@ -32,6 +32,9 @@ GET     /confirmreset/:token                    @controllers.AuthorizationContro
 # Search
 GET     /search/:name                           @controllers.SearchController.trySearch(name : String)
 
+# Price history
+GET     /products/:id/pricehistory              @controllers.ProductController.getProductPriceHistory(id : Long)
+
 # User stuff
 PUT     /users/setadmin/submit                  @controllers.UserController.setAdminLevel()
 PUT     /users/:id                              @controllers.UserController.updateUser(id : Long)
