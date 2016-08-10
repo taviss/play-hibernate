@@ -24,7 +24,7 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
-    @Constraints.MaxLength(128)
+    @Constraints.MaxLength(512)
     @Constraints.Required
     @Constraints.MinLength(20)
     private String linkAddress;
@@ -35,7 +35,7 @@ public class Product {
     @Constraints.Required
     private String prodName;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="product", cascade = CascadeType.ALL)
     private Set<Price> prices;
 
     @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)

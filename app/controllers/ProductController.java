@@ -1,5 +1,9 @@
 package controllers;
 
+import actors.IndexProductProtocol;
+import actors.ProductIndexer;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import forms.ProductForm;
 import forms.ProductUpdateForm;
@@ -11,8 +15,10 @@ import models.dao.KeywordDAO;
 import models.admin.UserRoles;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
+import play.api.Play;
 import play.data.Form;
 import play.data.FormFactory;
+import play.db.jpa.JPAApi;
 import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -37,10 +43,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import scala.concurrent.ExecutionContext;
+import services.ProductService;
 import utils.CurrencyCalculator;
 import utils.URLFixer;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import static akka.pattern.Patterns.ask;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -57,6 +66,15 @@ public class ProductController extends Controller {
 
 	@Inject
 	private FormFactory formFactory;
+
+	@Inject
+	private JPAApi jpa;
+
+	final ActorRef productIndexer;
+
+	@Inject public ProductController(ActorSystem system) {
+		productIndexer = system.actorOf(ProductIndexer.props);
+	}
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
@@ -189,99 +207,40 @@ public class ProductController extends Controller {
 	}
 
 	@Transactional
-	//Doesn't matter if transactional or not
+	public Result testIndex(Long id) {
+		startIndexingProduct(productDAO.get(id));
+		return ok();
+	}
+
 	public CompletionStage<Result> startIndexingProduct(Long product) {
 		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
-		return CompletableFuture.supplyAsync(() -> indexProduct(productDAO.get(product)), play.libs.concurrent.HttpExecution.fromThread(ec))
+		ProductService productService = new ProductService();
+		return CompletableFuture.supplyAsync(() -> jpa.withTransaction("default", false, ()-> productService.indexProduct(productDAO.get(product))), play.libs.concurrent.HttpExecution.fromThread(ec))
 				.thenApply(i -> ok("Got result: " + i));
+		/*
+		return CompletableFuture.supplyAsync(() -> ask(productIndexer, new IndexProductProtocol.IndexProduct(productDAO.get(product)), 1000), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+
+		*/
+		/*
+		return CompletableFuture.supplyAsync(() -> productService.indexProduct(productDAO.get(product)), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+		*/
 	}
 
-	@Transactional
-	//Doesn't matter if transactional or not
 	public CompletionStage<Result> startIndexingProduct(Product product) {
 		ExecutionContext ec = Akka.system().dispatchers().lookup("akka.actor.db-context");
-		return CompletableFuture.supplyAsync(() -> indexProduct(product), play.libs.concurrent.HttpExecution.fromThread(ec))
+		ProductService productService = new ProductService();
+
+		return CompletableFuture.supplyAsync(() -> jpa.withTransaction("default", true, ()-> productService.indexProduct(product)), play.libs.concurrent.HttpExecution.fromThread(ec))
 				.thenApply(i -> ok("Got result: " + i));
-	}
-
-	/**
-	 * Returns the price by accesing the website of the product.
-	 *
-	 * Method works by taking the closest parent(class, siteKeyword) of the element containing the price on which it tests
-	 * the pattern using the price keyword(priceElement) for finding the price value and currency keyword(currencyElement)
-	 * for finding the currency.
-	 * @param product
-	 * @return
-     */
-	@Transactional
-	public boolean indexProduct(Product product) {
-		Logger.info("Indexing product " + product.getId() + "...");
-		try {
-			//Only update if the last update is 7 days old or older
-			if (product.getPrice() == null || new Date().compareTo(product.getPrice().getInputDate()) >= 7) {
-				URL testURL = new URL(URLFixer.fixURL(product.getLinkAddress()));
-				Document doc = Jsoup.connect(URLFixer.fixURL(product.getLinkAddress())).userAgent("Mozilla/5.0").get();
-
-				//Patterns for finding the price
-				//<..."price"...>ACTUAL_PRICE
-				//String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
-				//..."price"...ACTUAL_PRICE
-				String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
-
-				//Pattern for finding the currency
-				String currencyPattern = "(?is)(.*?" + product.getSite().getCurrencyElement() + ".*?)(\\w+)";
-
-				Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
-
-				Pattern pPattern = Pattern.compile(pricePattern);
-				Matcher priceMatcher = pPattern.matcher(productElement.html());
-
-				Pattern cPattern = Pattern.compile(currencyPattern);
-				Matcher currencyMatcher = cPattern.matcher(productElement.html());
-
-				Float productPrice = null;
-				String productCurrency = null;
-
-				//Logger.info(productElement.html());
-
-				if (priceMatcher.find()) {
-					productPrice = Float.parseFloat(priceMatcher.group(2));
-					//Logger.info(productPrice.toString());
-				}
-
-				if (currencyMatcher.find()) {
-					productCurrency = currencyMatcher.group(2);
-					//Logger.info(productCurrency);
-				}
-
-				if (productPrice != null && productCurrency != null) {
-					Price price = new Price();
-					price.setInputDate(new Date());
-					price.setProduct(product);
-					price.setValue(CurrencyCalculator.convert(productPrice, productCurrency, "EUR"));
-					product.setPrice(price);
-					productDAO.update(product);
-					Logger.info("Updated product " + product.getProdName());
-					return true;
-					//return ok("Product " + product.getId() + " updated!");
-				} else {
-					Logger.error("Error while updating product " + product.getProdName() + "(ID:" + product.getId() + ")");
-					return false;
-					// return badRequest();
-				}
-			} else {
-				Logger.info("Product " + product.getId() + " was up to date");
-				return false;
-				//return ok("Product already up to date");
-			}
-		} catch (MalformedURLException e) {
-			Logger.error("Bad URL while indexing product " + product.getId() + " " + e.getMessage());
-			return false;
-			//return badRequest();
-		} catch (IOException|NullPointerException e) {
-			Logger.error("Error while indexing product " + product.getId() + " " + e.getMessage());
-			return false;
-			//return badRequest();
-		}
+		/*
+		return CompletableFuture.supplyAsync(() -> ask(productIndexer, new IndexProductProtocol.IndexProduct(product), 1000), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+		*/
+		/*
+		return CompletableFuture.supplyAsync(() -> productService.indexProduct(product), play.libs.concurrent.HttpExecution.fromThread(ec))
+				.thenApply(i -> ok("Got result: " + i));
+		*/
 	}
 }

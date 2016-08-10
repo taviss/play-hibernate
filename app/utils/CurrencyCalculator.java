@@ -19,7 +19,7 @@ public class CurrencyCalculator {
 
     public static float conversionRate(String currencyFrom, String currencyTo) throws IOException {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet("http://quote.yahoo.com/d/quotes.csv?s=" + solveBadCurrency(currencyFrom) + currencyTo + "=X&f=l1&e=.csv");
+        HttpGet httpGet = new HttpGet("http://download.finance.yahoo.com/d/quotes.csv?s=" + solveBadCurrencyYahooAPI(currencyFrom) + currencyTo + "=X&f=l1&e=.cs");
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         String responseBody = httpclient.execute(httpGet, responseHandler);
         httpclient.getConnectionManager().shutdown();
@@ -27,6 +27,21 @@ public class CurrencyCalculator {
     }
 
     public static String solveBadCurrency(String currency) {
+        currency = currency.toUpperCase();
+        switch(currency) {
+            case "LEI": {
+                return "ROL";
+            }
+            case "RON": {
+                return "ROL";
+            }
+            default: {
+                return currency;
+            }
+        }
+    }
+
+    private static String solveBadCurrencyYahooAPI(String currency) {
         currency = currency.toUpperCase();
         switch(currency) {
             case "LEI": {
