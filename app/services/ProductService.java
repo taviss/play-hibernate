@@ -6,6 +6,7 @@ import models.dao.ProductDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import play.Configuration;
 import play.Logger;
 import play.api.Play;
 import play.db.jpa.JPA;
@@ -44,7 +45,7 @@ public class ProductService {
         Logger.info("Indexing product " + product.getId() + "...");
         try {
             //Only update if the last update is 7 days old or older
-            if (product.getPrice() == null || new Date().compareTo(product.getPrice().getInputDate()) >= 7) {
+            if (product.getPrice() == null || new Date().compareTo(product.getPrice().getInputDate()) >= Configuration.root().getInt("productMinUpdateTime")) {
                 //Test that the URL is well formated and open the connection
                 URL testURL = new URL(URLFixer.fixURL(product.getLinkAddress()));
                 Document document = Jsoup.connect(URLFixer.fixURL(product.getLinkAddress())).userAgent("Mozilla/5.0").maxBodySize(0).get();
