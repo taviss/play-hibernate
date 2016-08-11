@@ -24,20 +24,15 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
-
 import play.Logger;
 import scala.concurrent.ExecutionContext;
 import services.ProductService;
-import utils.PriceHistoryFilter;
-
 import javax.inject.Inject;
-
 import static utils.LinkParser.*;
 
 
@@ -208,25 +203,26 @@ public class ProductController extends Controller {
 			return forbidden("You are not authorized to do this!");
 		} else {
 			List<Price> prices = priceDAO.getPricesByProductId(id);
+			Date startDate, endDate;
+			String expectedPattern = "dd-MM-yyyy";
+			SimpleDateFormat formatter = new SimpleDateFormat(expectedPattern);
 			try {
-				Date startDate, endDate;
-				String expectedPattern = "dd-MM-yyyy";
-				SimpleDateFormat formatter = new SimpleDateFormat(expectedPattern);
 				startDate = formatter.parse(request().queryString().get("from")[0]);
-				endDate = formatter.parse(request().queryString().get("to")[0]);
 				prices = prices.stream().filter(p -> p.getInputDate().after(startDate)).collect(Collectors.toList());
-				prices = prices.stream().filter(p -> p.getInputDate().before(endDate)).collect(Collectors.toList());
-				if (prices.isEmpty()) {
-					return notFound("This product doesn't have a price history");
-				} else {
-					return ok(Json.toJson(prices));
-				}
 			} catch (Exception e) {
-				if (prices.isEmpty()) {
-					return notFound("This product doesn't have a price history");
-				} else {
-					return ok(Json.toJson(prices));
-				}
+				//No start date filter
+			}
+
+			try {
+				endDate = formatter.parse(request().queryString().get("to")[0]);
+				prices = prices.stream().filter(p -> p.getInputDate().before(endDate)).collect(Collectors.toList());
+			} catch (Exception e) {
+				//No end date filter
+			}
+			if (prices.isEmpty()) {
+				return notFound("There is no history");
+			} else {
+				return ok(Json.toJson(prices));
 			}
 		}
 	}
