@@ -48,6 +48,7 @@ public class SearchController {
             List<SearchHistory> searchHistoryList = searchHistoryDAO.getUserSearchHistory(user.getId());
             //Replace the oldest history row if there are 10 rows already or insert a new one otherwise
             if(searchHistoryList.size() == 10) {
+                //ASC
                 Collections.sort(searchHistoryList, new Comparator<SearchHistory>() {
                     @Override
                     public int compare(SearchHistory x, SearchHistory y) {
@@ -80,6 +81,13 @@ public class SearchController {
         try {
             User user = userDAO.getUserByName(Http.Context.current().request().username());
             searchHistory = searchHistoryDAO.getUserSearchHistory(user.getId());
+            //DESC
+            Collections.sort(searchHistory, new Comparator<SearchHistory>() {
+                @Override
+                public int compare(SearchHistory x, SearchHistory y) {
+                    return y.getInputDate().compareTo(x.getInputDate());
+                }
+            });
         } catch (NullPointerException e) {
             Logger.error("Error while fetching search history(" + request().username() + "[" + request().remoteAddress() + "]) " + e.getMessage());
         }
@@ -100,7 +108,13 @@ public class SearchController {
         User user = userDAO.get(id);
         try {
             List<SearchHistory> searchHistory = searchHistoryDAO.getUserSearchHistory(user.getId());
-
+            //DESC
+            Collections.sort(searchHistory, new Comparator<SearchHistory>() {
+                @Override
+                public int compare(SearchHistory x, SearchHistory y) {
+                    return y.getInputDate().compareTo(x.getInputDate());
+                }
+            });
             if (searchHistory.isEmpty()) return notFound("No history yet");
             else return ok(Json.toJson(searchHistory));
         } catch (NullPointerException e) {
