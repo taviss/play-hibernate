@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 import org.apache.commons.mail.EmailException;
+import services.Mailer;
 import utils.PasswordHashing;
 import javax.inject.Inject;
 import static utils.PasswordHashing.*;

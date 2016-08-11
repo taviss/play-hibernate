@@ -1,13 +1,10 @@
-import controllers.Mailer;
 import models.Price;
 import models.Product;
 import models.dao.ProductDAO;
-import models.dao.UserDAO;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
