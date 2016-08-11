@@ -31,9 +31,10 @@ GET     /confirmreset/:token                    @controllers.AuthorizationContro
 
 # Search
 GET     /search/:name                           @controllers.SearchController.trySearch(name : String)
+GET     /history/search                         @controllers.SearchController.searchHistory()
 
 # Price history
-GET     /products/:id/pricehistory              @controllers.ProductController.getProductPriceHistory(id : Long)
+GET     /products/:id/history/price              @controllers.ProductController.getProductPriceHistory(id : Long)
 
 # User stuff
 PUT     /users/setadmin/submit                  @controllers.UserController.setAdminLevel()
@@ -41,6 +42,7 @@ PUT     /users/:id                              @controllers.UserController.upda
 GET     /users/:id                              @controllers.UserController.getUser(id : Long)
 POST    /users                                  @controllers.UserController.createUser()
 DELETE  /users/:id                              @controllers.UserController.deleteUser(id : Long)
+GET     /users/:id/history/search               @controllers.SearchController.getUserSearchHistory(id : Long)
 
 GET     /sites/index/:id                        @controllers.ProductController.startIndexing(id : Long)
 
