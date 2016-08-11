@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.admin.UserRoles;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Json;
 import play.mvc.Security;
 import play.mvc.Controller;
 import models.Site;
 import models.dao.SiteDAO;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
+import utils.URLFixer;
+
 import javax.inject.Inject;
 
 /**
@@ -36,11 +39,14 @@ public class SiteController extends Controller {
 			return badRequest("Invalid form");
 		}
 
-		Site s = new Site();
-		s.setSiteURL(form.get().getSiteURL());
-		s.setSiteKeyword(form.get().getSiteURL().split("[.]")[0]);
-		siteDAO.create(s);
-		return ok("Site added: " + s.getSiteURL());
+		if(siteDAO.getSiteByURL(URLFixer.fixURL(form.get().getSiteURL())) != null) {
+			return badRequest("Website already exists");
+		}
+
+		Site site = Json.fromJson(json, Site.class);
+		site.setSiteURL(URLFixer.fixURL(site.getSiteURL()));
+		siteDAO.create(site);
+		return ok("Site added: " + site.getSiteURL());
 	}
 
 	@Security.Authenticated(Secured.class)
