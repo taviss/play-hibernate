@@ -45,6 +45,7 @@ public class SiteController extends Controller {
 
 		Site site = Json.fromJson(json, Site.class);
 		site.setSiteURL(URLFixer.fixURL(site.getSiteURL()));
+		if(site.getSiteKeyword() == null || site.getSiteKeyword().length() == 0) site.setSiteKeyword("none");
 		siteDAO.create(site);
 		return ok("Site added: " + site.getSiteURL());
 	}
