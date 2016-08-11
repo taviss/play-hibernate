@@ -9,12 +9,12 @@ import models.dao.ProductDAO;
 import models.dao.SearchHistoryDAO;
 import models.dao.UserDAO;
 import play.Logger;
+import play.data.FormFactory;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
-
 import java.util.*;
 
 import static play.mvc.Controller.request;
@@ -35,11 +35,24 @@ public class SearchController {
     @Inject
     private SearchHistoryDAO searchHistoryDAO;
 
+    @Inject
+    private FormFactory formFactory;
+
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result trySearch(String productName) {
         //DynamicForm requestData = Form.form().bindFromRequest();
         //String productName = requestData.get("productName");
+        //Validation
+        try {
+            SearchHistory searchHistory = new SearchHistory();
+            searchHistory.setQueryString(productName);
+            if(searchHistory.validate() != null) {
+                throw new Exception(searchHistory.validate().toString());
+            }
+        } catch (Exception e) {
+            return badRequest("Bad search string");
+        }
         Set<Map.Entry<String,String[]>> queryString = request().queryString().entrySet();
         Set<Product> products = productDAO.findProductsByName(productName, queryString);
 
@@ -47,7 +60,7 @@ public class SearchController {
             User user = userDAO.getUserByName(Http.Context.current().request().username());
             List<SearchHistory> searchHistoryList = searchHistoryDAO.getUserSearchHistory(user.getId());
             //Replace the oldest history row if there are 10 rows already or insert a new one otherwise
-            if(searchHistoryList.size() == 10) {
+            if (searchHistoryList.size() == 10) {
                 //ASC
                 Collections.sort(searchHistoryList, new Comparator<SearchHistory>() {
                     @Override
