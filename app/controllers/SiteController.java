@@ -39,12 +39,12 @@ public class SiteController extends Controller {
 			return badRequest("Invalid form");
 		}
 
-		if(siteDAO.getSiteByURL(URLFixer.fixURL(form.get().getSiteURL())) != null) {
+		if(siteDAO.getSiteByURL(form.get().getSiteURL()) != null) {
 			return badRequest("Website already exists");
 		}
 
 		Site site = Json.fromJson(json, Site.class);
-		site.setSiteURL(URLFixer.fixURL(site.getSiteURL()));
+		site.setSiteURL(site.getSiteURL());
 		if(site.getSiteKeyword() == null || site.getSiteKeyword().length() == 0) site.setSiteKeyword("none");
 		siteDAO.create(site);
 		return ok("Site added: " + site.getSiteURL());
