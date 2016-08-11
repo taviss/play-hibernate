@@ -27,6 +27,10 @@ public class SearchHistoryDAO {
         em.persist(searchHistory);
     }
 
+    public void update(SearchHistory product){
+        em.merge(product);
+    }
+
     public void delete(SearchHistory searchHistory){
         em.remove(searchHistory);
     }

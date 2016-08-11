@@ -15,10 +15,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import static play.mvc.Controller.request;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
@@ -46,12 +44,27 @@ public class SearchController {
         Set<Product> products = productDAO.findProductsByName(productName, queryString);
 
         try {
-            SearchHistory searchHistory = new SearchHistory();
-            searchHistory.setQueryString(productName);
-            searchHistory.setInputDate(new Date());
             User user = userDAO.getUserByName(Http.Context.current().request().username());
-            searchHistory.setUser(user);
-            searchHistoryDAO.create(searchHistory);
+            List<SearchHistory> searchHistoryList = searchHistoryDAO.getUserSearchHistory(user.getId());
+            //Replace the oldest history row if there are 10 rows already or insert a new one otherwise
+            if(searchHistoryList.size() == 10) {
+                Collections.sort(searchHistoryList, new Comparator<SearchHistory>() {
+                    @Override
+                    public int compare(SearchHistory x, SearchHistory y) {
+                        return x.getInputDate().compareTo(y.getInputDate());
+                    }
+                });
+                SearchHistory searchHistory = searchHistoryList.get(0);
+                searchHistory.setQueryString(productName);
+                searchHistory.setInputDate(new Date());
+                searchHistoryDAO.update(searchHistory);
+            } else {
+                SearchHistory searchHistory = new SearchHistory();
+                searchHistory.setQueryString(productName);
+                searchHistory.setInputDate(new Date());
+                searchHistory.setUser(user);
+                searchHistoryDAO.create(searchHistory);
+            }
         } catch (NullPointerException e) {
             Logger.error("Error while inserting search history(" + request().username() + "[" + request().remoteAddress() + "]) " + e.getMessage());
         }
