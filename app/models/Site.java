@@ -1,6 +1,7 @@
 package models;
 
 import lombok.Data;
+import play.data.validation.Constraints;
 
 import javax.annotation.Generated;
 import javax.persistence.*;
@@ -18,20 +19,23 @@ public class Site {
     private Long id;
 
     @Column(name = "s_url", nullable = false)
+    @Constraints.Required
+    @Constraints.MaxLength(255)
     private String siteURL;
 
     @Column(name = "keyword")
+    @Constraints.MaxLength(45)
     private String siteKeyword;
 
     @Column(name = "price_element", nullable = false)
+    @Constraints.MaxLength(45)
+    @Constraints.Required
     private String priceElement;
 
     @Column(name = "currency_element", nullable = false)
+    @Constraints.MaxLength(45)
+    @Constraints.Required
     private String currencyElement;
-
-    /**
-     * TBA: Site parsing rules
-     */
 
 }
 
