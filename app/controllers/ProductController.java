@@ -107,9 +107,9 @@ public class ProductController extends Controller {
 				kk.add(tibi);
 			}
 			product.setKeywords(kk);
-			product.setCategory(catDAO.determineCategory(kk));
+			product.setCategory(catDAO.determineCategory(keywords));
 			productDAO.create(product);
-			return ok("Added product: " + product.getProdName() + " " + catDAO.determineCategory(kk));
+			return ok("Added product: " + product.getProdName() + " " + Arrays.toString(keywords));
 		}
 	}
 
@@ -132,6 +132,26 @@ public class ProductController extends Controller {
 
 			}
 		}
+	}
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result deleteAllProducts() {
+		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+			return forbidden("Thou art not admin!");
+		} else {
+			List<Product> prods = productDAO.getAllProducts();
+			if(prods.isEmpty())
+				return notFound("There are no products");
+			for(Product p : prods){
+				/* Hard delete */
+					productDAO.delete(p);
+
+				/* Soft delete */
+//					productDAO.softDelete(p);
+			}
+		}
+		return ok("Products deleted");
 	}
 
 	@Security.Authenticated(Secured.class)

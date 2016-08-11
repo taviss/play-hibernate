@@ -15,8 +15,8 @@ import java.util.*;
 public class LinkParser {
 
 	private static List<String> irrelevantKeywords = new ArrayList<String>(
-			Arrays.asList("drept", "zile", "return", "avantajos", "rapida", "online", "cumpara", "livrare", "dupa", "platesti",
-			"deschizi", "pret", "emag", "coletul", "numai"));
+			Arrays.asList("drept", "zile", "return", "avantajos", "rapida", "online", "cumpara", "livrare",
+					"dupa", "platesti", "deschizi", "pret", "emag", "coletul", "numai", "retur", "10-30"));
 
 //	private static  String[] irrelevantKeywords = {"drept", "zile", "return", "avantajos", "rapida", "online", "cumpara", "livrare"};
 

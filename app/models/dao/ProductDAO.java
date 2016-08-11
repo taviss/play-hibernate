@@ -98,6 +98,20 @@ public class ProductDAO {
 		}
 	}
 
+	public List<Product> getAllProducts(){
+		CriteriaQuery<Product> criteriaQuery = this.criteriaBuilder.createQuery(Product.class);
+		Root<Product> root = criteriaQuery.from(Product.class);
+		criteriaQuery.select(root);
+		Query finalQuery = this.emPD.createQuery(criteriaQuery);
+		@SuppressWarnings("unchecked")
+		List<Product> products = finalQuery.getResultList();
+		if(products.isEmpty()){
+			return null;
+		} else{
+			return products;
+		}
+	}
+
 	public Set<Product> findProductsByName(String productName, Set<Map.Entry<String, String[]>> queryString) {
 		//Fetch the matching keywords
 		FullTextEntityManager fullTextEntityManager =
