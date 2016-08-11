@@ -172,8 +172,8 @@ public class ProductDAO {
 				}
 
 				case "category": {
-					String category = value[0];
-					sortedProducts = sortedProducts.stream().filter(p -> p.getCategory().getCatName().equals(category)).collect(Collectors.toSet());
+					String category = value[0].toUpperCase();
+					sortedProducts = sortedProducts.stream().filter(p -> p.getCategory().getCatName().toUpperCase().equals(category)).collect(Collectors.toSet());
 					break;
 				}
 
