@@ -1,6 +1,7 @@
 import models.Price;
 import models.Product;
 import models.dao.ProductDAO;
+import models.dao.UserDAO;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -22,6 +23,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.route;
@@ -32,6 +34,7 @@ import static play.test.Helpers.route;
 public class SearchTest extends WithApplication {
 
     private ProductDAO productDAO = mock(ProductDAO.class);
+    private UserDAO userDAO = mock(UserDAO.class);
 
     @Override
     protected Application provideApplication() {
@@ -71,10 +74,23 @@ public class SearchTest extends WithApplication {
     }
 
     @Test
+    public void testSearchStringTooShort() {
+        Result res = route(Helpers.fakeRequest(controllers.routes.SearchController.trySearch("ab")).session("user", "TaviAdmin"));
+        assertEquals(BAD_REQUEST, res.status());
+    }
+
+    @Test
     public void testSearchNoSuchProduct() {
         when(productDAO.findProductsByName(anyString(), any())).thenReturn(new HashSet<Product>());
 
         Result res = route(Helpers.fakeRequest(controllers.routes.SearchController.trySearch("test")).session("user", "TaviAdmin"));
+        assertEquals(NOT_FOUND, res.status());
+    }
+
+    @Test
+    public void testSearchHistoryNoSuchUser() {
+        when(userDAO.get(any())).thenReturn(null);
+        Result res = route(Helpers.fakeRequest(controllers.routes.SearchController.getUserSearchHistory(1l)).session("user", "TaviAdmin"));
         assertEquals(NOT_FOUND, res.status());
     }
 }
