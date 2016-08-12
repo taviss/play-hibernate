@@ -38,6 +38,9 @@ public class CategoryController extends Controller {
 			Category cat =  new Category();
 
 			cat = form.get();
+			Category catCheck = catDAO.getCategoryByName(cat.getCatName());
+			if(catCheck != null)
+				return badRequest("Category already exists!");
 			catDAO.create(cat);
 			return ok("Category added: " + cat.getCatName());
 		}
@@ -47,11 +50,15 @@ public class CategoryController extends Controller {
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result deleteCategory(Long id){
-		Category cat = catDAO.get(id);
-		if(cat == null){
-			return notFound("Category with id " + id + " could not be found!");
+		if(Secured.getAdminLevel() != UserRoles.LEAD_ADMIN){
+			return forbidden("Not enough admin rights");
+		} else{
+			Category cat = catDAO.get(id);
+			if(cat == null){
+				return notFound("Category with id " + id + " could not be found!");
+			}
+			catDAO.delete(cat);
+			return ok("Category with id " + id + " deleted");
 		}
-		catDAO.delete(cat);
-		return ok("Category with id " + id + " deleted");
 	}
 }
