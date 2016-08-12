@@ -4,6 +4,11 @@ package utils;
  */
 public class URLFixer {
 
+	/**
+	 * Takes an URL in form of a string and makes it valid
+	 * @param URL
+	 * @return String
+     */
 	public static String fixURL(String URL) {
 		if(URL.contains("https://")) {
 			URL = URL.replace("https", "http");

@@ -6,17 +6,17 @@
 GET     /                          				@controllers.Application.index()
 
 # Site stuff
-POST	/site/add								@controllers.SiteController.addSite()
-DELETE	/site/delete/:id						@controllers.SiteController.deleteSite(id : Long)
+POST	/sites							        @controllers.SiteController.addSite()
+DELETE	/sites/:id						        @controllers.SiteController.deleteSite(id : Long)
 
 # Product stuff
-PUT		/product/update/:id						@controllers.ProductController.updateProduct(id : Long)
-POST	/product/add							@controllers.ProductController.addProduct()
-DELETE	/product/delete/:id						@controllers.ProductController.deleteProduct(id : Long)
+PUT		/products/:id						    @controllers.ProductController.updateProduct(id : Long)
+POST	/products							    @controllers.ProductController.addProduct()
+DELETE	/products/:id						    @controllers.ProductController.deleteProduct(id : Long)
 
 # Category stuff
-POST	/category/add							@controllers.CategoryController.addCategory()
-DELETE	/category/delete/:id					@controllers.CategoryController.deleteCategory(id : Long)
+POST	/categories						        @controllers.CategoryController.addCategory()
+DELETE	/categories/:id					        @controllers.CategoryController.deleteCategory(id : Long)
 
 # Authorization
 POST    /login/submit                           @controllers.AuthorizationController.tryLogin()
@@ -26,15 +26,15 @@ GET     /confirm/:token                         @controllers.AuthorizationContro
 
 # Password stuff
 POST    /changepassword/submit                  @controllers.AuthorizationController.changeUserPassword()
-POST    /resetpassword/submit                   @controllers.AuthorizationController.resetUserPassword()
-GET     /confirmreset/:token                    @controllers.AuthorizationController.confirmPasswordReset(token : String)
+POST    /reset/password/submit                  @controllers.AuthorizationController.resetUserPassword()
+GET     /confirm/reset/:token                   @controllers.AuthorizationController.confirmPasswordReset(token : String)
 
 # Search
 GET     /search/:name                           @controllers.SearchController.trySearch(name : String)
 GET     /history/search                         @controllers.SearchController.searchHistory()
 
 # Price history
-GET     /products/:id/history/price              @controllers.ProductController.getProductPriceHistory(id : Long)
+GET     /products/:id/history/price             @controllers.ProductController.getProductPriceHistory(id : Long)
 
 # User stuff
 PUT     /users/setadmin/submit                  @controllers.UserController.setAdminLevel()
@@ -44,7 +44,8 @@ POST    /users                                  @controllers.UserController.crea
 DELETE  /users/:id                              @controllers.UserController.deleteUser(id : Long)
 GET     /users/:id/history/search               @controllers.SearchController.getUserSearchHistory(id : Long)
 
-GET     /sites/index/:id                        @controllers.ProductController.startIndexing(id : Long)
+# Product indexing
+GET     /sites/index/:id                        @controllers.SiteController.startIndexing(id : Long)
 
 
 # Map static resources from the /public folder to the /assets URL path

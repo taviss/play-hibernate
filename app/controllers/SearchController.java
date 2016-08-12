@@ -38,6 +38,11 @@ public class SearchController {
     @Inject
     private FormFactory formFactory;
 
+    /**
+     * Attempts a search using the provided string(productName) and also inserts the search in user's search history
+     * @param productName
+     * @return
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result trySearch(String productName) {
@@ -87,6 +92,10 @@ public class SearchController {
         else return ok(Json.toJson(products));
     }
 
+    /**
+     * Fetches the search history for a logged user
+     * @return
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result searchHistory() {
@@ -111,6 +120,11 @@ public class SearchController {
         } else return badRequest("Session error");
     }
 
+    /**
+     * Fetches the history for an existing user in the database
+     * @param id
+     * @return
+     */
     @Security.Authenticated(Secured.class)
     @Transactional
     public Result getUserSearchHistory(Long id) {
