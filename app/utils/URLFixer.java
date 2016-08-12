@@ -6,11 +6,14 @@ public class URLFixer {
 
 	public static String fixURL(String URL) {
 		if(URL.contains("https://")) {
-			return URL;
-		} else if (!URL.contains("http://www.")) {
-			return "http://www." + URL;
-		} else if (!URL.contains("http://")) {
-			return "http://" + URL;
-		} else return URL;
+			URL = URL.replace("https", "http");
+		}
+		if (!URL.contains("www.")) {
+			URL = "www." + URL;
+		}
+		if (!URL.contains("http://")) {
+			URL = "http://" + URL;
+		}
+		return URL;
 	}
 }
