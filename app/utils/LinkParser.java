@@ -15,7 +15,7 @@ import java.util.Set;
 public class LinkParser {
 	/* Returns site URL in the format that URLs are stored in the DB */
 	public static String parseSite(String link){
-		return link.split("[.]", 2)[1].split("/", 2)[0];
+		return URLFixer.fixURL(link.split("[.]", 2)[1].split("/", 2)[0]);
 	}
 
 	/* Returns array of strings that contains our keywords */

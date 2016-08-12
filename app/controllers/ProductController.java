@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 import play.Logger;
 import scala.concurrent.ExecutionContext;
 import services.ProductService;
+import utils.URLFixer;
+
 import javax.inject.Inject;
 import static utils.LinkParser.*;
 
@@ -82,6 +84,7 @@ public class ProductController extends Controller {
 			Product product = new Product();
 
 			product = form.get();
+			product.setLinkAddress(URLFixer.fixURL(product.getLinkAddress()));
 
 			Site site = siteDAO.getSiteByURL(parseSite(product.getLinkAddress()));
 
