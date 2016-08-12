@@ -24,6 +24,7 @@ public class SearchHistory {
 
     @Column(name = "query_string", nullable = false)
     @Constraints.MaxLength(value = 512, message = "Max search length is 512 characters")
+    @Constraints.MinLength(3)
     private String queryString;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,7 +37,7 @@ public class SearchHistory {
 
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<ValidationError>();
-        if (queryString.length() >= 512) {
+        if (queryString.length() >= 512 || queryString.length() < 3) {
             errors.add(new ValidationError("queryString", "Max search length is 512 characters"));
         }
         return errors.isEmpty() ? null : errors;
