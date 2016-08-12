@@ -87,7 +87,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(OK, r.status());
 	}
@@ -106,7 +106,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -125,7 +125,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -144,7 +144,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -163,7 +163,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -182,7 +182,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -201,7 +201,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(anyString())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.addProduct()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -269,7 +269,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(OK, r.status());
 		assertEquals(form.get("prodName"), p.getProdName());
@@ -349,7 +349,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(NOT_FOUND, r.status());
 	}
@@ -375,7 +375,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -401,7 +401,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -427,7 +427,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -453,7 +453,7 @@ public class ProductTest extends WithApplication {
 		when(sd.getSiteByURL(any())).thenReturn(site);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.updateProduct(1)).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 
 		assertEquals(BAD_REQUEST, r.status());
 	}
@@ -470,7 +470,7 @@ public class ProductTest extends WithApplication {
 		when(pd.get(any())).thenReturn(p);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.deleteProduct(1)).session("user", "perkelex"));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.deleteProduct(1)).session("user", "AdminTest"));
 
 		assertEquals(OK, r.status());
 	}
@@ -485,7 +485,7 @@ public class ProductTest extends WithApplication {
 		when(pd.get(any())).thenReturn(null);
 
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.deleteProduct(1)).session("user", "perkelex"));
+		Result r = route(Helpers.fakeRequest(controllers.routes.ProductController.deleteProduct(1)).session("user", "AdminTest"));
 
 		assertEquals(NOT_FOUND, r.status());
 	}
