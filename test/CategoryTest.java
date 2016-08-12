@@ -58,7 +58,7 @@ public class CategoryTest extends WithApplication {
 		Map form = new HashMap<String, String>();
 		form.put("catName", "Test123");
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.addCategory()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.addCategory()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 		assertEquals(OK, r.status());
 	}
 
@@ -85,7 +85,7 @@ public class CategoryTest extends WithApplication {
 		Map form = new HashMap<String, String>();
 		form.put("catName", null);
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.addCategory()).session("user", "perkelex").bodyJson(Json.toJson(form)));
+		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.addCategory()).session("user", "AdminTest").bodyJson(Json.toJson(form)));
 		assertEquals(BAD_REQUEST, r.status());
 	}
 
@@ -96,7 +96,7 @@ public class CategoryTest extends WithApplication {
 
 		when(cd.get(any())).thenReturn(cat);
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.deleteCategory(1L)).session("user", "perkelex"));
+		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.deleteCategory(1L)).session("user", "AdminTest"));
 		assertEquals(OK, r.status());
 	}
 
@@ -129,7 +129,7 @@ public class CategoryTest extends WithApplication {
 
 		when(cd.get(any())).thenReturn(null);
 
-		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.deleteCategory(1L)).session("user", "perkelex"));
+		Result r = route(Helpers.fakeRequest(controllers.routes.CategoryController.deleteCategory(1L)).session("user", "AdminTest"));
 		assertEquals(NOT_FOUND, r.status());
 	}
 
