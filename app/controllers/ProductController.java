@@ -208,6 +208,7 @@ public class ProductController extends Controller {
 						kk.add(tibi);
 					}
 					current.setKeywords(kk);
+					current.setCategory(catDAO.determineCategory(keywords));
 					productDAO.update(current);
 				}
 				return ok("Product updated: " + current.getProdName());
