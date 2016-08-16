@@ -59,8 +59,8 @@ public class ProductService {
                 //<..."price"...>ACTUAL_PRICE
                 //String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
                 //..."price"...ACTUAL_PRICE
-                String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
-                //String pricePattern = "(?is)((\"" + product.getSite().getPriceElement() + "\"|" + product.getSite().getPriceElement() + "\\s*=|" + product.getSite().getPriceElement() + "\\s*>).*?)(([0-9]*[.])?[0-9]+)";
+                //String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
+                String pricePattern = "(?is)((\"" + product.getSite().getPriceElement() + "\"|" + product.getSite().getPriceElement() + "\\s*=|" + product.getSite().getPriceElement() + "\\s*>).*?)(([0-9]*[.])?[0-9]+)";
 
                 //Patterns for finding the currency
                 String currencyPatternTag = "(?is)(" + product.getSite().getCurrencyElement() + ".*?>)(\\w+)<";
@@ -69,8 +69,8 @@ public class ProductService {
                 //Element productElement = doc.getElementsByClass(product.getSite().getSiteKeyword()).first();
                 //Element priceElement = doc.select("div:containsOwn(" + product.getSite().getPriceElement() + "),meta:containsOwn(" + product.getSite().getPriceElement() + ")").first();
                 //Element currencyElement = doc.select("div:containsOwn(" + product.getSite().getCurrencyElement() + "),meta:containsOwn(" + product.getSite().getCurrencyElement() + ")").first();
+
                 Pattern pPattern = Pattern.compile(pricePattern);
-                //Logger.info(pPattern.toString());
                 Matcher priceMatcher = pPattern.matcher(doc.html());
 
                 Pattern cPatternTag = Pattern.compile(currencyPatternTag);
@@ -83,9 +83,10 @@ public class ProductService {
 
                 //Find the patterns and collect data
                 if (priceMatcher.find()) {
-                    productPrice = Float.parseFloat(priceMatcher.group(2));
+                    productPrice = Float.parseFloat(priceMatcher.group(3));
                     //Logger.info(productPrice.toString());
                 }
+
 
                 if (currencyMatcherTag.find()) {
                     productCurrency = currencyMatcherTag.group(2);
@@ -99,6 +100,7 @@ public class ProductService {
                         productCurrency = null;
                     }
                 }
+
                 //If there is no currency found, search using the second pattern and also check if the currency exists
                 if (currencyMatcherProp.find() && productCurrency == null) {
                     productCurrency = currencyMatcherProp.group(2);
@@ -111,6 +113,7 @@ public class ProductService {
                         productCurrency = null;
                     }
                 }
+
 
                 //Finally, check if price & currency were found
                 if (productPrice != null && productCurrency != null) {
