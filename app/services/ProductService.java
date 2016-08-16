@@ -60,6 +60,7 @@ public class ProductService {
                 //String patternTag = "(?is)(<.*?" + product.getSite().getPriceElement() + ".*?>)(([0-9]*[.])?[0-9]+)";
                 //..."price"...ACTUAL_PRICE
                 String pricePattern = "(?is)(.*?" + product.getSite().getPriceElement() + ".*?)(([0-9]*[.])?[0-9]+)";
+                //String pricePattern = "(?is)((\"" + product.getSite().getPriceElement() + "\"|" + product.getSite().getPriceElement() + "\\s*=|" + product.getSite().getPriceElement() + "\\s*>).*?)(([0-9]*[.])?[0-9]+)";
 
                 //Patterns for finding the currency
                 String currencyPatternTag = "(?is)(" + product.getSite().getCurrencyElement() + ".*?>)(\\w+)<";
@@ -69,6 +70,7 @@ public class ProductService {
                 //Element priceElement = doc.select("div:containsOwn(" + product.getSite().getPriceElement() + "),meta:containsOwn(" + product.getSite().getPriceElement() + ")").first();
                 //Element currencyElement = doc.select("div:containsOwn(" + product.getSite().getCurrencyElement() + "),meta:containsOwn(" + product.getSite().getCurrencyElement() + ")").first();
                 Pattern pPattern = Pattern.compile(pricePattern);
+                //Logger.info(pPattern.toString());
                 Matcher priceMatcher = pPattern.matcher(doc.html());
 
                 Pattern cPatternTag = Pattern.compile(currencyPatternTag);
