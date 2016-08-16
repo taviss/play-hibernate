@@ -35,11 +35,9 @@ public class CategoryController extends Controller {
 			Form<Category> form = formFactory.form(Category.class).bind(json);
 			if (form.hasErrors())
 				return badRequest("Invalid form");
-			Category cat =  new Category();
+			Category cat = form.get();
 
-			cat = form.get();
-			Category catCheck = catDAO.getCategoryByName(cat.getCatName());
-			if(catCheck != null)
+			if(catDAO.getCategoryByName(cat.getCatName()) != null)
 				return badRequest("Category already exists!");
 			catDAO.create(cat);
 			return ok("Category added: " + cat.getCatName());

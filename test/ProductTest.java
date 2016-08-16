@@ -80,7 +80,7 @@ public class ProductTest extends WithApplication {
 		form.put("linkAddress", "http://www.emag.ro/memorie-kingston-8gb-1333mhz-ddr3-non-ecc-cl9-sodimm-kvr1333d3s9-8g/pd/EMQRDBBBM");
 
 		Site site = new Site();
-		site.setSiteURL("emag.ro");
+		site.setSiteURL("http://www.emag.ro");
 
 
 		/* Always return preset site */

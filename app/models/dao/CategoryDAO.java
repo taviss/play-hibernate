@@ -72,35 +72,10 @@ public class CategoryDAO {
 			return categories.get(0);
 		}
 	}
-
-//	public Category determineCategory(Set<Keyword> keywords){
-//		List<Category> cats = getAllCategories();
-//		Map<Integer, Category> catScore = new HashMap<>();
-//		Map<Integer, Category> maxScore = new HashMap<>();
-//		Set<Keyword> kw = new LinkedHashSet<>(keywords);
-//		String keyword;
-//		String category;
-//		Object[] bestMatch = new Object[2];
-//		int count;
-//		int max = Integer.MIN_VALUE;
-//		for(Category c : cats){
-//			count = 0;
-//			for(Keyword k : kw){
-//				category = c.getCatName();
-//				keyword = k.getKeyword();
-//				if(category.toLowerCase().contains(keyword.toLowerCase())) {
-//					count++;
-//				}
-//
-//				/* Populate map */
-//				catScore.put(count, c);
-//			}
-	public Category determineCategory(String[] keywords){
+	public  Category determineCategory(String[] keywords){
 		List<Category> cats = getAllCategories();
 		String category;
-//		Object[] bestMatch = new Object[2];
-//		int count;
-//		int max = Integer.MIN_VALUE;
+
 		for(String k : keywords){
 			if(k.toLowerCase().contains("telefon") || k.toLowerCase().contains("mobil"))
 				return getCategoryByName("Smartphone");
@@ -113,28 +88,8 @@ public class CategoryDAO {
 				}
 			}
 		}
-
-//			if(count > max){
-//				max = count;
-//				bestMatch[0] = c.getCatName();
-//				bestMatch[1] = max;
-//			}
-
-//			Map.Entry<Integer, Category> maxEntry = null;
-//
-//			/* Get one entry with max key(which is number of keyword matches to the Category stored in value) */
-//			for (Map.Entry<Integer, Category> entry : catScore.entrySet()){
-//				if (maxEntry == null || entry.getKey().compareTo(maxEntry.getKey()) > 0){
-//					maxEntry = entry;
-//				}
-//			}
-//
-//			/* Get all entries with max key */
-//			for (Map.Entry<Integer, Category> entry : catScore.entrySet()) {
-//				if (entry.getKey().compareTo(maxEntry.getKey()) == 0) {
-//					maxScore.put(entry.getKey(), entry.getValue());
-//				}
-//			}
 		return getCategoryByName("Unknown");
 	}
+
+
 }

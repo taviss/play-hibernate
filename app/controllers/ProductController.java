@@ -22,9 +22,11 @@ import play.mvc.Security;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import utils.URLFixer;
+
 import javax.inject.Inject;
+
 import static utils.LinkParser.*;
+import static utils.URLFixer.fixURL;
 
 
 /**
@@ -64,7 +66,7 @@ public class ProductController extends Controller {
 			Product product = new Product();
 
 			product = form.get();
-			product.setLinkAddress(URLFixer.fixURL(product.getLinkAddress()));
+			product.setLinkAddress(fixURL(product.getLinkAddress()));
 
 			Site site = siteDAO.getSiteByURL(parseSite(product.getLinkAddress()));
 
@@ -83,17 +85,17 @@ public class ProductController extends Controller {
 			if(keywords.length == 1 && keywords[0].equals("getFromName"))
 				keywords = parseKeywordsFromName(product.getProdName());
 
-			Set<Keyword> kk = new HashSet<>();
+			Set<Keyword> keywordSet = new HashSet<>();
 
 			/* Create keyword objects */
-			for(String kw : keywords){
-				Keyword tibi = new Keyword();
-				tibi.setId(null);
-				tibi.setProduct(product);
-				tibi.setKeyword(kw);
-				kk.add(tibi);
+			for(String keyword : keywords){
+				Keyword temp = new Keyword();
+				temp.setId(null);
+				temp.setProduct(product);
+				temp.setKeyword(keyword);
+				keywordSet.add(temp);
 			}
-			product.setKeywords(kk);
+			product.setKeywords(keywordSet);
 			product.setCategory(catDAO.determineCategory(keywords));
 			productDAO.create(product);
 			return ok("Added product: " + product.getProdName() + " " + Arrays.toString(keywords));
@@ -153,23 +155,18 @@ public class ProductController extends Controller {
 			if (form.hasErrors()) {
 				return badRequest("Invalid form");
 			}
-			Product current = new Product();
-			if(id != null){
-				current = productDAO.get(id);
-			} else{
-				return notFound("Pls provide ID!!!");
-			}
+			Product current = productDAO.get(id);
 			if (current == null) {
 				return notFound("Product doesn't exist");
 			} else {
 
-				if(form.get().getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
+				if(fixURL(form.get().getLinkAddress()).equalsIgnoreCase(current.getLinkAddress())){
 					current.setProdName(form.get().getProdName());
-					current.setLinkAddress(form.get().getLinkAddress());
+					current.setLinkAddress(fixURL(form.get().getLinkAddress()));
 					productDAO.update(current);
 				} else {
 					current.setProdName(form.get().getProdName());
-					current.setLinkAddress(form.get().getLinkAddress());
+					current.setLinkAddress(fixURL(form.get().getLinkAddress()));
 
 					Site site = siteDAO.getSiteByURL(parseSite(current.getLinkAddress()));
 
@@ -186,15 +183,17 @@ public class ProductController extends Controller {
 						keywords = parseKeywordsFromName(current.getProdName());
 
 					keywordDAO.delete(current);
-					Set<Keyword> kk = new HashSet<>();
-					for(String s : keywords){
-						Keyword tibi = new Keyword();
-						tibi.setId(null);
-						tibi.setProduct(current);
-						tibi.setKeyword(s);
-						kk.add(tibi);
+					Set<Keyword> keywordSet = new HashSet<>();
+
+					/* Create keyword objects */
+					for(String keyword : keywords){
+						Keyword temp = new Keyword();
+						temp.setId(null);
+						temp.setProduct(current);
+						temp.setKeyword(keyword);
+						keywordSet.add(temp);
 					}
-					current.setKeywords(kk);
+					current.setKeywords(keywordSet);
 					current.setCategory(catDAO.determineCategory(keywords));
 					productDAO.update(current);
 				}
