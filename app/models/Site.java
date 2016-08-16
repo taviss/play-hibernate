@@ -5,6 +5,8 @@ import play.data.validation.Constraints;
 
 import javax.annotation.Generated;
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
@@ -39,6 +41,11 @@ public class Site {
 
     @Column(name = "deleted")
     private Boolean deleted;
+
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL)
+    private List<Product> products;
+
+    public List<Product> getProducts() {return null;}
 
 }
 

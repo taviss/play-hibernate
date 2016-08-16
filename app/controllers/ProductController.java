@@ -68,8 +68,11 @@ public class ProductController extends Controller {
 
 			Site site = siteDAO.getSiteByURL(parseSite(product.getLinkAddress()));
 
-			if(site != null)
+			if(site != null){
 				product.setSite(site);
+				site.setProducts(productDAO.getProductsBySiteId(site.getId()));
+			}
+
 			else
 				return badRequest("No such site");
 
@@ -108,10 +111,10 @@ public class ProductController extends Controller {
 				return notFound("No such product");
 			} else{
 				/* Hard delete */
-				productDAO.delete(product);
+//				productDAO.delete(product);
 
 				/* Soft delete */
-//				productDAO.softDelete(product);
+				productDAO.softDelete(product);
 				return ok("Product deleted: " + product.getProdName());
 
 			}
@@ -129,10 +132,10 @@ public class ProductController extends Controller {
 				return notFound("There are no products");
 			for(Product p : prods){
 				/* Hard delete */
-					productDAO.delete(p);
+//					productDAO.delete(p);
 
 				/* Soft delete */
-//					productDAO.softDelete(p);
+					productDAO.softDelete(p);
 			}
 		}
 		return ok("Products deleted");

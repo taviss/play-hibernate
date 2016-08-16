@@ -57,7 +57,9 @@ public class CategoryController extends Controller {
 			if(cat == null){
 				return notFound("Category with id " + id + " could not be found!");
 			}
-			catDAO.delete(cat);
+//			catDAO.delete(cat);
+
+			catDAO.softDelete(cat);
 			return ok("Category with id " + id + " deleted");
 		}
 	}

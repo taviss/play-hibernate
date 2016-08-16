@@ -21,4 +21,7 @@ public class Category {
 	@Constraints.MinLength(3)
 	@Constraints.Required
 	private String catName;
+
+	@Column(name = "deleted")
+	private Boolean deleted;
 }

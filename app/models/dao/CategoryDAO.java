@@ -27,12 +27,17 @@ public class CategoryDAO {
 	}
 
 	public void create(Category cat){
+		cat.setDeleted(false);
 		cat.setId(null);
 		em.persist(cat);
 	}
 
 	public void delete(Category cat){
 		em.remove(cat);
+	}
+
+	public void softDelete(Category cat){
+		cat.setDeleted(true);
 	}
 
 	public Category get(Long id){
