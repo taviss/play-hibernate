@@ -37,5 +37,8 @@ public class Site {
     @Constraints.Required
     private String currencyElement;
 
+    @Column(name = "deleted")
+    private Boolean deleted;
+
 }
 

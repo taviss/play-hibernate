@@ -27,6 +27,7 @@ public class SiteDAO {
      */
     public void create(Site site) {
         site.setId(null);
+		site.setDeleted(false);
         em.persist(site);
     }
 	/* Returns only the first site found with the keyword passed as argument. */
@@ -61,6 +62,10 @@ public class SiteDAO {
 	/* Delete site identified by its keyword(which should be unique). */
 	public void delete(Site site) {
 		em.remove(site);
+	}
+
+	public void softDelete(Site site){
+		site.setDeleted(true);
 	}
 
 	public void update(Site site){

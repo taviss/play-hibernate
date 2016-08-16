@@ -76,7 +76,9 @@ public class SiteController extends Controller {
 		if(s == null){
 			return notFound("Site doesn't exist");
 		}
-		siteDAO.delete(s);
+//		siteDAO.delete(s);
+
+		siteDAO.softDelete(s);
 		return ok("Site deleted: " + s.getSiteURL());
 	}
 
