@@ -1,8 +1,9 @@
 package models;
 
 import lombok.Data;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import play.data.validation.Constraints;
-
 import javax.persistence.*;
 
 /**
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "keywords")
+@Indexed
 public class Keyword {
     @Id
     @Column(name = "id", nullable = false)
@@ -25,6 +27,7 @@ public class Keyword {
 
     @Column(name = "keyword", nullable = false)
     @Constraints.MaxLength(45)
+    @Field
     private String keyword;
 
     //Commented out as it's used after getting keywords to determine products found

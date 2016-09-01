@@ -1,31 +1,39 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import forms.ProductForm;
-import forms.ProductUpdateForm;
 import models.Keyword;
+import models.Price;
 import models.Product;
 import models.Site;
+import models.dao.CategoryDAO;
 import models.dao.KeywordDAO;
 import models.admin.UserRoles;
+import models.dao.PriceDAO;
 import models.dao.ProductDAO;
 import models.dao.SiteDAO;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.db.jpa.Transactional;
 import play.mvc.Security;
-
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+
+import static utils.LinkParser.*;
+import static utils.URLFixer.fixURL;
+
 
 /**
  * Created by octavian.salcianu on 7/14/2016.
  */
+
+
 public class ProductController extends Controller {
 	@Inject
 	private ProductDAO productDAO;
@@ -37,49 +45,60 @@ public class ProductController extends Controller {
 	private SiteDAO siteDAO;
 
 	@Inject
+	private PriceDAO priceDAO;
+
+	@Inject
 	private FormFactory formFactory;
+
+	@Inject
+	private CategoryDAO catDAO;
 
 	@Security.Authenticated(Secured.class)
 	@Transactional
 	public Result addProduct() {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Not enough admin rights");
+			return forbidden("Not enough admin rights");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
-			if (form.hasErrors()) {
+			if (form.hasErrors())
 				return badRequest("Invalid form");
-			}
-			String smth = form.get().getLinkAddress().split("/")[0];
 			Product product = new Product();
 
-			if((form.get().getProdName()) != null && (form.get().getLinkAddress() != null) && (smth != null)){
-				product = form.get();
-			} else {
-				return badRequest("Invalid form");
-			}
-			Site site = siteDAO.getSiteByURL(product.getLinkAddress().split("/")[0]);
-			if (site != null) {
+			product = form.get();
+			product.setLinkAddress(fixURL(product.getLinkAddress()));
+
+			Site site = siteDAO.getSiteByURL(parseSite(product.getLinkAddress()));
+
+			if(site != null){
 				product.setSite(site);
-			} else {
+				site.setProducts(productDAO.getProductsBySiteId(site.getId()));
+			}
+
+			else
 				return badRequest("No such site");
+
+			String[] keywords = parseKeywordsFromLink(product.getLinkAddress());
+			if(keywords == null)
+				return badRequest("Invalid site or missing meta tag");
+
+			if(keywords.length == 1 && keywords[0].equals("getFromName"))
+				keywords = parseKeywordsFromName(product.getProdName());
+
+			Set<Keyword> keywordSet = new HashSet<>();
+
+			/* Create keyword objects */
+			for(String keyword : keywords){
+				Keyword temp = new Keyword();
+				temp.setId(null);
+				temp.setProduct(product);
+				temp.setKeyword(keyword);
+				keywordSet.add(temp);
 			}
-			/* I'm aware of this code duplication, will be fixed after release */
-			String URL = product.getLinkAddress();
-			String[] URLsite = URL.split("/");
-			String[] URLkeywords = URLsite[1].split("-");
-			Set<Keyword> kk = new HashSet<>();
-			for(String s : URLkeywords){
-				Keyword tibi = new Keyword();
-				tibi.setId(null);
-				tibi.setProduct(product);
-				tibi.setKeyword(s);
-				keywordDAO.create(tibi);
-				kk.add(tibi);
-			}
-			product.setKeywords(kk);
+			product.setKeywords(keywordSet);
+			product.setCategory(catDAO.determineCategory(keywords));
 			productDAO.create(product);
-			return ok("Added");
+			return ok("Added product: " + product.getProdName() + " " + Arrays.toString(keywords));
 		}
 	}
 
@@ -87,20 +106,41 @@ public class ProductController extends Controller {
 	@Transactional
 	public Result deleteProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		} else {
 			Product product = productDAO.get(id);
 			if(product ==  null){
 				return notFound("No such product");
 			} else{
 				/* Hard delete */
-				productDAO.delete(product);
+//				productDAO.delete(product);
 
 				/* Soft delete */
-//				productDAO.softDelete(product);
-				return ok("Deleted");
+				productDAO.softDelete(product);
+				return ok("Product deleted: " + product.getProdName());
+
 			}
 		}
+	}
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result deleteAllProducts() {
+		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+			return forbidden("Thou art not admin!");
+		} else {
+			List<Product> prods = productDAO.getAllProducts();
+			if(prods.isEmpty())
+				return notFound("There are no products");
+			for(Product p : prods){
+				/* Hard delete */
+//					productDAO.delete(p);
+
+				/* Soft delete */
+					productDAO.softDelete(p);
+			}
+		}
+		return ok("Products deleted");
 	}
 
 	@Security.Authenticated(Secured.class)
@@ -108,45 +148,87 @@ public class ProductController extends Controller {
 	@BodyParser.Of(value = BodyParser.Json.class)
 	public Result updateProduct(Long id) {
 		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
-			return ok("Thou art not admin!");
+			return forbidden("Thou art not admin!");
 		} else {
 			JsonNode json = request().body().asJson();
 			Form<Product> form = formFactory.form(Product.class).bind(json);
 			if (form.hasErrors()) {
-				return ok("Invalid form");
+				return badRequest("Invalid form");
 			}
-			Product current = new Product();
-			Product newP = new Product();
-			if(id != null){
-				current = productDAO.get(id);
-			} else{
-				ok("Pls provide ID!!!");
-			}
+			Product current = productDAO.get(id);
 			if (current == null) {
-				return ok("Product doesn't exist");
+				return notFound("Product doesn't exist");
 			} else {
-				newP = form.get();
-				if(newP.getLinkAddress().equalsIgnoreCase(current.getLinkAddress())){
+
+				if(fixURL(form.get().getLinkAddress()).equalsIgnoreCase(current.getLinkAddress())){
+					current.setProdName(form.get().getProdName());
+					current.setLinkAddress(fixURL(form.get().getLinkAddress()));
 					productDAO.update(current);
 				} else {
-					productDAO.delete(current);
-					/* I'm aware of this code duplication, will be fixed after release */
-					String URL = newP.getLinkAddress();
-					String[] URLsite = URL.split("/");
-					String[] URLkeywords = URLsite[1].split("-");
-					Set<Keyword> kk = new HashSet<>();
-					for(String s : URLkeywords){
-						Keyword tibi = new Keyword();
-						tibi.setId(null);
-						tibi.setProduct(newP);
-						tibi.setKeyword(s);
-						keywordDAO.create(tibi);
-						kk.add(tibi);
+					current.setProdName(form.get().getProdName());
+					current.setLinkAddress(fixURL(form.get().getLinkAddress()));
+
+					Site site = siteDAO.getSiteByURL(parseSite(current.getLinkAddress()));
+
+					if(site != null)
+						current.setSite(site);
+					else
+						return badRequest("No such site");
+
+					String[] keywords = parseKeywordsFromLink(current.getLinkAddress());
+					if(keywords == null)
+						return badRequest("Invalid site or missing meta tag");
+
+					if(keywords.length == 1 && keywords[0].equals("getFromName"))
+						keywords = parseKeywordsFromName(current.getProdName());
+
+					keywordDAO.delete(current);
+					Set<Keyword> keywordSet = new HashSet<>();
+
+					/* Create keyword objects */
+					for(String keyword : keywords){
+						Keyword temp = new Keyword();
+						temp.setId(null);
+						temp.setProduct(current);
+						temp.setKeyword(keyword);
+						keywordSet.add(temp);
 					}
-					newP.setKeywords(kk);
-					productDAO.create(newP);
+					current.setKeywords(keywordSet);
+					current.setCategory(catDAO.determineCategory(keywords));
+					productDAO.update(current);
 				}
-				return ok("Success");
+				return ok("Product updated: " + current.getProdName());
+			}
+		}
+	}
+
+	@Security.Authenticated(Secured.class)
+	@Transactional
+	public Result getProductPriceHistory(Long id) {
+		if (Secured.getAdminLevel() != UserRoles.LEAD_ADMIN) {
+			return forbidden("You are not authorized to do this!");
+		} else {
+			List<Price> prices = priceDAO.getPricesByProductId(id);
+			Date startDate, endDate;
+			String expectedPattern = "dd-MM-yyyy";
+			SimpleDateFormat formatter = new SimpleDateFormat(expectedPattern);
+			try {
+				startDate = formatter.parse(request().queryString().get("from")[0]);
+				prices = prices.stream().filter(p -> p.getInputDate().after(startDate)).collect(Collectors.toList());
+			} catch (Exception e) {
+				//No start date filter
+			}
+
+			try {
+				endDate = formatter.parse(request().queryString().get("to")[0]);
+				prices = prices.stream().filter(p -> p.getInputDate().before(endDate)).collect(Collectors.toList());
+			} catch (Exception e) {
+				//No end date filter
+			}
+			if (prices.isEmpty()) {
+				return notFound("There is no history");
+			} else {
+				return ok(Json.toJson(prices));
 			}
 		}
 	}

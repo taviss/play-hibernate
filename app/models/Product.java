@@ -1,8 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import play.data.validation.Constraints;
 
@@ -27,7 +26,7 @@ public class Product {
     private Long id;
 
     @Column(name = "link_address", nullable = false)
-    @Constraints.MaxLength(128)
+    @Constraints.MaxLength(512)
     @Constraints.Required
     @Constraints.MinLength(20)
     private String linkAddress;
@@ -38,10 +37,10 @@ public class Product {
     @Constraints.Required
     private String prodName;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="product", cascade = CascadeType.ALL)
     private Set<Price> prices;
 
-    @OneToMany(mappedBy="product", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy="product", cascade = CascadeType.ALL)
     private Set<Keyword> keywords;
 
     /**
@@ -55,7 +54,15 @@ public class Product {
     @Column(name = "deleted")
     private Boolean deleted;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
     public Set<Keyword> getKeywords() {
+        return null;
+    }
+
+    public Set<Product> getPrices() {
         return null;
     }
 
@@ -67,5 +74,9 @@ public class Product {
             }
         }
         return p;
+    }
+
+    public void setPrice(Price price) {
+        prices.add(price);
     }
 }

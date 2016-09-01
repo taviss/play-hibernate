@@ -11,18 +11,15 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.route;
 import static utils.PasswordHashing.hashPassword;
 
-import controllers.AuthorizationController;
-import controllers.Mailer;
+import services.Mailer;
 import models.User;
 import models.dao.UserDAO;
 import org.apache.commons.mail.EmailException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
-import play.libs.mailer.Email;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -32,8 +29,6 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import play.api.libs.mailer.MailerClient;
 
 public class AuthorizationTest extends WithApplication {
 

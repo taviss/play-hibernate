@@ -1,7 +1,6 @@
 package models.dao;
 
 import models.Site;
-import models.User;
 import play.db.jpa.JPA;
 
 import javax.persistence.EntityManager;
@@ -26,10 +25,10 @@ public class SiteDAO {
      * @param site : Site
      * @return site : Site
      */
-    public Site create(Site site) {
+    public void create(Site site) {
         site.setId(null);
+		site.setDeleted(false);
         em.persist(site);
-        return site;
     }
 	/* Returns only the first site found with the keyword passed as argument. */
     public Site getSiteByKeyword(String keyword){
@@ -58,18 +57,19 @@ public class SiteDAO {
 		else return null;
 	}
 
+	public Site get(Long id){ return em.find(Site.class, id);}
+
 	/* Delete site identified by its keyword(which should be unique). */
-	public void delete(String keyword) {
-//		Site s = getSiteByKeyword(keyword);
-		CriteriaDelete<Site> deleteQuery = criteriaBuilder.createCriteriaDelete(Site.class);
-		Root<Site> e = deleteQuery.from(Site.class);
-		deleteQuery.where(this.criteriaBuilder.equal(e.get("siteKeyword"), keyword));
-		Query finalQuery = this.em.createQuery(deleteQuery);
-		finalQuery.executeUpdate();
+	public void delete(Site site) {
+		em.remove(site);
 	}
 
-	public void update(){
-		/*To be done sometime in the coming aeons*/
+	public void softDelete(Site site){
+		site.setDeleted(true);
+	}
+
+	public void update(Site site){
+		em.merge(site);
 	}
 
     /**
