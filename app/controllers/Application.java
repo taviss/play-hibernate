@@ -7,6 +7,6 @@ import views.html.*;
 public class Application extends Controller {
 
     public Result index() {
-        return ok(index.render("MainTest", "Test"));
+        return ok(index.render());
     }
 }
